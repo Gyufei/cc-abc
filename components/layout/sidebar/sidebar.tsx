@@ -8,7 +8,7 @@ import { SidebarHeader } from './sidebar-header';
 
 export function Sidebar() {
   return (
-    <div className="w-[300px] flex h-full bg-c-gray border-r border-c-border flex-col">
+    <div className="w-[300px] flex h-full bg-ui-bg-field border-r border-ui-border-base flex-col">
       <SidebarHeader />
       <SquaresWrapper />
       <SidebarContent />

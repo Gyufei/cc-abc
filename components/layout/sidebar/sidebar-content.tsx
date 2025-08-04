@@ -37,7 +37,7 @@ function SidebarLinkItem({
     <div
       className={cn(
         'py-[2px] flex items-center gap-2',
-        isActive ? 'bg-background text-c-black' : 'bg-transparent hover:bg-c-gray text-c-secondary'
+        isActive ? 'bg-background text-ui-fg-base' : 'bg-transparent hover:bg-ui-bg-field text-ui-fg-subtle'
       )}
     >
       <div className="w-6 h-6 flex items-center justify-center">{icon}</div>
@@ -51,7 +51,7 @@ function SidebarLinkSubItem({ isActive, label }: { isActive: boolean; label: str
     <div
       className={cn(
         'py-[2px] h-7 flex items-center gap-2 ml-[26px] pl-1',
-        isActive ? 'bg-background text-c-black' : 'bg-transparent hover:bg-c-gray text-c-secondary'
+        isActive ? 'bg-background text-ui-fg-base' : 'bg-transparent hover:bg-ui-bg-field text-ui-fg-subtle'
       )}
     >
       <span className="text-[13px] font-medium leading-5">{label}</span>

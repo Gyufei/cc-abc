@@ -1,10 +1,10 @@
-import { Button } from '@medusajs/ui';
-
 import Image from 'next/image';
 
 import ThreeDot from '@/components/icons/three-dot';
 
 import { isUserLogin, useAppStore } from '@/lib/store';
+
+import LoginBtn from './login-btn';
 
 export function SidebarFooter() {
   const user = useAppStore((state) => state.user);
@@ -24,14 +24,12 @@ export function SidebarFooter() {
             >
               <Image src="/images/avatar-place.png" alt="avatar" width={16} height={16} />
             </div>
-            <div className="text-c-black text-[13px] font-medium leading-5">{user?.name}</div>
+            <div className="text-ui-fg-base text-[13px] font-medium leading-5">{user?.name}</div>
           </div>
           <ThreeDot className="w-[15px] h-[15px] cursor-pointer" />
         </>
       ) : (
-        <Button variant="secondary" size="small">
-          Log In
-        </Button>
+        <LoginBtn />
       )}
     </div>
   );
