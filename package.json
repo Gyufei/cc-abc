@@ -9,29 +9,31 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@medusajs/ui": "latest",
+    "@tanstack/react-query": "^5.84.1",
+    "next": "15.4.5",
+    "numbro": "^2.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.5",
     "safebase": "^1.0.0",
-    "numbro": "^2.5.0",
-    "@medusajs/ui": "latest"
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@medusajs/ui-preset": "latest",
+    "@tailwindcss/postcss": "^4",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "@tailwindcss/postcss": "^4",
-    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.5",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.4.5",
-    "@eslint/eslintrc": "^3",
-    "@medusajs/ui-preset": "latest"
+    "typescript": "^5"
   },
   "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a"
 }
