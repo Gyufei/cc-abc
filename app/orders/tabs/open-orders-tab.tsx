@@ -3,42 +3,14 @@
 import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
-
-// Type definition for open order data
-interface OpenOrderData {
-  id: string;
-  market: string;
-  instrument: string;
-  orderType: string;
-  direction: string;
-  orderPrice: string;
-  filledOrderQuantity: string;
-  order: string;
-  action: string;
-}
+import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
+import { useCurrentApiKey } from '@/lib/api/use-current-api-key';
 
 /**
  * OpenOrdersTab component displays open orders table
  * Matches the design with columns: Market, Instrument, Order Type, Direction, Order Price, Filled/Order Quantity, Order, Action
  */
 export function OpenOrdersTab() {
-  // Sample data matching the design - converted to react-table-library format
-  const data = {
-    nodes: [
-      {
-        id: '1',
-        market: 'BTC/USDT',
-        instrument: 'Spot',
-        orderType: 'Limit',
-        direction: 'Buy',
-        orderPrice: '114,350.60',
-        filledOrderQuantity: '0.0000000/0.004008 BTC',
-        order: '458.3',
-        action: 'Cancel'
-      }
-    ]
-  };
-
   // Custom theme to match existing design with sticky columns
   const theme = useTheme({
     Table: `
@@ -115,10 +87,48 @@ export function OpenOrdersTab() {
     `
   });
 
+  // Get current API key data
+  const { data: currentApiKeyData } = useCurrentApiKey();
+  
+  // Get open orders data with loading and error states
+  const { data: ordersData, loading, error } = useOpenOrders();
+  
+  // Transform data for react-table-library format
+  const data = {
+    nodes: ordersData
+  };
+  
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-muted">Loading open orders...</div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-red">Error: {error}</div>
+      </div>
+    );
+  }
+  
+  // Show no API key state
+  if (!currentApiKeyData) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-muted">Please select an API key to view open orders</div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full overflow-x-auto">
       <Table data={data} theme={theme}>
-        {(tableList: OpenOrderData[]) => (
+        {(tableList: OpenOrderTableData[]) => (
           <>
             <Header>
               <HeaderRow>
@@ -133,7 +143,7 @@ export function OpenOrdersTab() {
               </HeaderRow>
             </Header>
             <Body>
-              {tableList.map((item: OpenOrderData) => (
+              {tableList.map((item: OpenOrderTableData) => (
                 <Row key={item.id} item={item}>
                   <Cell>
                     <span className="smm-text text-ui-fg-base">{item.market}</span>

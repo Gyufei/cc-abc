@@ -3,9 +3,11 @@
 import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
+import { useTradeExecutions, TradeExecutionItem } from '../../../lib/api/use-trade-executions';
+import { useCurrentApiKey } from '../../../lib/api/use-current-api-key';
 
-// Type definition for trade history data
-interface TradeHistoryData {
+// Type definition for processed trade history data for table display
+interface TradeHistoryTableData {
   id: string;
   market: string;
   instrument: string;
@@ -14,6 +16,7 @@ interface TradeHistoryData {
   filledValue: string;
   filledPrice: string;
   indexPrice: string;
+  originalData: TradeExecutionItem;
 }
 
 /**
@@ -21,21 +24,16 @@ interface TradeHistoryData {
  * Matches the design with columns: Market, Instrument, Order Type, Direction, Filled Value, Filled Pri, Index Price
  */
 export function TradeHistoryTab() {
-  // Sample data matching the design - converted to react-table-library format
-  const data = {
-    nodes: [
-      {
-        id: '1',
-        market: 'BTCUSDT',
-        instrument: 'USDT perpetuals',
-        orderType: 'Limit',
-        direction: 'Open Long',
-        filledValue: '199,917.7872 USDT',
-        filledPrice: '118,575.',
-        indexPrice: '--'
-      }
-    ]
-  };
+  // Get current API key
+  const { data: currentApiKey } = useCurrentApiKey();
+  
+  // Fetch trade execution data
+  const { data: tradeExecutionResponse, isLoading, error } = useTradeExecutions(
+    currentApiKey?.api_key || 'hpQVBVCgZnFYUEPH7U', // Fallback to provided API key
+    'BTCUSDT',
+    7 // Last 7 days
+  );
+  console.log("🚀 ~ TradeHistoryTab ~ tradeExecutionResponse:", tradeExecutionResponse);
 
   // Custom theme to match existing design with sticky first column
   const theme = useTheme({
@@ -96,10 +94,58 @@ export function TradeHistoryTab() {
     `
   });
 
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-muted">Loading trade history...</div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-error">Failed to load trade history</div>
+      </div>
+    );
+  }
+
+  /**
+   * Transform API data to table format
+   */
+  const transformTradeData = (tradeItem: TradeExecutionItem): TradeHistoryTableData => {
+    const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
+    const orderTypeText = tradeItem.order_type === 'Limit' ? 'Limit' : 'Market';
+    const filledValue = `${tradeItem.exec_value.toLocaleString()} USDT`;
+    const filledPrice = tradeItem.exec_price.toLocaleString();
+    const indexPrice = tradeItem.index_price ? tradeItem.index_price.toLocaleString() : '--';
+    
+    return {
+      id: tradeItem.id,
+      market: tradeItem.symbol,
+      instrument: 'USDT perpetuals', // Default value as not provided in API
+      orderType: orderTypeText,
+      direction: sideText,
+      filledValue: filledValue,
+      filledPrice: filledPrice,
+      indexPrice: indexPrice,
+      originalData: tradeItem
+    };
+  };
+
+  // Process data for table
+  const tableData = tradeExecutionResponse?.data?.map(transformTradeData) || [];
+  
+  const data = {
+    nodes: tableData
+  };
+
   return (
     <div className="w-full h-full overflow-x-auto">
       <Table data={data} theme={theme}>
-        {(tableList: TradeHistoryData[]) => (
+        {(tableList: TradeHistoryTableData[]) => (
           <>
             <Header>
               <HeaderRow>
@@ -113,7 +159,7 @@ export function TradeHistoryTab() {
               </HeaderRow>
             </Header>
             <Body>
-              {tableList.map((item: TradeHistoryData) => (
+              {tableList.map((item: TradeHistoryTableData) => (
                 <Row key={item.id} item={item}>
                   <Cell>{item.market}</Cell>
                   <Cell>{item.instrument}</Cell>

@@ -3,40 +3,14 @@
 import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
-
-// Type definition for assets data
-interface AssetData {
-  id: string;
-  coin: string;
-  netAssetValue: string;
-  netAssetValueUsd: string;
-  balance: string;
-  sportCost: string;
-  lastPrice: string;
-  pnl: string;
-}
+import { useAssets, AssetTableData } from '@/lib/api/use-assets';
+import { useCurrentApiKey } from '@/lib/api/use-current-api-key';
 
 /**
  * AssetsTab component displays assets table
  * Matches the design with columns: Coins, Net Asset Aalue, Balance, Sport Cost, Last Price, PnL
  */
 export function AssetsTab() {
-  // Sample data matching the design - converted to react-table-library format
-  const data = {
-    nodes: [
-      {
-        id: '1',
-        coin: 'BTC',
-        netAssetValue: '0.00000000',
-        netAssetValueUsd: '≈0.00 USD',
-        balance: '0.00000000',
-        sportCost: '--',
-        lastPrice: '118575.90 USD',
-        pnl: '--'
-      }
-    ]
-  };
-
   // Custom theme to match existing design
   const theme = useTheme({
     Table: `
@@ -74,10 +48,48 @@ export function AssetsTab() {
     `
   });
 
+  // Get current API key data
+  const { data: currentApiKeyData } = useCurrentApiKey();
+  
+  // Get assets data with loading and error states
+  const { data: assetsData, loading, error } = useAssets('unified');
+  
+  // Transform data for react-table-library format
+  const data = {
+    nodes: assetsData
+  };
+  
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-muted">Loading assets...</div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-red">Error: {error}</div>
+      </div>
+    );
+  }
+  
+  // Show no API key state
+  if (!currentApiKeyData) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-muted">Please select an API key to view assets</div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full">
       <Table data={data} theme={theme}>
-        {(tableList: AssetData[]) => (
+        {(tableList: AssetTableData[]) => (
           <>
             <Header>
               <HeaderRow>
@@ -95,7 +107,7 @@ export function AssetsTab() {
               </HeaderRow>
             </Header>
             <Body>
-              {tableList.map((item: AssetData) => (
+              {tableList.map((item: AssetTableData) => (
                 <Row key={item.id} item={item}>
                   <Cell>
                     <div className="flex items-center gap-2">

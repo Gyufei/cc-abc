@@ -3,9 +3,11 @@
 import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
+import { useOrderHistory, OrderHistoryItem } from '../../../lib/api/use-order-history';
+import { useCurrentApiKey } from '../../../lib/api/use-current-api-key';
 
-// Type definition for order history data
-interface OrderHistoryData {
+// Type definition for processed order history data for table display
+interface OrderHistoryTableData {
   id: string;
   market: string;
   instrument: string;
@@ -14,6 +16,7 @@ interface OrderHistoryData {
   avgFilledPrice: string;
   filled: string;
   action: string;
+  originalData: OrderHistoryItem;
 }
 
 /**
@@ -21,21 +24,16 @@ interface OrderHistoryData {
  * Matches the design with columns: Market, Instrument, Order Type, Direction, Avg. Filled Price/Order Price, Filled/O, Action
  */
 export function OrderHistoryTab() {
-  // Sample data matching the design - converted to react-table-library format
-  const data = {
-    nodes: [
-      {
-        id: '1',
-        market: 'BTCUSDT',
-        instrument: 'USDT Perpetuals',
-        orderType: 'Limit',
-        direction: 'Open Long',
-        avgFilledPrice: '118,575.20/118,575.20',
-        filled: '1.686/1',
-        action: 'Details'
-      }
-    ]
-  };
+  // Get current API key
+  const { data: currentApiKey } = useCurrentApiKey();
+  
+  // Fetch order history data
+  const { data: orderHistoryResponse, isLoading, error } = useOrderHistory(
+    currentApiKey?.api_key || 'hpQVBVCgZnFYUEPH7U', // Fallback to provided API key
+    'BTCUSDT',
+    1 // Last 1 day
+  );
+  console.log("🚀 ~ OrderHistoryTab ~ orderHistoryResponse:", orderHistoryResponse)
 
   // Custom theme to match existing design with sticky columns
   const theme = useTheme({
@@ -113,10 +111,61 @@ export function OrderHistoryTab() {
     `
   });
 
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-muted">Loading order history...</div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-ui-fg-error">Failed to load order history</div>
+      </div>
+    );
+  }
+
+  /**
+   * Transform API data to table format
+   */
+  const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
+    const sideText = orderItem.side === 'buy' ? 'Open Long' : 'Close Short';
+    const orderTypeText = orderItem.order_type === 'market' ? 'Market' : 'Limit';
+    const avgPrice = orderItem.avg_price > 0 ? orderItem.avg_price.toLocaleString() : 'N/A';
+    const orderPrice = orderItem.price > 0 ? orderItem.price.toLocaleString() : 'N/A';
+    const priceDisplay = `${avgPrice}/${orderPrice}`;
+    const filledDisplay = `${orderItem.filled_quantity}/${orderItem.quantity}`;
+    
+    return {
+      id: orderItem.id,
+      market: orderItem.symbol,
+      instrument: 'USDT Perpetuals', // Default value as not provided in API
+      orderType: orderTypeText,
+      direction: sideText,
+      avgFilledPrice: priceDisplay,
+      filled: filledDisplay,
+      action: 'Details',
+      originalData: orderItem
+    };
+  };
+
+  // Process data for table
+  const tableData = orderHistoryResponse?.data?.map(transformOrderData) || [];
+  
+  const data = {
+    nodes: tableData
+  };
+
+
+
   return (
     <div className="w-full h-full overflow-x-auto">
       <Table data={data} theme={theme}>
-        {(tableList: OrderHistoryData[]) => (
+        {(tableList: OrderHistoryTableData[]) => (
           <>
             <Header>
               <HeaderRow>
@@ -130,7 +179,7 @@ export function OrderHistoryTab() {
               </HeaderRow>
             </Header>
             <Body>
-               {tableList.map((item: OrderHistoryData) => (
+               {tableList.map((item: OrderHistoryTableData) => (
                  <Row key={item.id} item={item}>
                    <Cell>{item.market}</Cell>
                    <Cell>{item.instrument}</Cell>
