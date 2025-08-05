@@ -54,11 +54,10 @@ export function SliderBar({
   return (
     <div className={cn('w-full', className || '')}>
       <div className="relative">
-        {/* Radix Slider */}
         <Slider.Root
           className={cn(
-            'relative flex w-full touch-none select-none items-center',
-            disabled ? 'opacity-50 cursor-not-allowed' : ''
+            'slider-con relative flex w-full touch-none select-none items-center',
+            disabled ? 'pointer-events-none' : ''
           )}
           value={internalValue}
           onValueChange={handleValueChange}
@@ -66,15 +65,13 @@ export function SliderBar({
           step={1}
           disabled={disabled}
         >
-          {/* 轨道 */}
           <Slider.Track className="relative w-full h-1 bg-gray-200 rounded-full overflow-hidden">
             <Slider.Range className="absolute h-full bg-blue-500 rounded-full transition-all duration-300 ease-out" />
           </Slider.Track>
 
-          {/* 滑块 */}
           <Slider.Thumb
             className={cn(
-              'block w-4 h-4 bg-ui-bg-base border-ui-border-interactive border-[4px] rounded-full transition-all duration-300 hover:scale-110 focus:outline-none disabled:pointer-events-none disabled:opacity-50',
+              'block w-4 h-4 bg-ui-bg-base border-ui-border-interactive border-[4px] rounded-full transition-all duration-300 hover:scale-110 focus:outline-none disabled:pointer-events-none',
               value === 0
                 ? 'translate-x-[-2px]'
                 : value === max
@@ -83,7 +80,6 @@ export function SliderBar({
             )}
           />
 
-          {/* 步骤标记 */}
           <div className="absolute z-0 top-0 left-0 w-full h-1 flex justify-between items-center pointer-events-none">
             {stepMarks.map(({ value: stepValue, index }) => {
               const isActive = stepValue <= internalValue[0];
@@ -122,11 +118,10 @@ export function SliderBar({
         </Slider.Root>
       </div>
 
-      {/* 标签 */}
       {showLabels && (
         <div className="flex justify-between mt-2 text-sm text-gray-600">
           <span>0</span>
-          <span>{Math.round(internalValue[0])}%</span>
+          <span>100%</span>
         </div>
       )}
     </div>

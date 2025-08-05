@@ -14,6 +14,8 @@ import { SIDE, TRADE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 
 import { LimitTrade } from './limit-trade';
+import { MarketTrade } from './market-trade';
+import { TpSlTrade } from './tp-sl-trade';
 
 const TRADE_SUB_TYPES: TRADE_TYPE[] = [
   'TP/SL',
@@ -40,7 +42,11 @@ export function TradePanel({ token0, token1 }: { token0: string | null; token1: 
       <div className="mt-4 px-4">
         <TradeModeSelector tradeType={tradeMode} setTradeType={setTradeMode} />
       </div>
-      <div className="px-4 pt-5 pb-4">{tradeMode === 'Limit' && <LimitTrade side={side} />}</div>
+      <div className="px-4 pt-5 pb-4">
+        {tradeMode === 'Limit' && <LimitTrade side={side} token0={token0} token1={token1} />}
+        {tradeMode === 'Market' && <MarketTrade side={side} token0={token0} token1={token1} />}
+        {tradeMode === 'TP/SL' && <TpSlTrade side={side} token0={token0} token1={token1} />}
+      </div>
     </div>
   );
 }

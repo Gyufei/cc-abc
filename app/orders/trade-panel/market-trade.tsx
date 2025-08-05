@@ -8,15 +8,14 @@ import { SliderBar } from '@/components/ui/slider-bar';
 
 import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
-import { CANCEL_TYPE, SIDE } from '@/lib/types/trade';
+import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
-import { PostOnlyCheck } from './post-only-check';
-import { TpSlCheck } from './tp-sl-check';
+import { SlippageTolerance } from './slippage-tolerance';
 
-export function LimitTrade({
+export function MarketTrade({
   side,
   token0,
   token1,
@@ -25,16 +24,11 @@ export function LimitTrade({
   token0: string | null;
   token1: string | null;
 }) {
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState('');
   const [orderValue, setOrderValue] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [progress, setProgress] = useState(0);
-  const [tpSl, setTpSl] = useState(false);
-  const [takeProfit, setTakeProfit] = useState('');
-  const [stopLoss, setStopLoss] = useState('');
-
-  const [postOnly, setPostOnly] = useState(false);
-  const [cancelType, setCancelType] = useState<CANCEL_TYPE>('Good-Till-Cancel');
+  const [slippageTolerance, setSlippageTolerance] = useState(false);
+  const [selectedSlippage, setSelectedSlippage] = useState('0.1');
 
   const isBuy = side === 'buy';
 
@@ -64,57 +58,18 @@ export function LimitTrade({
       return;
     }
 
+    // 根据 progress 百分比计算新的 orderValue
     const ratio = divide(String(value), '100');
     const newOrderValue = multiply(String(tokenBalance), ratio);
     setOrderValue(truncateNumber(newOrderValue.toString(), 6));
-
-    if (price && price !== '0') {
-      const newQuantity = divide(newOrderValue, price);
-      setQuantity(truncateNumber(newQuantity.toString(), 6));
-    }
-  };
-
-  // 处理输入变化
-  const handlePriceChange = (value: string) => {
-    setPrice(value);
-    if (quantity) {
-      if (value === '0' || value === '') {
-        setOrderValue(value);
-        return;
-      }
-
-      const oV = multiply(value, quantity);
-      setOrderValue(oV.toString());
-    } else {
-      setOrderValue('');
-    }
   };
 
   const handleQuantityChange = (value: string) => {
     setQuantity(value);
-    if (price) {
-      if (value === '0' || value === '') {
-        setOrderValue(value);
-        return;
-      }
-      const oV = multiply(price, value);
-      setOrderValue(oV.toString());
-    } else {
-      setOrderValue('');
-    }
   };
 
   const handleOrderValueChange = (value: string) => {
     setOrderValue(value);
-    if (price) {
-      if (price === '0' || value === '0' || value === '') {
-        setQuantity('0');
-        return;
-      }
-
-      const q = divide(value, price);
-      setQuantity(truncateNumber(q.toString(), 6));
-    }
   };
 
   const orderValueInUSD = useMemo(() => {
@@ -132,10 +87,10 @@ export function LimitTrade({
       <div className="relative mt-3">
         <NumberInput
           className="pr-4"
-          placeholder="Price"
+          placeholder="Value"
           id="search-input"
-          value={price}
-          onChange={handlePriceChange}
+          value={orderValue}
+          onChange={handleOrderValueChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {token1 || '-'}
@@ -158,23 +113,10 @@ export function LimitTrade({
           value={progress}
           max={100}
           onValueChange={handleProgressChange}
-          disabled={!tokenBalance || !price}
+          disabled={!tokenBalance}
         />
       </div>
-      <div className="relative mt-4">
-        <NumberInput
-          className="pr-4"
-          placeholder="Order Value"
-          id="search-input"
-          value={orderValue}
-          onChange={handleOrderValueChange}
-        />
-        <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
-          {token1}
-        </Badge>
-        <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
-      </div>
-      {/* <div className="mt-4">
+      <div className="mt-4">
         <div
           className="flex py-[10px] px-3 items-center rounded-lg bg-ui-bg-field gap-3"
           style={{
@@ -185,26 +127,19 @@ export function LimitTrade({
           <div className="bg-ui-bg-interactive rounded-full h-[13px] w-1"></div>
           <div className="flex items-center">
             <span className="smm-text text-ui-fg-base">Order Value:</span>
-            <span className="smm-text text-ui-fg-subtle ">0.000046 {token1}</span>
+            <span className="smm-text text-ui-fg-subtle ">
+              {orderValueInUSD} {token1}
+            </span>
           </div>
         </div>
-      </div> */}
+      </div>
       <div className="mt-4 flex flex-col gap-y-2">
-        <TpSlCheck
-          value={tpSl}
-          onChange={setTpSl}
-          takeProfit={takeProfit}
-          stopLoss={stopLoss}
-          setTakeProfit={setTakeProfit}
-          setStopLoss={setStopLoss}
+        <SlippageTolerance
+          value={slippageTolerance}
+          onChange={setSlippageTolerance}
+          selectedSlippage={selectedSlippage}
+          setSelectedSlippage={setSelectedSlippage}
           token={token1 || ''}
-          balance={tokenBalance}
-        />
-        <PostOnlyCheck
-          value={postOnly}
-          onChange={setPostOnly}
-          cancelType={cancelType}
-          setCancelType={setCancelType}
         />
       </div>
 

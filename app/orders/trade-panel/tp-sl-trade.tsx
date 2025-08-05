@@ -1,4 +1,4 @@
-import { Badge, Button } from '@medusajs/ui';
+import { Badge, Button, Input, Select } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -14,9 +14,10 @@ import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
 import { PostOnlyCheck } from './post-only-check';
-import { TpSlCheck } from './tp-sl-check';
 
-export function LimitTrade({
+const TYPE_OPTIONS = ['Limit', 'Market'];
+
+export function TpSlTrade({
   side,
   token0,
   token1,
@@ -25,14 +26,13 @@ export function LimitTrade({
   token0: string | null;
   token1: string | null;
 }) {
+  const [triggerPrice, setTriggerPrice] = useState('');
+  const [type, setType] = useState<'Limit' | 'Market'>('Limit');
+
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
   const [orderValue, setOrderValue] = useState('');
   const [progress, setProgress] = useState(0);
-  const [tpSl, setTpSl] = useState(false);
-  const [takeProfit, setTakeProfit] = useState('');
-  const [stopLoss, setStopLoss] = useState('');
-
   const [postOnly, setPostOnly] = useState(false);
   const [cancelType, setCancelType] = useState<CANCEL_TYPE>('Good-Till-Cancel');
 
@@ -72,6 +72,10 @@ export function LimitTrade({
       const newQuantity = divide(newOrderValue, price);
       setQuantity(truncateNumber(newQuantity.toString(), 6));
     }
+  };
+
+  const handleTriggerPriceChange = (value: string) => {
+    setTriggerPrice(value);
   };
 
   // 处理输入变化
@@ -132,26 +136,75 @@ export function LimitTrade({
       <div className="relative mt-3">
         <NumberInput
           className="pr-4"
-          placeholder="Price"
+          placeholder="Trigger Price"
           id="search-input"
-          value={price}
-          onChange={handlePriceChange}
+          value={triggerPrice}
+          onChange={handleTriggerPriceChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {token1 || '-'}
         </Badge>
       </div>
+      <div className="mt-3 flex justify-between gap-2 items-center">
+        <div className="relative flex-1">
+          {type === 'Limit' ? (
+            <>
+              <NumberInput
+                className="pr-4"
+                placeholder="Price"
+                id="search-input"
+                value={price}
+                onChange={handlePriceChange}
+              />
+              <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
+                {token1 || '-'}
+              </Badge>
+            </>
+          ) : (
+            <Input disabled />
+          )}
+        </div>
+        <Select value={type} onValueChange={(value) => setType(value as 'Limit' | 'Market')}>
+          <Select.Trigger className="w-[85px]">
+            <Select.Value placeholder="" />
+          </Select.Trigger>
+          <Select.Content className="p-1">
+            {TYPE_OPTIONS.map((item) => (
+              <Select.Item key={item} value={item} className="sl-option-1 p-0">
+                {item}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </div>
       <div className="relative mt-4">
-        <NumberInput
-          className="pr-4"
-          placeholder="Quantity"
-          id="search-input"
-          value={quantity}
-          onChange={handleQuantityChange}
-        />
-        <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-          {token0}
-        </Badge>
+        {type === 'Limit' ? (
+          <>
+            <NumberInput
+              className="pr-4"
+              placeholder="Quantity"
+              id="search-input"
+              value={quantity}
+              onChange={handleQuantityChange}
+            />
+            <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
+              {token0}
+            </Badge>
+          </>
+        ) : (
+          <>
+            <NumberInput
+              className="pr-4"
+              placeholder="Value"
+              id="search-input"
+              value={orderValue}
+              onChange={handleOrderValueChange}
+            />
+            <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
+              {token1 || '-'}
+            </Badge>
+          </>
+        )}
       </div>
       <div className="mt-6">
         <SliderBar
@@ -161,19 +214,21 @@ export function LimitTrade({
           disabled={!tokenBalance || !price}
         />
       </div>
-      <div className="relative mt-4">
-        <NumberInput
-          className="pr-4"
-          placeholder="Order Value"
-          id="search-input"
-          value={orderValue}
-          onChange={handleOrderValueChange}
-        />
-        <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
-          {token1}
-        </Badge>
-        <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
-      </div>
+      {type === 'Limit' && (
+        <div className="relative mt-4">
+          <NumberInput
+            className="pr-4"
+            placeholder="Order Value"
+            id="search-input"
+            value={orderValue}
+            onChange={handleOrderValueChange}
+          />
+          <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
+            {token1}
+          </Badge>
+          <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
+        </div>
+      )}
       {/* <div className="mt-4">
         <div
           className="flex py-[10px] px-3 items-center rounded-lg bg-ui-bg-field gap-3"
@@ -189,24 +244,16 @@ export function LimitTrade({
           </div>
         </div>
       </div> */}
-      <div className="mt-4 flex flex-col gap-y-2">
-        <TpSlCheck
-          value={tpSl}
-          onChange={setTpSl}
-          takeProfit={takeProfit}
-          stopLoss={stopLoss}
-          setTakeProfit={setTakeProfit}
-          setStopLoss={setStopLoss}
-          token={token1 || ''}
-          balance={tokenBalance}
-        />
-        <PostOnlyCheck
-          value={postOnly}
-          onChange={setPostOnly}
-          cancelType={cancelType}
-          setCancelType={setCancelType}
-        />
-      </div>
+      {type === 'Limit' && (
+        <div className="mt-4 flex flex-col gap-y-2">
+          <PostOnlyCheck
+            value={postOnly}
+            onChange={setPostOnly}
+            cancelType={cancelType}
+            setCancelType={setCancelType}
+          />
+        </div>
+      )}
 
       <div className="mt-6">
         <Button

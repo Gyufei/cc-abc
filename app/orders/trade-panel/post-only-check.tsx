@@ -31,13 +31,29 @@ export function PostOnlyCheck({
     setIsOpen(!isOpen);
   }
 
+  function handleTypeChange(type: CANCEL_TYPE) {
+    setCancelType(type);
+    setIsOpen(false);
+  }
+
   return (
     <div className="flex justify-between">
       <div className="flex items-center gap-2">
         <div className="h-5 w-5 flex items-center justify-center">
-          <Checkbox checked={value} onCheckedChange={onChange} id="Post-Only" />
+          <Checkbox
+            disabled={cancelType !== 'Good-Till-Cancel'}
+            checked={value}
+            onCheckedChange={onChange}
+            id="Post-Only"
+          />
         </div>
-        <Label htmlFor="PostOnly" className="smm-text text-ui-fg-base">
+        <Label
+          htmlFor="PostOnly"
+          className={cn(
+            'smm-text text-ui-fg-base',
+            cancelType !== 'Good-Till-Cancel' ? 'text-ui-fg-muted' : ''
+          )}
+        >
           Post Only
         </Label>
       </div>
@@ -59,7 +75,7 @@ export function PostOnlyCheck({
             {CANCEL_TYPES.map((t) => (
               <div
                 key={t}
-                onClick={() => setCancelType(t)}
+                onClick={() => handleTypeChange(t)}
                 className={cn(
                   'py-1 px-2 flex items-center gap-x-2 hover:bg-ui-bg-subtle-hover cursor-pointer smm-text',
                   cancelType === t ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : 'text-ui-fg-muted'

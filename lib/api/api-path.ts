@@ -20,4 +20,5 @@ export const ApiPath = {
   apiKeys: `${ApiHost}/api/v1/api-bindings`,
   tradingOrder: `${ApiHost}/api/v1/trading/orders`,
   tradingSymbols: `${ApiHost}/api/v1/trading/symbols`,
+  tradingAssets: `${ApiHost}/api/v1/trading/assets`,
 };
