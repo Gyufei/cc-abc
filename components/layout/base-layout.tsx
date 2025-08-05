@@ -1,10 +1,29 @@
+'use client';
+
+import { useIsLogin } from '@/lib/store';
+import { cn } from '@/lib/utils';
+
+import LoginModal from './login-modal';
 import { Sidebar } from './sidebar/sidebar';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
+  const isLogin = useIsLogin();
+
   return (
-    <div className="flex items-stretch h-screen min-h-[680px]">
-      <Sidebar />
-      {children}
+    <div
+      className={cn(
+        'flex items-stretch h-screen min-h-[680px]',
+        isLogin ? 'bg-transparent' : 'bg-background'
+      )}
+    >
+      {isLogin ? (
+        <>
+          <Sidebar />
+          {children}
+        </>
+      ) : (
+        <LoginModal />
+      )}
     </div>
   );
 }

@@ -5,11 +5,12 @@ export interface AppState {
   sidebarOpen: boolean;
 
   user: {
-    id: string | null;
-    name: string | null;
-    email: string | null;
-    isAuthenticated: boolean;
+    user_id: string | null;
+    username: string | null;
+    token: string | null;
   };
+
+  currentApiKeyId: string | null;
 }
 
 export interface AppActions {
@@ -19,6 +20,8 @@ export interface AppActions {
 
   setUser: (user: Partial<AppState['user']>) => void;
   logout: () => void;
+
+  setCurrentApiKeyId: (apiKeyId: string) => void;
 }
 
 export type AppStore = AppState & AppActions;
@@ -26,39 +29,39 @@ export type AppStore = AppState & AppActions;
 export const useAppStore = create<AppStore>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         sidebarOpen: false,
         openSidebar: () => set({ sidebarOpen: true }),
         closeSidebar: () => set({ sidebarOpen: false }),
         toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
         user: {
-          id: null,
-          name: null,
-          email: null,
-          isAuthenticated: false,
+          user_id: null,
+          username: null,
+          token: null,
         },
-
         setUser: (userData) =>
           set((state) => ({
             user: { ...state.user, ...userData },
           })),
-
         logout: () =>
           set({
             user: {
-              id: null,
-              name: null,
-              email: null,
-              isAuthenticated: false,
+              user_id: null,
+              username: null,
+              token: null,
             },
           }),
+
+        currentApiKeyId: null,
+        setCurrentApiKeyId: (apiKeyId: string) => set({ currentApiKeyId: apiKeyId }),
       }),
       {
         name: 'app-store', // localStorage 的 key
         partialize: (state) => ({
           user: state.user,
           sidebarOpen: state.sidebarOpen,
+          currentApiKeyId: state.currentApiKeyId,
         }),
       }
     ),
@@ -69,5 +72,4 @@ export const useAppStore = create<AppStore>()(
 );
 
 export const useUser = () => useAppStore((state) => state.user);
-
-export const isUserLogin = (state: AppState) => state.user.isAuthenticated;
+export const useIsLogin = () => useAppStore((state) => state.user.token !== null);

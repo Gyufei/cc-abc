@@ -13,7 +13,7 @@ export function SidebarHeader() {
         >
           <Logo className="w-5 h-5" />
         </div>
-        <span className="text-[13px] font-medium text-ui-fg-base leading-5">AnyMM</span>
+        <span className="smm-text text-ui-fg-base">AnyMM</span>
       </div>
       <Collapse className="h-[15px] w-[15px] cursor-pointer" />
     </div>
