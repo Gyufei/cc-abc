@@ -25,7 +25,7 @@ const TRADE_SUB_TYPES: TRADE_TYPE[] = [
   'Scaled Order',
 ];
 
-export function TradePanel() {
+export function TradePanel({ token0, token1 }: { token0: string | null; token1: string | null }) {
   const [side, setSide] = useState<SIDE>('buy');
   const [tradeMode, setTradeMode] = useState<TRADE_TYPE>('Limit');
 

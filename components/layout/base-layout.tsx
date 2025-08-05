@@ -1,5 +1,7 @@
 'use client';
 
+import { Toaster } from '@medusajs/ui';
+
 import { useIsLogin } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +26,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
       ) : (
         <LoginModal />
       )}
+      <Toaster />
     </div>
   );
 }

@@ -36,7 +36,7 @@ export function useApiKeys() {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${user.token}`,
-          'X-User-ID': user.user_id,
+          'X-User-ID': user.user_id || '',
         },
       });
     },
