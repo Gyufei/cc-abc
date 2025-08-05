@@ -15,7 +15,15 @@ import { TPSLCheck } from './tp-sl-check';
 const TOKEN0_NAME = 'USDT';
 const TOKEN1_NAME = 'SCA';
 
-export function LimitTrade({ side }: { side: SIDE }) {
+export function LimitTrade({
+  side,
+  token0,
+  token1,
+}: {
+  side: SIDE;
+  token0: string | null;
+  token1: string | null;
+}) {
   const [num, setNum] = useState('');
   const [quantity, setQuantity] = useState('');
   const [progress, setProgress] = useState(0);
@@ -24,9 +32,11 @@ export function LimitTrade({ side }: { side: SIDE }) {
   const [postOnly, setPostOnly] = useState(false);
   const [cancelType, setCancelType] = useState<CANCEL_TYPE>('Good-Till-Cancel');
 
+  const isBuy = side === 'buy';
+
   return (
     <div className="flex flex-col justify-stretch">
-      <AvailableBalance balance="0.000046" tokenName={TOKEN0_NAME} />
+      <AvailableBalance balance="0.000046" tokenName={isBuy ? token1 : token0} />
       <div className="relative mt-3">
         <NumberInput
           className="pr-4"
@@ -36,7 +46,7 @@ export function LimitTrade({ side }: { side: SIDE }) {
           onChange={(value) => setNum(value)}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-          {TOKEN0_NAME}
+          {token1 || '-'}
         </Badge>
       </div>
       <div className="relative mt-4">
@@ -48,7 +58,7 @@ export function LimitTrade({ side }: { side: SIDE }) {
           onChange={(value) => setQuantity(value)}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-          {TOKEN1_NAME}
+          {token0}
         </Badge>
       </div>
       <div className="mt-6">
@@ -63,9 +73,9 @@ export function LimitTrade({ side }: { side: SIDE }) {
           onChange={(value) => setOrderValue(value)}
         />
         <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
-          USDT
+          {token1}
         </Badge>
-        <span className="mt-2 smm-text text-ui-fg-muted">≈0.00 {TOKEN0_NAME}</span>
+        <span className="mt-2 smm-text text-ui-fg-muted">≈0.00 USD</span>
       </div>
       <div className="mt-4">
         <div
@@ -78,7 +88,7 @@ export function LimitTrade({ side }: { side: SIDE }) {
           <div className="bg-ui-bg-interactive rounded-full h-[13px] w-1"></div>
           <div className="flex items-center">
             <span className="smm-text text-ui-fg-base">Order Value:</span>
-            <span className="smm-text text-ui-fg-subtle ">0.000046 {TOKEN1_NAME}</span>
+            <span className="smm-text text-ui-fg-subtle ">0.000046 {token1}</span>
           </div>
         </div>
       </div>
