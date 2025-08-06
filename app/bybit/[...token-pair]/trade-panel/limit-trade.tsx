@@ -7,7 +7,6 @@ import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
 import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
-import { useMarketInfo } from '@/lib/api/use-market-info';
 import { TradingOrderRequest, useTradingOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
@@ -43,8 +42,6 @@ export function LimitTrade({
   const { data: baseBalance } = useTokenBalance(baseCoin);
   const tokenBalance = isBuy ? quoteBalance : baseBalance;
 
-  const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
-
   const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
 
   // 计算当前 progress 应该的值
@@ -72,12 +69,6 @@ export function LimitTrade({
   useEffect(() => {
     setProgress(calculatedProgress);
   }, [calculatedProgress]);
-
-  useEffect(() => {
-    if (marketInfo) {
-      setPrice(marketInfo.price.toString());
-    }
-  }, [marketInfo]);
 
   useEffect(() => {
     handleQuantityChange('');
