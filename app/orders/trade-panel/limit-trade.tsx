@@ -75,6 +75,10 @@ export function LimitTrade({
     }
   }, [marketInfo]);
 
+  useEffect(() => {
+    handleQuantityChange('');
+  }, [side]);
+
   const handleProgressChange = (value: number) => {
     setProgress(value);
 
@@ -83,12 +87,21 @@ export function LimitTrade({
     }
 
     const ratio = divide(String(value), '100');
-    const newOrderValue = multiply(String(tokenBalance), ratio);
-    setOrderValue(truncateNumber(newOrderValue.toString(), 6));
+    const newPValue = multiply(String(tokenBalance), ratio);
 
-    if (price && price !== '0') {
-      const newQuantity = divide(newOrderValue, price);
-      setQuantity(truncateNumber(newQuantity.toString(), 6));
+    if (isBuy) {
+      setOrderValue(truncateNumber(newPValue.toString(), 6));
+      if (price && price !== '0') {
+        const newQuantity = divide(newPValue, price);
+        setQuantity(truncateNumber(newQuantity.toString(), 6));
+      }
+    } else {
+      setQuantity(truncateNumber(newPValue.toString(), 6));
+
+      if (price && price !== '0') {
+        const newOrderValue = multiply(String(newPValue), price);
+        setOrderValue(truncateNumber(newOrderValue.toString(), 6));
+      }
     }
   };
 
