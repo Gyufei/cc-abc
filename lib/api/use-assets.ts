@@ -4,7 +4,7 @@ import { ApiPath } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useAppStore } from '@/lib/store';
-import { useMarketPrices } from './use-market-prices';
+import { useMarketInfo } from './use-market-info';
 
 // Interface for asset item from API
 export interface AssetItem {
@@ -31,14 +31,25 @@ export interface AssetTableData {
 /**
  * Transform API data to table display format
  * @param assets - Raw asset data from API
+ * @param btcPrice - BTC market price from useMarketInfo
+ * @param ethPrice - ETH market price from useMarketInfo
  * @returns Transformed data for table display
  */
 function transformAssetData(
   assets: AssetItem[],
-  getUsdPrice?: (symbol: string) => number
+  btcPrice?: number,
+  ethPrice?: number
 ): AssetTableData[] {
   return assets.map((asset, index) => {
-    const usdPrice = getUsdPrice?.(asset.symbol) || 113995;
+    // Use market price from useMarketInfo based on asset symbol
+    let usdPrice = 1; // Default for USDT
+    if (asset.symbol === 'BTC') {
+      usdPrice = btcPrice || 113995;
+    } else if (asset.symbol === 'ETH') {
+      usdPrice = ethPrice || 3500; // ETH default price
+    } else if (asset.symbol !== 'USDT') {
+      usdPrice = 100; // Other assets fallback
+    }
     const netAssetValueUsd = asset.total * usdPrice;
 
     return {
@@ -57,11 +68,11 @@ function transformAssetData(
 export function useAssets() {
   const { user } = useAppStore();
   const { data: currentApiKey } = useCurrentApiKey();
-   // Use real-time price service
-  const { getUsdPrice } = useMarketPrices(
-    ['BTCUSDT'],
-    5000 // Update every 5 seconds
-  );
+
+  
+  // Get BTC and ETH market info for more accurate pricing
+  const { data: btcMarketInfo } = useMarketInfo('BTC', 'USDT');
+  const { data: ethMarketInfo } = useMarketInfo('ETH', 'USDT');
 
 
   const query = useQuery({
@@ -91,7 +102,7 @@ export function useAssets() {
         },
       });
 
-      return transformAssetData(response.assets, getUsdPrice);
+      return transformAssetData(response.assets, btcMarketInfo?.price, ethMarketInfo?.price);
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,

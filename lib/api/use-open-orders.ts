@@ -70,10 +70,10 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       second: '2-digit'
     }).replace('T', ' ');
 
-    // const tpSlText =
-    //   order.take_profit > 0 || order.stop_loss > 0
-    //     ? `${order.take_profit > 0 ? order.take_profit.toFixed(2) : '--'}/${order.stop_loss > 0 ? order.stop_loss.toFixed(2) : '--'}`
-    //     : '+ Add';
+    const tpSlText =
+      order.take_profit > 0 || order.stop_loss > 0
+        ? `${order.take_profit > 0 ? order.take_profit.toFixed(2) : '--'}/${order.stop_loss > 0 ? order.stop_loss.toFixed(2) : '--'}`
+        : '--';
 
     return {
       id: order.id,
@@ -83,8 +83,8 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       direction: order.side,
       orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
       filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
-      order: `${order.leaves_value.toFixed(2)} ${order.symbol.replace('BTC', '')}`,
-      tpSl: '--',
+      order: `${order.leaves_value.toFixed(2)} USDT`,
+      tpSl: tpSlText,
       tradeType: '--', // Default value、Open Long
       orderTime: orderTime,
       orderId: order.order_id,
