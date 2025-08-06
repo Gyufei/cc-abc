@@ -75,11 +75,7 @@ export function AssetsTab() {
               </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Net Asset Value</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Balance</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Sport Cost</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Last Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">
-                PnL
-              </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -104,11 +100,7 @@ export function AssetsTab() {
                   </div>
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.balance}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.sportCost}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.lastPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">
-                  {item.pnl}
-                </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>

@@ -58,7 +58,7 @@ export function OrderHistoryTab() {
    * Transform API data to table format
    */
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
-    const sideText = orderItem.side === 'buy' ? 'Open Long' : 'Open Short';
+    const sideText = orderItem.side === 'Buy' ? 'Open Long' : 'Open Short';
     const orderTypeText = orderItem.order_type === 'market' ? 'Market' : 'Limit';
     const avgPrice = orderItem.avg_price > 0 ? orderItem.avg_price.toLocaleString() : 'N/A';
     const orderPrice = orderItem.price > 0 ? orderItem.price.toLocaleString() : 'N/A';
@@ -130,13 +130,13 @@ export function OrderHistoryTab() {
           <Table.Body>
             {tableData.map((item: OrderHistoryTableData) => (
               <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap pl-3">
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                   {item.market}
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">
-                  <span className="text-green-600">{item.direction}</span>
+                  <span className={item.direction === 'Open Long' ? 'text-green-600' : 'text-red-600'}>{item.direction}</span>
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.avgFilledPrice}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">

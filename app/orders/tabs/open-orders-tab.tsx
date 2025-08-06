@@ -134,7 +134,7 @@ export function OpenOrdersTab() {
                 <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base sticky-right-shadow whitespace-nowrap pl-3">
                   <button 
                     onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
-                    className="text-red-600 hover:text-red-800 transition-colors border border-red-300 hover:border-red-500 rounded px-2 py-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="hover:text-red-800 transition-colors border hover:border-red-500 rounded px-2 py-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={cancelingOrders.has(item.orderLinkId)}
                   >
                     {cancelingOrders.has(item.orderLinkId) ? 'Canceling...' : 'Cancel'}
