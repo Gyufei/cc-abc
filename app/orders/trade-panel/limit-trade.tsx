@@ -84,6 +84,7 @@ export function LimitTrade({
     setTpSl(false);
     setTakeProfit('');
     setStopLoss('');
+    setTimeInForce('GTC');
   }, [side]);
 
   const handleProgressChange = (value: number) => {
