@@ -1,6 +1,7 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
+import { TokenPair } from '@/lib/types/asset';
 
 import { TradeExecutionItem, useTradeExecutions } from '../../../lib/api/use-trade-executions';
 
@@ -27,14 +28,14 @@ interface TradeHistoryTableData {
  * TradeHistoryTab component displays trade history table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function TradeHistoryTab() {
+export function TradeHistoryTab({tokenPair}: {tokenPair: TokenPair}) {
   // Fetch trade execution data
   const {
     data: tradeExecutionResponse,
     isLoading,
     error,
   } = useTradeExecutions(
-    'BTCUSDT',
+    tokenPair.symbol,
     7 // Last 7 days
   );
   console.log('🚀 ~ TradeHistoryTab ~ tradeExecutionResponse:', tradeExecutionResponse);

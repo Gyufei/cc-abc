@@ -1,6 +1,7 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
+import { TokenPair } from '@/lib/types/asset';
 
 import { OrderHistoryItem, useOrderHistory } from '../../../lib/api/use-order-history';
 
@@ -25,15 +26,15 @@ interface OrderHistoryTableData {
  * OrderHistoryTab component displays order history table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function OrderHistoryTab() {
+export function OrderHistoryTab({tokenPair}: {tokenPair: TokenPair}) {
   // Fetch order history data
   const {
     data: orderHistoryResponse,
     isLoading,
     error,
   } = useOrderHistory(
-    'BTCUSDT',
-    1 // Last 1 day
+    tokenPair.symbol,
+    7 // Last 7 day
   );
 
   // Handle loading state

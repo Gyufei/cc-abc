@@ -18,7 +18,7 @@ export default function OrdersPage() {
       <div className="p-4 flex gap-x-4 flex-1 overflow-auto">
         <div className="part-1 flex flex-col flex-1 overflow-auto">
           <ChartContainer />
-          <TableContainer />
+          {tokenPair && <TableContainer tokenPair={tokenPair} />}
         </div>
         {isLoadingTokenPair || !baseCoin || !quoteCoin ? (
           <div
