@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useOpenOrders } from '@/lib/api/use-open-orders';
 
 import { AssetsTab } from './tabs/assets-tab';
 import { OpenOrdersTab } from './tabs/open-orders-tab';
@@ -16,38 +17,39 @@ import { TradeHistoryTab } from './tabs/trade-history-tab';
  */
 export function TableContainer() {
   const [activeTab, setActiveTab] = useState('open-orders');
-
+ const { data: openOrdersData } = useOpenOrders();
+  const openOrdersCount = openOrdersData?.length || 0;
   return (
-    <div className="flex-1 bg-background border border-ui-border-base rounded-lg mt-4 overflow-hidden">
+    <div className="flex-1 bg-background border border-t-0 border-ui-border-base rounded-lg mt-4 overflow-hidden">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <TabsList className="w-full justify-start bg-transparent border-b border-ui-border-base rounded-none h-auto p-0 flex-shrink-0">
+        <TabsList className="w-full justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0">
           <TabsTrigger
             value="open-orders"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-ui-fg-base data-[state=active]:bg-transparent bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
-            Open Orders (0)
+            Open Orders ({openOrdersCount})
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="positions"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-ui-fg-base data-[state=active]:bg-transparent bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Positions (0)
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger
             value="order-history"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-ui-fg-base data-[state=active]:bg-transparent bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Order History
           </TabsTrigger>
           <TabsTrigger
             value="trade-history"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-ui-fg-base data-[state=active]:bg-transparent bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Trade History
           </TabsTrigger>
           <TabsTrigger
             value="assets"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-ui-fg-base data-[state=active]:bg-transparent bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Assets
           </TabsTrigger>
