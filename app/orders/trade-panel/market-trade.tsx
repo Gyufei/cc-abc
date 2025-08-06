@@ -35,7 +35,7 @@ export function MarketTrade({
   const isBuy = side === 'buy';
 
   const { data: tokenBalance } = useTokenBalance(isBuy ? quoteCoin : baseCoin);
-  const { data: marketInfo } = useMarketInfo(`${baseCoin}${quoteCoin}`);
+  const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
 
   const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
 
@@ -111,7 +111,7 @@ export function MarketTrade({
       category: 'spot',
       symbol: `${baseCoin}${quoteCoin}`,
       side: isBuy ? 'Buy' : 'Sell',
-      order_type: 'market',
+      order_type: 'Market',
       qty: isBuy ? buyValue : quantity,
     });
   };

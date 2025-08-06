@@ -36,13 +36,15 @@ export function useLogin() {
           password: encryptedPassword,
         };
 
-        return Fetcher<LoginResponse>(ApiPath.login, {
+        const res = Fetcher<LoginResponse>(ApiPath.login, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(params),
         });
+
+        return res;
       } catch (e: unknown) {
         if (e instanceof Error) {
           const errorMessage =
@@ -65,7 +67,7 @@ export function useLogin() {
       });
     },
     onError: (error: Error) => {
-      console.error('登录失败:', error.message);
+      toast.error(error.message);
     },
   });
 

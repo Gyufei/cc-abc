@@ -39,7 +39,7 @@ export function LimitTrade({
   const isBuy = side === 'buy';
 
   const { data: tokenBalance } = useTokenBalance(isBuy ? quoteCoin : baseCoin);
-  const { data: marketInfo } = useMarketInfo(`${baseCoin}${quoteCoin}`);
+  const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
 
   const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
 
@@ -154,7 +154,7 @@ export function LimitTrade({
       category: 'spot',
       symbol: `${baseCoin}${quoteCoin}`,
       side: isBuy ? 'Buy' : 'Sell',
-      order_type: 'limit',
+      order_type: 'Limit',
       qty: quantity,
       price: price,
       time_in_force: timeInForce,

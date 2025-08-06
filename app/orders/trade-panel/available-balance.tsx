@@ -1,3 +1,5 @@
+import { formatNumber } from '@/lib/utils/number';
+
 export function AvailableBalance({
   balance,
   tokenName,
@@ -9,7 +11,7 @@ export function AvailableBalance({
     <div className="flex justify-between items-center text-ui-fg-base smm-text">
       <span>Available Balance</span>
       <span>
-        {balance || '-'} {tokenName || '-'}
+        {formatNumber(balance) || '-'} {tokenName || '-'}
       </span>
     </div>
   );

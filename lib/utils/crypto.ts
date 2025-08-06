@@ -1,5 +1,3 @@
-import { subtle } from 'crypto';
-
 // 将PEM格式的公钥转换为CryptoKey对象
 async function importRSAKey(pemKey: string) {
   // 移除PEM头尾和换行符
@@ -15,7 +13,7 @@ async function importRSAKey(pemKey: string) {
   }
 
   // 导入密钥
-  return await subtle.importKey(
+  return await window.crypto.subtle.importKey(
     'spki',
     binaryDer.buffer,
     {
@@ -38,7 +36,7 @@ export async function encryptPassword(password: string, pemPublicKey: string) {
     const data = encoder.encode(password);
 
     // 加密
-    const encrypted = await subtle.encrypt(
+    const encrypted = await window.crypto.subtle.encrypt(
       {
         name: 'RSA-OAEP',
       },

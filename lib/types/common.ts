@@ -21,3 +21,8 @@ export interface MarketInfo {
   high_24h: number;
   low_24h: number;
 }
+
+export interface ErrorRes {
+  code: number;
+  msg: string;
+}
