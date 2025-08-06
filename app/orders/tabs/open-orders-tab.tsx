@@ -79,7 +79,7 @@ export function OpenOrdersTab() {
               <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Order Price</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Filled/Order Quantity</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Value</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">TP/SL</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Trade Type</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Order Time</Table.HeaderCell>
@@ -114,7 +114,7 @@ export function OpenOrdersTab() {
                 <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
                   <button 
                     onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
-                    className="text-sm text-red-600 hover:text-red-800 transition-colors border border-red-300 rounded px-2 py-1"
+                    className=" hover:text-red-800 transition-colors border rounded px-2 py-1 cursor-pointer"
                     disabled={cancelOrderMutation.isPending}
                   >
                     {cancelOrderMutation.isPending ? 'Canceling...' : 'Cancel'}

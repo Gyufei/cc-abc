@@ -128,17 +128,19 @@ export async function fetchOpenOrders(
  */
 function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
   return orders.map(order => {
-    const orderTime = new Date(order.created_at).toLocaleString('en-US', {
+    const orderTime = new Date(order.created_at).toLocaleString('sv-SE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
-    });
+      minute: '2-digit',
+      second: '2-digit'
+    }).replace('T', ' ');
     
     const tpSlText = order.take_profit > 0 || order.stop_loss > 0 
       ? `${order.take_profit > 0 ? order.take_profit.toFixed(2) : '--'}/${order.stop_loss > 0 ? order.stop_loss.toFixed(2) : '--'}`
-      : '+ Add';
+      // : '+ Add';
+      : '--';
     
     return {
       id: order.id,
@@ -148,12 +150,13 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       direction: order.side === 'buy' ? 'Buy' : 'Sell',
       orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
       filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
-      order: order.cum_exec_value.toFixed(1),
+      order: `${order.cum_exec_value.toFixed(2)} ${order.symbol.replace('BTC', '')}`,
       tpSl: tpSlText,
-      tradeType: 'Open Long', // Default value
+      tradeType: '--', // Default value、Open Long
       orderTime: orderTime,
       orderId: order.order_id,
-      reduceOnly: order.reduce_only ? 'Yes' : 'No',
+      // reduceOnly: order.reduce_only ? 'Yes' : 'No',
+      reduceOnly: '--',
       orderLinkId: order.order_link_id,
       symbol: order.symbol,
     };

@@ -63,19 +63,20 @@ export function TradeHistoryTab() {
   const transformTradeData = (tradeItem: TradeExecutionItem): TradeHistoryTableData => {
     const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
     const orderTypeText = tradeItem.order_type === 'Limit' ? 'Limit' : 'Market';
-    const filledValue = `${tradeItem.exec_value.toLocaleString()} USDT`;
-    const filledPrice = tradeItem.exec_price.toLocaleString();
-    const filledQty = `${tradeItem.exec_qty.toLocaleString()} BTC`;
+    const filledValue = `${tradeItem.exec_value} USDT`;
+    const filledPrice = `${tradeItem.exec_price}`;
+    const filledQty = `${tradeItem.exec_qty} BTC`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${(tradeItem.exec_fee || 0).toLocaleString()} USDT`;
-    const indexPrice = tradeItem.index_price ? tradeItem.index_price.toLocaleString() : '--';
-    const transactionTime = new Date(tradeItem.exec_time).toLocaleString('en-US', {
+    const tradingFees = `${(tradeItem.exec_fee || 0)} USDT`;
+    const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
+    const transactionTime = new Date(tradeItem.exec_time).toLocaleString('sv-SE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
-    });
+      minute: '2-digit',
+      second: '2-digit'
+    }).replace('T', ' ');
     const transactionId = tradeItem.id;
     const impliedVolatility = '--'; // Default value as not provided in current API
     

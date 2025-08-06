@@ -59,20 +59,21 @@ export function OrderHistoryTab() {
    * Transform API data to table format
    */
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
-    const sideText = orderItem.side === 'buy' ? 'Open Long' : 'Close Short';
+    const sideText = orderItem.side === 'buy' ? 'Open Long' : 'Open Short';
     const orderTypeText = orderItem.order_type === 'market' ? 'Market' : 'Limit';
     const avgPrice = orderItem.avg_price > 0 ? orderItem.avg_price.toLocaleString() : 'N/A';
     const orderPrice = orderItem.price > 0 ? orderItem.price.toLocaleString() : 'N/A';
     const priceDisplay = `${avgPrice}/${orderPrice}`;
     const filledQuantityDisplay = `${orderItem.filled_quantity}/${orderItem.quantity}`;
-    const orderTime = new Date(orderItem.created_at).toLocaleString('en-US', {
+    const orderTime = new Date(orderItem.created_at).toLocaleString('sv-SE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-    const filledValue = `${orderItem.cum_exec_value.toFixed(2)} USDT`;
+      minute: '2-digit',
+      second: '2-digit'
+    }).replace('T', ' ');
+    const filledValue = `${orderItem.cum_exec_value.toFixed(2)}/$${orderItem.leaves_value.toFixed(2)} USDT`;
     const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} USDT`;
     
     return {
@@ -116,9 +117,9 @@ export function OrderHistoryTab() {
               <Table.HeaderCell className="whitespace-nowrap">Filled/Order Value</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Order Status</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Trading Fees</Table.HeaderCell>
-              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base shadow-md whitespace-nowrap">
+              {/* <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base shadow-md whitespace-nowrap">
                 Action
-              </Table.HeaderCell>
+              </Table.HeaderCell> */}
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -145,11 +146,11 @@ export function OrderHistoryTab() {
                   </span>
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap">{item.tradingFees}</Table.Cell>
-                <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
+                {/* <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
                   <button className="text-sm text-gray-500 hover:text-gray-700 transition-colors border border-gray-300 rounded px-2 py-1">
                     Details
                   </button>
-                </Table.Cell>
+                </Table.Cell> */}
               </Table.Row>
             ))}
           </Table.Body>

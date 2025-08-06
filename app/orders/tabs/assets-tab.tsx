@@ -1,8 +1,19 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
-import { useAssets, AssetTableData } from '@/lib/api/use-assets';
+
+
+
+import Image from 'next/image';
+
+
+
+import { AssetTableData, useAssets } from '@/lib/api/use-assets';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+
+
+
+
 
 /**
  * AssetsTab component displays assets table
@@ -59,7 +70,6 @@ export function AssetsTab() {
             <Table.Row>
               <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs">₿</span>
                   Coins
                 </div>
               </Table.HeaderCell>
@@ -77,9 +87,13 @@ export function AssetsTab() {
               <Table.Row key={item.id}>
                 <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                      <span className="w-2 h-2 rounded-full bg-white"></span>
-                    </div>
+                    <Image
+                    src={`/icons/${item.coin}.svg`}
+                    alt={item.coin}
+                    width={16}
+                    height={16}
+                    className="rounded-xs"
+                  />
                     <span className="text-ui-fg-base font-medium">{item.coin}</span>
                   </div>
                 </Table.Cell>
