@@ -1,116 +1,34 @@
 'use client';
 
-import { Table } from '@table-library/react-table-library/table';
-import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
-import { useTheme } from '@table-library/react-table-library/theme';
+import { Table } from '@medusajs/ui';
 import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
 
 /**
  * OpenOrdersTab component displays open orders table
- * Matches the design with columns: Market, Instrument, Order Type, Direction, Order Price, Filled/Order Quantity, Order, Action
+ * Uses @medusajs/ui Table component with sticky first and last columns
  */
 export function OpenOrdersTab() {
-  // Custom theme to match existing design with sticky columns
-  const theme = useTheme({
-    Table: `
-      --data-table-library_grid-template-columns: 120px 140px 120px 120px 140px 120px 120px 120px 120px 140px 120px 120px 100px;
-      border-collapse: collapse;
-      width: 100%;
-      background-color: var(--ui-bg-base);
-      overflow-x: auto;
-      position: relative;
-    `,
-    Header: `
-      background-color: var(--ui-bg-subtle);
-    `,
-    HeaderRow: `
-      border-bottom: 1px solid var(--ui-border-base);
-    `,
-    HeaderCell: `
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 14px;
-      color: var(--ui-fg-muted);
-      font-weight: 500;
-      background-color: var(--ui-bg-subtle);
-      
-      &:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 10;
-        background-color: var(--ui-bg-subtle);
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:last-child {
-        position: sticky;
-        right: 0;
-        z-index: 10;
-        background-color: var(--ui-bg-subtle);
-        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-    `,
-    Row: `
-      border-bottom: 1px solid var(--ui-border-base);
-      background-color: var(--ui-bg-base);
-      &:hover {
-        background-color: var(--ui-bg-subtle-hover);
-      }
-    `,
-    Cell: `
-      padding: 12px 16px;
-      font-size: 14px;
-      color: var(--ui-fg-base);
-      background-color: var(--ui-bg-base);
-      
-      &:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-        background-color: var(--ui-bg-base);
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:last-child {
-        position: sticky;
-        right: 0;
-        z-index: 5;
-        background-color: var(--ui-bg-base);
-        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:first-child:hover,
-       &:last-child:hover {
-         background-color: var(--ui-bg-subtle-hover);
-       }
-    `
-  });
-
   // Get current API key data
-  const { data: currentApiKeyData } = useCurrentApiKey();
+  const { data: currentApiKey } = useCurrentApiKey();
   
-  // Get open orders data with loading and error states
+  // Get open orders data
   const { data: ordersData, loading, error } = useOpenOrders();
-  
+
   // Cancel order mutation
   const cancelOrderMutation = useCancelOrder();
-  
-  /**
-   * Handle cancel order button click
-   * @param orderLinkId - The order link ID to cancel
-   * @param symbol - The trading symbol
-   */
+
+  // Handle cancel order
   const handleCancelOrder = async (orderLinkId: string, symbol: string) => {
-    if (!currentApiKeyData?.api_key) {
+    if (!currentApiKey?.api_key) {
       console.error('No API key available');
       return;
     }
-    
+
     try {
       await cancelOrderMutation.mutateAsync({
-        api_key: currentApiKeyData.api_key,
+        api_key: currentApiKey.api_key,
         category: 'spot',
         symbol: symbol,
         order_link_id: orderLinkId
@@ -119,117 +37,94 @@ export function OpenOrdersTab() {
       console.error('Failed to cancel order:', error);
     }
   };
-  
-  // Transform data for react-table-library format
-  const data = {
-    nodes: ordersData
-  };
-  
+
   // Show loading state
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="flex items-center justify-center h-64">
         <div className="text-ui-fg-muted">Loading open orders...</div>
       </div>
     );
   }
-  
+
   // Show error state
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-ui-red">Error: {error}</div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-ui-fg-error">Failed to load open orders</div>
       </div>
     );
   }
-  
-  // Show no API key state
-  if (!currentApiKeyData) {
+
+  // Show empty state
+  if (!ordersData || ordersData.length === 0) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-ui-fg-muted">Please select an API key to view open orders</div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-ui-fg-muted">No open orders found</div>
       </div>
     );
   }
 
   return (
     <div className="w-full h-full overflow-x-auto">
-      <Table data={data} theme={theme}>
-        {(tableList: OpenOrderTableData[]) => (
-          <>
-            <Header>
-              <HeaderRow>
-                <HeaderCell>Market</HeaderCell>
-                <HeaderCell>Instrument</HeaderCell>
-                <HeaderCell>Order Type</HeaderCell>
-                <HeaderCell>Direction</HeaderCell>
-                <HeaderCell>Order Price</HeaderCell>
-                <HeaderCell>Filled/Order Quantity</HeaderCell>
-                <HeaderCell>Order</HeaderCell>
-                <HeaderCell>TP/SL</HeaderCell>
-                <HeaderCell>Trade Type</HeaderCell>
-                <HeaderCell>Order Time</HeaderCell>
-                <HeaderCell>Order ID</HeaderCell>
-                <HeaderCell>Reduce-Only</HeaderCell>
-                <HeaderCell>Action</HeaderCell>
-              </HeaderRow>
-            </Header>
-            <Body>
-              {tableList.map((item: OpenOrderTableData) => (
-                <Row key={item.id} item={item}>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.market}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.instrument}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.orderType}</span>
-                  </Cell>
-                  <Cell>
-                    <span className={item.direction === 'Buy' ? 'text-ui-green' : 'text-ui-red'}>
-                      {item.direction}
-                    </span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.orderPrice}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.filledOrderQuantity}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.order}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.tpSl}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.tradeType}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.orderTime}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.orderId}</span>
-                  </Cell>
-                  <Cell>
-                    <span className="smm-text text-ui-fg-base">{item.reduceOnly}</span>
-                  </Cell>
-                  <Cell>
-                    <button 
-                      className="smm-text text-ui-fg-muted hover:text-ui-fg-base transition-colors border border-ui-border-base px-2 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleCancelOrder(item.orderLinkId || item.id, item.symbol)}
-                      disabled={cancelOrderMutation.isPending}
-                    >
-                      {cancelOrderMutation.isPending ? 'Cancelling...' : 'Cancel'}
-                    </button>
-                  </Cell>
-                </Row>
-              ))}
-            </Body>
-          </>
-        )}
-      </Table>
+      <div style={{ minWidth: '1600px' }}>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+                Market
+              </Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled/Order Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">TP/SL</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Trade Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Time</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order ID</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Reduce-Only</Table.HeaderCell>
+              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base shadow-md whitespace-nowrap">
+                Action
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {ordersData?.map((item: OpenOrderTableData) => (
+              <Table.Row key={item.id}>
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                  {item.market}
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">
+                  <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
+                    {item.direction}
+                  </span>
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledOrderQuantity}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.order}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.tpSl}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.tradeType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderTime}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderId}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.reduceOnly}</Table.Cell>
+                <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
+                  <button 
+                    onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
+                    className="text-sm text-red-600 hover:text-red-800 transition-colors border border-red-300 rounded px-2 py-1"
+                    disabled={cancelOrderMutation.isPending}
+                  >
+                    {cancelOrderMutation.isPending ? 'Canceling...' : 'Cancel'}
+                  </button>
+                </Table.Cell>
+              </Table.Row>
+            )) || []}
+          </Table.Body>
+        </Table>
+      </div>
     </div>
   );
 }

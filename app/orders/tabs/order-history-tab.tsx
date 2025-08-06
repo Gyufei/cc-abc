@@ -1,8 +1,6 @@
 'use client';
 
-import { Table } from '@table-library/react-table-library/table';
-import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
-import { useTheme } from '@table-library/react-table-library/theme';
+import { Table } from '@medusajs/ui';
 import { useOrderHistory, OrderHistoryItem } from '../../../lib/api/use-order-history';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
@@ -25,7 +23,7 @@ interface OrderHistoryTableData {
 
 /**
  * OrderHistoryTab component displays order history table
- * Matches the design with columns: Market, Instrument, Order Type, Direction, Avg. Filled Price/Order Price, Filled/O, Action
+ * Uses @medusajs/ui Table component with sticky first and last columns
  */
 export function OrderHistoryTab() {
   // Get current API key
@@ -38,82 +36,6 @@ export function OrderHistoryTab() {
     1 // Last 1 day
   );
   console.log("🚀 ~ OrderHistoryTab ~ orderHistoryResponse:", orderHistoryResponse)
-
-  // Custom theme to match existing design with sticky columns
-  const theme = useTheme({
-    Table: `
-      --data-table-library_grid-template-columns: 120px 140px 120px 120px 200px 180px 140px 120px 180px 120px 120px 100px;
-      border-collapse: collapse;
-      width: 100%;
-      background-color: var(--ui-bg-base);
-      overflow-x: auto;
-      position: relative;
-    `,
-    Header: `
-      background-color: var(--ui-bg-subtle);
-    `,
-    HeaderRow: `
-      border-bottom: 1px solid var(--ui-border-base);
-    `,
-    HeaderCell: `
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 14px;
-      color: var(--ui-fg-muted);
-      font-weight: 500;
-      background-color: var(--ui-bg-subtle);
-      
-      &:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 10;
-        background-color: var(--ui-bg-subtle);
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:last-child {
-        position: sticky;
-        right: 0;
-        z-index: 10;
-        background-color: var(--ui-bg-subtle);
-        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-    `,
-    Row: `
-      border-bottom: 1px solid var(--ui-border-base);
-      background-color: var(--ui-bg-base);
-      &:hover {
-        background-color: var(--ui-bg-subtle-hover);
-      }
-    `,
-    Cell: `
-      padding: 12px 16px;
-      font-size: 14px;
-      color: var(--ui-fg-base);
-      background-color: var(--ui-bg-base);
-      
-      &:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-        background-color: var(--ui-bg-base);
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:last-child {
-        position: sticky;
-        right: 0;
-        z-index: 5;
-        background-color: var(--ui-bg-base);
-        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:first-child:hover,
-       &:last-child:hover {
-         background-color: var(--ui-bg-subtle-hover);
-       }
-    `
-  });
 
   // Handle loading state
   if (isLoading) {
@@ -172,67 +94,67 @@ export function OrderHistoryTab() {
 
   // Process data for table
   const tableData = orderHistoryResponse?.data?.map(transformOrderData) || [];
-  
-  const data = {
-    nodes: tableData
-  };
 
 
 
   return (
     <div className="w-full h-full overflow-x-auto">
-      <Table data={data} theme={theme}>
-        {(tableList: OrderHistoryTableData[]) => (
-          <>
-            <Header>
-              <HeaderRow>
-                <HeaderCell>Market</HeaderCell>
-                <HeaderCell>Instrument</HeaderCell>
-                <HeaderCell>Order Type</HeaderCell>
-                <HeaderCell>Direction</HeaderCell>
-                <HeaderCell>Avg. Filled Price/Order Price</HeaderCell>
-                <HeaderCell>Filled/Order Quantity</HeaderCell>
-                <HeaderCell>Order Time</HeaderCell>
-                <HeaderCell>Order ID</HeaderCell>
-                <HeaderCell>Filled/Order Value</HeaderCell>
-                <HeaderCell>Order Status</HeaderCell>
-                <HeaderCell>Trading Fees</HeaderCell>
-                <HeaderCell>Action</HeaderCell>
-              </HeaderRow>
-            </Header>
-            <Body>
-               {tableList.map((item: OrderHistoryTableData) => (
-                 <Row key={item.id} item={item}>
-                   <Cell>{item.market}</Cell>
-                   <Cell>{item.instrument}</Cell>
-                   <Cell>{item.orderType}</Cell>
-                   <Cell>
-                     <span className="text-ui-green">
-                       {item.direction}
-                     </span>
-                   </Cell>
-                   <Cell>{item.avgFilledPrice}</Cell>
-                   <Cell>{item.filledOrderQuantity}</Cell>
-                   <Cell>{item.orderTime}</Cell>
-                   <Cell>{item.orderId}</Cell>
-                   <Cell>{item.filledOrderValue}</Cell>
-                   <Cell>
-                     <span className={item.orderStatus === 'Filled' ? 'text-ui-green' : 'text-ui-fg-base'}>
-                       {item.orderStatus}
-                     </span>
-                   </Cell>
-                   <Cell>{item.tradingFees}</Cell>
-                   <Cell>
-                     <button className="smm-text text-ui-fg-muted hover:text-ui-fg-base transition-colors border border-ui-border-base rounded px-2 py-1">
-                       Details
-                     </button>
-                   </Cell>
-                 </Row>
-               ))}
-             </Body>
-          </>
-        )}
-      </Table>
+      <div style={{ minWidth: '1500px' }}>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+                Market
+              </Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Avg. Filled Price/Order Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled/Order Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Time</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order ID</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled/Order Value</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Status</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Trading Fees</Table.HeaderCell>
+              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base shadow-md whitespace-nowrap">
+                Action
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {tableData.map((item: OrderHistoryTableData) => (
+              <Table.Row key={item.id}>
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                  {item.market}
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">
+                  <span className="text-green-600">
+                    {item.direction}
+                  </span>
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.avgFilledPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledOrderQuantity}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderTime}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderId}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledOrderValue}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">
+                  <span className={item.orderStatus === 'Filled' ? 'text-green-600' : 'text-gray-600'}>
+                    {item.orderStatus}
+                  </span>
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.tradingFees}</Table.Cell>
+                <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
+                  <button className="text-sm text-gray-500 hover:text-gray-700 transition-colors border border-gray-300 rounded px-2 py-1">
+                    Details
+                  </button>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
     </div>
   );
 }

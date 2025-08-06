@@ -1,8 +1,6 @@
 'use client';
 
-import { Table } from '@table-library/react-table-library/table';
-import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
-import { useTheme } from '@table-library/react-table-library/theme';
+import { Table } from '@medusajs/ui';
 import { useTradeExecutions, TradeExecutionItem } from '../../../lib/api/use-trade-executions';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
@@ -27,7 +25,7 @@ interface TradeHistoryTableData {
 
 /**
  * TradeHistoryTab component displays trade history table
- * Matches the design with columns: Market, Instrument, Order Type, Direction, Filled Value, Filled Pri, Index Price
+ * Uses @medusajs/ui Table component with sticky first and last columns
  */
 export function TradeHistoryTab() {
   // Get current API key
@@ -41,69 +39,10 @@ export function TradeHistoryTab() {
   );
   console.log("🚀 ~ TradeHistoryTab ~ tradeExecutionResponse:", tradeExecutionResponse);
 
-  // Custom theme to match existing design with sticky first column
-  const theme = useTheme({
-    Table: `
-      --data-table-library_grid-template-columns: 120px 140px 120px 120px 180px 120px 120px 140px 120px 160px 140px 140px 120px;
-      border-collapse: collapse;
-      width: 100%;
-      background-color: var(--ui-bg-base);
-      overflow-x: auto;
-      position: relative;
-    `,
-    Header: `
-      background-color: var(--ui-bg-subtle);
-    `,
-    HeaderRow: `
-      border-bottom: 1px solid var(--ui-border-base);
-    `,
-    HeaderCell: `
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 14px;
-      color: var(--ui-fg-muted);
-      font-weight: 500;
-      background-color: var(--ui-bg-subtle);
-      
-      &:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 10;
-        background-color: var(--ui-bg-subtle);
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-    `,
-    Row: `
-      border-bottom: 1px solid var(--ui-border-base);
-      background-color: var(--ui-bg-base);
-      &:hover {
-        background-color: var(--ui-bg-subtle-hover);
-      }
-    `,
-    Cell: `
-      padding: 12px 16px;
-      font-size: 14px;
-      color: var(--ui-fg-base);
-      background-color: var(--ui-bg-base);
-      
-      &:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-        background-color: var(--ui-bg-base);
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      &:first-child:hover {
-         background-color: var(--ui-bg-subtle-hover);
-       }
-    `
-  });
-
   // Handle loading state
   if (isLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="flex items-center justify-center h-64">
         <div className="text-ui-fg-muted">Loading trade history...</div>
       </div>
     );
@@ -112,7 +51,7 @@ export function TradeHistoryTab() {
   // Handle error state
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="flex items-center justify-center h-64">
         <div className="text-ui-fg-error">Failed to load trade history</div>
       </div>
     );
@@ -161,59 +100,70 @@ export function TradeHistoryTab() {
 
   // Process data for table
   const tableData = tradeExecutionResponse?.data?.map(transformTradeData) || [];
-  
-  const data = {
-    nodes: tableData
-  };
+
+  // Show empty state
+  if (tableData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-ui-fg-muted">No trade history found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full overflow-x-auto">
-      <Table data={data} theme={theme}>
-        {(tableList: TradeHistoryTableData[]) => (
-          <>
-            <Header>
-              <HeaderRow>
-                <HeaderCell>Market</HeaderCell>
-                <HeaderCell>Instrument</HeaderCell>
-                <HeaderCell>Order Type</HeaderCell>
-                <HeaderCell>Direction</HeaderCell>
-                <HeaderCell>Filled Value</HeaderCell>
-                <HeaderCell>Filled Price</HeaderCell>
-                <HeaderCell>Filled Qty</HeaderCell>
-                <HeaderCell>Filled Type</HeaderCell>
-                <HeaderCell>Trading Fees</HeaderCell>
-                <HeaderCell>Transaction Time</HeaderCell>
-                <HeaderCell>Transaction ID</HeaderCell>
-                <HeaderCell>Implied Volatility</HeaderCell>
-                <HeaderCell>Index Price</HeaderCell>
-              </HeaderRow>
-            </Header>
-            <Body>
-              {tableList.map((item: TradeHistoryTableData) => (
-                <Row key={item.id} item={item}>
-                  <Cell>{item.market}</Cell>
-                  <Cell>{item.instrument}</Cell>
-                  <Cell>{item.orderType}</Cell>
-                  <Cell>
-                    <span className={item.direction.includes('Long') ? 'text-ui-green' : 'text-ui-red'}>
-                      {item.direction}
-                    </span>
-                  </Cell>
-                  <Cell>{item.filledValue}</Cell>
-                  <Cell>{item.filledPrice}</Cell>
-                  <Cell>{item.filledQty}</Cell>
-                  <Cell>{item.filledType}</Cell>
-                  <Cell>{item.tradingFees}</Cell>
-                  <Cell>{item.transactionTime}</Cell>
-                  <Cell>{item.transactionId}</Cell>
-                  <Cell>{item.impliedVolatility}</Cell>
-                  <Cell>{item.indexPrice}</Cell>
-                </Row>
-              ))}
-            </Body>
-          </>
-        )}
-      </Table>
+      <div style={{ minWidth: '1800px' }}>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+                Market
+              </Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled Value</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled Qty</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Filled Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Trading Fees</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Transaction Time</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Transaction ID</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">Implied Volatility</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">
+                Index Price
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {tableData.map((item: TradeHistoryTableData) => (
+              <Table.Row key={item.id}>
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                  {item.market}
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">
+                  <span className={item.direction.includes('Long') ? 'text-green-600' : 'text-red-600'}>
+                    {item.direction}
+                  </span>
+                </Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledValue}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledQty}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.filledType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.tradingFees}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.transactionTime}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.transactionId}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">{item.impliedVolatility}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap">
+                  {item.indexPrice}
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
     </div>
   );
 }
