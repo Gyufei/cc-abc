@@ -16,14 +16,16 @@ export interface TradingOrderRequest {
   qty: string;
   market_unit?: string;
 
+  tp_order_type?: string;
+  sl_order_type?: string;
+  tp_limit_price?: string;
+  sl_limit_price?: string;
   time_in_force?: string;
   price?: string;
   reduce_only?: boolean;
   trigger_price?: string;
   take_profit?: string;
   stop_loss?: string;
-  tp_order_type?: string;
-  sl_order_type?: string;
   close_on_trigger?: boolean;
   order_filter?: string;
 }
