@@ -1,19 +1,9 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
-
-
-
 import Image from 'next/image';
-
-
-
 import { AssetTableData, useAssets } from '@/lib/api/use-assets';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
-
-
-
-
 
 /**
  * AssetsTab component displays assets table
@@ -64,9 +54,9 @@ export function AssetsTab() {
 
   return (
     <div className="w-full h-full overflow-x-auto">
-      <div style={{ minWidth: '1000px' }}>
+     <div className="w-full h-full" style={{ minWidth: '500px' }}>
         <Table>
-          <Table.Header>
+          <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
             <Table.Row>
               <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                 <div className="flex items-center gap-2">

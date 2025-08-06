@@ -38,7 +38,7 @@ function transformAssetData(
   getUsdPrice?: (symbol: string) => number
 ): AssetTableData[] {
   return assets.map((asset, index) => {
-    const usdPrice = getUsdPrice?.(asset.symbol) || 1;
+    const usdPrice = getUsdPrice?.(asset.symbol) || 113995;
     const netAssetValueUsd = asset.total * usdPrice;
 
     return {

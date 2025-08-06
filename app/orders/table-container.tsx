@@ -21,7 +21,7 @@ export function TableContainer() {
   const openOrdersCount = openOrdersData?.length || 0;
   return (
     <div className="flex-1 bg-background border border-t-0 border-ui-border-base rounded-lg mt-4 overflow-auto">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col gap-0">
         <TabsList className="w-full justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0">
           <TabsTrigger
             value="open-orders"
