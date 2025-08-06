@@ -27,6 +27,7 @@ export interface OpenOrderItem {
   cum_exec_fee: number;
   time_in_force: string;
   stop_order_type: string;
+  leaves_value: number;
   trigger_price: number;
   take_profit: number;
   stop_loss: number;
@@ -78,11 +79,11 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       id: order.id,
       market: order.symbol,
       instrument: 'Spot', // Default to Spot for now
-      orderType: order.order_type === 'limit' ? 'Limit' : 'Market',
-      direction: order.side === 'buy' ? 'Buy' : 'Sell',
+      orderType: order.order_type,
+      direction: order.side,
       orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
       filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
-      order: `${order.cum_exec_value.toFixed(2)} ${order.symbol.replace('BTC', '')}`,
+      order: `${order.leaves_value.toFixed(2)} ${order.symbol.replace('BTC', '')}`,
       tpSl: '--',
       tradeType: '--', // Default value、Open Long
       orderTime: orderTime,

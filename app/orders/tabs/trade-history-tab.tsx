@@ -61,8 +61,9 @@ export function TradeHistoryTab() {
    * Transform API data to table format
    */
   const transformTradeData = (tradeItem: TradeExecutionItem): TradeHistoryTableData => {
-    const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
-    const orderTypeText = tradeItem.order_type === 'Limit' ? 'Limit' : 'Market';
+    // const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
+    const sideText = tradeItem.side;
+    const orderTypeText = tradeItem.order_type;
     const filledValue = `${tradeItem.exec_value} USDT`;
     const filledPrice = `${tradeItem.exec_price}`;
     const filledQty = `${tradeItem.exec_qty} BTC`;
@@ -85,7 +86,7 @@ export function TradeHistoryTab() {
     return {
       id: tradeItem.id,
       market: tradeItem.symbol,
-      instrument: 'USDT Perpetuals', // Default value as not provided in API
+      instrument: 'Spot', // Default value as not provided in API
       orderType: orderTypeText,
       direction: sideText,
       filledValue: filledValue,
@@ -150,7 +151,7 @@ export function TradeHistoryTab() {
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">
                   <span
-                    className={item.direction.includes('Long') ? 'text-green-600' : 'text-red-600'}
+                    className={item.direction === "Buy" ? 'text-green-600' : 'text-red-600'}
                   >
                     {item.direction}
                   </span>
