@@ -1,9 +1,10 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
-import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
-import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
+import { OpenOrderTableData, useOpenOrders } from '@/lib/api/use-open-orders';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 /**
  * OpenOrdersTab component displays open orders table
@@ -12,9 +13,9 @@ import { useCancelOrder } from '@/lib/api/use-cancel-order';
 export function OpenOrdersTab() {
   // Get current API key data
   const { data: currentApiKey } = useCurrentApiKey();
-  
+
   // Get open orders data
-  const { data: ordersData, loading, error } = useOpenOrders();
+  const { data: ordersData, isLoading, error } = useOpenOrders();
 
   // Cancel order mutation
   const cancelOrderMutation = useCancelOrder();
@@ -31,7 +32,7 @@ export function OpenOrdersTab() {
         api_key: currentApiKey.api_key,
         category: 'spot',
         symbol: symbol,
-        order_link_id: orderLinkId
+        order_link_id: orderLinkId,
       });
     } catch (error) {
       console.error('Failed to cancel order:', error);
@@ -39,7 +40,7 @@ export function OpenOrdersTab() {
   };
 
   // Show loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-ui-fg-muted">Loading open orders...</div>
@@ -74,11 +75,13 @@ export function OpenOrdersTab() {
               <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
                 Market
               </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-2">Instrument</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Order Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled/Order Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap">
+                Filled/Order Quantity
+              </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Order Value</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">TP/SL</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap">Trade Type</Table.HeaderCell>
@@ -96,7 +99,7 @@ export function OpenOrdersTab() {
                 <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
                   {item.market}
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-2">{item.instrument}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap">
                   <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
@@ -112,7 +115,7 @@ export function OpenOrdersTab() {
                 <Table.Cell className="whitespace-nowrap">{item.orderId}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap">{item.reduceOnly}</Table.Cell>
                 <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
-                  <button 
+                  <button
                     onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
                     className=" hover:text-red-800 transition-colors border rounded px-2 py-1 cursor-pointer"
                     disabled={cancelOrderMutation.isPending}
