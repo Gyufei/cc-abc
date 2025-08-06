@@ -3,7 +3,7 @@
 import { Table } from '@medusajs/ui';
 import { TokenPair } from '@/lib/types/asset';
 
-import { OrderHistoryItem, useOrderHistory } from '../../../lib/api/use-order-history';
+import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
 
 // Type definition for processed order history data for table display
 interface OrderHistoryTableData {
@@ -137,7 +137,9 @@ export function OrderHistoryTab({tokenPair}: {tokenPair: TokenPair}) {
                 <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">
-                  <span className={item.direction === "Buy" ? 'text-green-600' : 'text-red-600'}>{item.direction}</span>
+                  <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
+                    {item.direction}
+                  </span>
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.avgFilledPrice}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">

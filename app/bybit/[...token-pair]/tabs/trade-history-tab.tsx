@@ -3,7 +3,7 @@
 import { Table } from '@medusajs/ui';
 import { TokenPair } from '@/lib/types/asset';
 
-import { TradeExecutionItem, useTradeExecutions } from '../../../lib/api/use-trade-executions';
+import { TradeExecutionItem, useTradeExecutions } from '@/lib/api/use-trade-executions';
 
 // Type definition for processed trade history data for table display
 interface TradeHistoryTableData {
@@ -151,9 +151,7 @@ export function TradeHistoryTab({tokenPair}: {tokenPair: TokenPair}) {
                 <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">
-                  <span
-                    className={item.direction === "Buy" ? 'text-green-600' : 'text-red-600'}
-                  >
+                  <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
                     {item.direction}
                   </span>
                 </Table.Cell>
