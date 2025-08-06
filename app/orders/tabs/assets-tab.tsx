@@ -24,10 +24,10 @@ export function AssetsTab() {
   const { data: currentApiKeyData } = useCurrentApiKey();
   
   // Get assets data with loading and error states
-  const { data: assetsData, loading, error } = useAssets('unified');
+  const { data: assetsData, isLoading, error } = useAssets();
   
   // Show loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-ui-fg-muted">Loading assets...</div>
@@ -39,7 +39,7 @@ export function AssetsTab() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-error">Error: {error}</div>
+        <div className="text-ui-fg-error">Error: {error.message}</div>
       </div>
     );
   }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
+import { ApiPath } from '@/lib/api/api-path';
+import { Fetcher } from '@/lib/fetcher';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
-
-import { Fetcher as _Fetcher } from '../fetcher';
-import { ApiPath as _ApiPath } from './api-path';
+import { useAppStore } from '@/lib/store';
 import { useMarketPrices } from './use-market-prices';
 
 // Interface for asset item from API
@@ -14,15 +14,6 @@ export interface AssetItem {
   frozen: number;
 }
 
-// Interface for API response
-export interface AssetsResponse {
-  code: number;
-  msg: string;
-  data: {
-    account_type: string;
-    assets: AssetItem[];
-  };
-}
 
 // Interface for table display data
 export interface AssetTableData {
@@ -36,73 +27,18 @@ export interface AssetTableData {
   pnl: string;
 }
 
-/**
- * Fetch assets from API
- * @param apiKey - API key for authentication
- * @param accountType - Account type (unified, funding, etc.)
- * @returns Promise with assets data
- */
-export async function fetchAssets(
-  _apiKey: string,
-  _accountType: string = 'unified'
-): Promise<AssetsResponse> {
-  // Mock data for now - replace with real API call when service is ready
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const mockData: AssetsResponse = {
-    code: 200,
-    msg: 'success',
-    data: {
-      account_type: 'funding',
-      assets: [
-        {
-          symbol: 'BTC',
-          total: 0.298,
-          available: 0.298,
-          frozen: 0,
-        },
-        {
-          symbol: 'USDT',
-          total: 11730,
-          available: 11730,
-          frozen: 0,
-        },
-      ],
-    },
-  };
-
-  return mockData;
-
-  // Real API call implementation (commented out for now)
-  /*
-  const params = new URLSearchParams({
-    account_type: accountType,
-    api_key: apiKey
-  });
-  
-  const url = `${ApiPath.tradingAssets}?${params.toString()}`;
-  
-  const response = await Fetcher.get(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch assets: ${response.statusText}`);
-  }
-  
-  return response.json();
-  */
-}
 
 /**
  * Transform API data to table display format
  * @param assets - Raw asset data from API
- * @param getUsdPrice - Function to get USD price for a symbol
  * @returns Transformed data for table display
  */
 function transformAssetData(
   assets: AssetItem[],
-  getUsdPrice: (symbol: string) => number
+  getUsdPrice?: (symbol: string) => number
 ): AssetTableData[] {
   return assets.map((asset, index) => {
-    const usdPrice = getUsdPrice(asset.symbol);
+    const usdPrice = getUsdPrice?.(asset.symbol) || 1;
     const netAssetValueUsd = asset.total * usdPrice;
 
     return {
@@ -118,66 +54,50 @@ function transformAssetData(
   });
 }
 
-/**
- * Hook to fetch and manage assets data with real-time price updates
- * @param accountType - Account type filter
- * @returns Object containing assets data, loading state, and error state
- */
-export function useAssets(accountType: string = 'unified') {
-  const [data, setData] = useState<AssetTableData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [assetsData, setAssetsData] = useState<AssetItem[]>([]);
-
-  const { data: currentApiKeyData } = useCurrentApiKey();
-
-  // Get symbols for price tracking
-  const priceSymbols = assetsData
-    .filter((asset) => asset.symbol !== 'USDT')
-    .map((asset) => `${asset.symbol}USDT`);
-
-  // Use real-time price service
-  const { getUsdPrice, loading: pricesLoading } = useMarketPrices(
-    priceSymbols,
+export function useAssets() {
+  const { user } = useAppStore();
+  const { data: currentApiKey } = useCurrentApiKey();
+   // Use real-time price service
+  const { getUsdPrice } = useMarketPrices(
+    ['BTCUSDT'],
     5000 // Update every 5 seconds
   );
 
-  // Load assets data
-  useEffect(() => {
-    if (!currentApiKeyData?.api_key) {
-      setLoading(false);
-      setError('No API key available');
-      return;
-    }
 
-    const loadAssets = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetchAssets(currentApiKeyData.api_key, accountType);
-        setAssetsData(response.data.assets);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load assets');
-      } finally {
-        setLoading(false);
+  const query = useQuery({
+    queryKey: ['table-assets', currentApiKey?.api_key],
+    queryFn: async (): Promise<AssetTableData[]> => {
+      if (!user.token || !user.user_id) {
+        throw new Error('user not logged in');
       }
-    };
 
-    loadAssets();
-  }, [currentApiKeyData?.api_key, accountType]);
+      if (!currentApiKey?.api_key) {
+        throw new Error('no api key selected');
+      }
 
-  // Transform data when assets or prices change
-  useEffect(() => {
-    if (assetsData.length > 0) {
-      const transformedData = transformAssetData(assetsData, getUsdPrice);
-      setData(transformedData);
-    }
-  }, [assetsData, getUsdPrice]);
+      const params = new URLSearchParams({
+        api_key: currentApiKey.api_key,
+        account_type: 'unified',
+      });
 
-  return {
-    data,
-    loading: loading || pricesLoading,
-    error,
-  };
+      const url = `${ApiPath.tradingAssets}?${params.toString()}`;
+
+      const response = await Fetcher<{ account_type: string; assets: AssetItem[] }>(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+          'X-User-ID': user.user_id || '',
+        },
+      });
+
+      return transformAssetData(response.assets, getUsdPrice);
+    },
+
+    enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // Refetch every minute
+  });
+
+  return query;
 }

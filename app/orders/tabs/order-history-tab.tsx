@@ -2,7 +2,6 @@
 
 import { Table } from '@medusajs/ui';
 import { useOrderHistory, OrderHistoryItem } from '../../../lib/api/use-order-history';
-import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 // Type definition for processed order history data for table display
 interface OrderHistoryTableData {
@@ -26,16 +25,12 @@ interface OrderHistoryTableData {
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
 export function OrderHistoryTab() {
-  // Get current API key
-  const { data: currentApiKey } = useCurrentApiKey();
   
   // Fetch order history data
   const { data: orderHistoryResponse, isLoading, error } = useOrderHistory(
-    currentApiKey?.api_key || 'hpQVBVCgZnFYUEPH7U', // Fallback to provided API key
     'BTCUSDT',
     1 // Last 1 day
   );
-  console.log("🚀 ~ OrderHistoryTab ~ orderHistoryResponse:", orderHistoryResponse)
 
   // Handle loading state
   if (isLoading) {
@@ -94,7 +89,7 @@ export function OrderHistoryTab() {
   };
 
   // Process data for table
-  const tableData = orderHistoryResponse?.data?.map(transformOrderData) || [];
+  const tableData = orderHistoryResponse?.map(transformOrderData) || [];
 
 
 

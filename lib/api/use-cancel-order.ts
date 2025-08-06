@@ -54,7 +54,7 @@ export function useCancelOrder() {
     mutationFn: cancelOrder,
     onSuccess: (data, _variables) => {
       // Invalidate and refetch open orders to reflect the cancellation
-      queryClient.invalidateQueries({ queryKey: ['openOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['open-orders'] });
 
       // Optionally show success message
       console.log('Order cancelled successfully:', data);

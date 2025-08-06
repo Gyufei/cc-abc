@@ -34,10 +34,6 @@ export interface OpenOrderItem {
   close_on_trigger: boolean;
 }
 
-// Interface for API response
-export interface OpenOrdersResponse {
-  data: OpenOrderItem[];
-}
 
 // Interface for table display data
 export interface OpenOrderTableData {
@@ -65,18 +61,19 @@ export interface OpenOrderTableData {
  */
 function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
   return orders.map((order) => {
-    const orderTime = new Date(order.created_at).toLocaleString('en-US', {
+    const orderTime = new Date(order.created_at).toLocaleString('sv-SE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-    });
+      second: '2-digit'
+    }).replace('T', ' ');
 
-    const tpSlText =
-      order.take_profit > 0 || order.stop_loss > 0
-        ? `${order.take_profit > 0 ? order.take_profit.toFixed(2) : '--'}/${order.stop_loss > 0 ? order.stop_loss.toFixed(2) : '--'}`
-        : '+ Add';
+    // const tpSlText =
+    //   order.take_profit > 0 || order.stop_loss > 0
+    //     ? `${order.take_profit > 0 ? order.take_profit.toFixed(2) : '--'}/${order.stop_loss > 0 ? order.stop_loss.toFixed(2) : '--'}`
+    //     : '+ Add';
 
     return {
       id: order.id,
@@ -87,7 +84,7 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
       filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
       order: `${order.cum_exec_value.toFixed(2)} ${order.symbol.replace('BTC', '')}`,
-      tpSl: tpSlText,
+      tpSl: '--',
       tradeType: '--', // Default value、Open Long
       orderTime: orderTime,
       orderId: order.order_id,
@@ -122,7 +119,7 @@ export function useOpenOrders(symbol?: string) {
 
       const url = `${ApiPath.tradingOrders}?${params.toString()}`;
 
-      const response = await Fetcher<OpenOrdersResponse>(url, {
+      const response = await Fetcher<OpenOrderItem[]>(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +128,7 @@ export function useOpenOrders(symbol?: string) {
         },
       });
 
-      return transformOrderData(response.data);
+      return transformOrderData(response);
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,

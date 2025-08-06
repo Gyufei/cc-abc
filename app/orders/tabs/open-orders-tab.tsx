@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { Table } from '@medusajs/ui';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
@@ -14,10 +16,14 @@ export function OpenOrdersTab() {
   const { data: currentApiKey } = useCurrentApiKey();
   
   // Get open orders data
-  const { data: ordersData, loading, error } = useOpenOrders();
+  const { data: ordersData, isLoading, error } = useOpenOrders();
 
   // Cancel order mutation
   const cancelOrderMutation = useCancelOrder();
+  const queryClient = useQueryClient();
+
+  // Track canceling state for each order
+  const [cancelingOrders, setCancelingOrders] = useState<Set<string>>(new Set());
 
   // Handle cancel order
   const handleCancelOrder = async (orderLinkId: string, symbol: string) => {
@@ -26,6 +32,9 @@ export function OpenOrdersTab() {
       return;
     }
 
+    // Add order to canceling set
+    setCancelingOrders(prev => new Set(prev).add(orderLinkId));
+
     try {
       await cancelOrderMutation.mutateAsync({
         api_key: currentApiKey.api_key,
@@ -33,13 +42,24 @@ export function OpenOrdersTab() {
         symbol: symbol,
         order_link_id: orderLinkId
       });
+      
+      // Refresh the orders data after successful cancellation
+      queryClient.invalidateQueries({ queryKey: ['open-orders'] });
+      
     } catch (error) {
       console.error('Failed to cancel order:', error);
+    } finally {
+      // Remove order from canceling set
+      setCancelingOrders(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(orderLinkId);
+        return newSet;
+      });
     }
   };
 
   // Show loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-ui-fg-muted">Loading open orders...</div>
@@ -114,10 +134,10 @@ export function OpenOrdersTab() {
                 <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base sticky-right-shadow whitespace-nowrap pl-3">
                   <button 
                     onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
-                    className="text-red-600 hover:text-red-800 transition-colors border border-red-300 hover:border-red-500 rounded px-2 py-1 cursor-pointer"
-                    disabled={cancelOrderMutation.isPending}
+                    className="text-red-600 hover:text-red-800 transition-colors border border-red-300 hover:border-red-500 rounded px-2 py-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={cancelingOrders.has(item.orderLinkId)}
                   >
-                    {cancelOrderMutation.isPending ? 'Canceling...' : 'Cancel'}
+                    {cancelingOrders.has(item.orderLinkId) ? 'Canceling...' : 'Cancel'}
                   </button>
                 </Table.Cell>
               </Table.Row>

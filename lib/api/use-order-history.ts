@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { Fetcher as _Fetcher } from '../fetcher';
-import { useAppStore } from '../store';
-import { ApiPath  as _ApiPath} from './api-path';
+
+import { ApiPath } from '@/lib/api/api-path';
+import { Fetcher } from '@/lib/fetcher';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+import { useAppStore } from '@/lib/store';
 
 // Order history data interface matching the API response
 export interface OrderHistoryItem {
@@ -39,98 +41,45 @@ export interface OrderHistoryResponse {
   data: OrderHistoryItem[];
 }
 
-/**
- * Fetch order history from API
- * @param apiKey - API key for authentication
- * @param symbol - Trading symbol (e.g., BTCUSDT)
- * @param days - Number of days to fetch (optional)
- */
-async function fetchOrderHistory(
-  apiKey: string,
-  symbol: string,
-  days?: number
-): Promise<OrderHistoryResponse> {
-  const { user } = useAppStore.getState();
+export function useOrderHistory(symbol?: string, days?: number) {
+  const { user } = useAppStore();
+  const { data: currentApiKey } = useCurrentApiKey();
 
-  if (!user.token || !user.user_id) {
-    throw new Error('用户未登录');
-  }
-
-  const params = new URLSearchParams({
-    api_key: apiKey,
-    symbol: symbol,
-  });
-
-  if (days) {
-    params.append('days', days.toString());
-  }
-
-    // Mock data response since the API service is not ready yet
-  const mockResponse: OrderHistoryResponse = {
-    code: 200,
-    msg: "success",
-    data: [
-      {
-        id: "2005230740144657664",
-        user_id: "e22128f7-c5db-4e5a-bdef-9dca78179132",
-        symbol: "BTCUSDT",
-        side: "sell",
-        order_type: "market",
-        quantity: 0.003,
-        price: 0,
-        filled_quantity: 0.003,
-        status: "filled",
-        created_at: "2025-07-29T08:35:31.918Z",
-        updated_at: "2025-07-29T08:35:31.922Z",
-        order_id: "2005230740144657664",
-        order_link_id: "d4406f2f-9bfa-495a-990e-15391aee593a",
-        avg_price: 130149.81,
-        leaves_qty: 0,
-        cum_exec_qty: 0.003,
-        cum_exec_value: 390.44944158,
-        leaves_value: 0,
-        cum_exec_fee: 0.39044944158,
-        time_in_force: "IOC",
-        stop_order_type: "",
-        trigger_price: 0,
-        take_profit: 0,
-        stop_loss: 0,
-        reduce_only: false,
-        close_on_trigger: false
+  const query = useQuery({
+    queryKey: ['order-history', symbol, currentApiKey?.api_key, days],
+    queryFn: async (): Promise<OrderHistoryItem[]> => {
+      if (!user.token || !user.user_id) {
+        throw new Error('user not logged in');
       }
-    ]
-  };
 
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  return mockResponse;
+      if (!currentApiKey?.api_key) {
+        throw new Error('no api key selected');
+      }
 
-    // TODO: Replace with real API call when service is ready
-  // const url = `${ApiPath.tradingOrderHistory}?${params.toString()}`;
+      const params = new URLSearchParams({
+        api_key: currentApiKey.api_key,
+        ...(symbol && { symbol }),
+        ...(days && { days: days.toString() }),
+      });
 
-  // return Fetcher<OrderHistoryResponse>(url, {
-  //   method: 'GET',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Authorization: `Bearer ${user.token}`,
-  //     'X-User-ID': user.user_id,
-  //   },
-  // });
-}
+      const url = `${ApiPath.tradingOrderHistory}?${params.toString()}`;
 
-/**
- * Hook to fetch order history data
- * @param apiKey - API key for authentication
- * @param symbol - Trading symbol
- * @param days - Number of days to fetch
- */
-export function useOrderHistory(apiKey: string, symbol: string, days?: number) {
-  return useQuery({
-    queryKey: ['orderHistory', apiKey, symbol, days],
-    queryFn: () => fetchOrderHistory(apiKey, symbol, days),
-    enabled: !!apiKey && !!symbol,
+      const response = await Fetcher<OrderHistoryItem[]>(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+          'X-User-ID': user.user_id || '',
+        },
+      });
+
+      return response;
+    },
+
+    enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
     staleTime: 30000, // 30 seconds
     refetchInterval: 60000, // Refetch every minute
   });
+
+  return query;
 }
