@@ -10,13 +10,18 @@ import { OpenOrdersTab } from './tabs/open-orders-tab';
 import { OrderHistoryTab } from './tabs/order-history-tab';
 import { PositionsTab } from './tabs/positions-tab';
 import { TradeHistoryTab } from './tabs/trade-history-tab';
-import { TokenPair } from '@/lib/types/asset';
 
 /**
  * TableContainer component that displays trading data in tabbed interface
  * Matches the design specifications with 5 tabs: Open Orders, Positions, Order History, Trade History, Assets
  */
-export function TableContainer({tokenPair}: {tokenPair: TokenPair}) {
+export function TableContainer({
+  baseCoin,
+  quoteCoin,
+}: {
+  baseCoin: string | null;
+  quoteCoin: string | null;
+}) {
   const [activeTab, setActiveTab] = useState('open-orders');
  const { data: openOrdersData } = useOpenOrders();
   const openOrdersCount = openOrdersData?.length || 0;
@@ -65,11 +70,11 @@ export function TableContainer({tokenPair}: {tokenPair: TokenPair}) {
         </TabsContent>
 
         <TabsContent value="order-history" className="mt-0 p-0 flex-1 overflow-auto">
-          <OrderHistoryTab tokenPair={tokenPair} />
+          <OrderHistoryTab baseCoin={baseCoin} quoteCoin={quoteCoin} />
         </TabsContent>
 
         <TabsContent value="trade-history" className="mt-0 p-0 flex-1 overflow-auto">
-          <TradeHistoryTab tokenPair={tokenPair}/>
+          <TradeHistoryTab baseCoin={baseCoin} quoteCoin={quoteCoin} />
         </TabsContent>
 
         <TabsContent value="assets" className="mt-0 p-0 flex-1 overflow-auto">
