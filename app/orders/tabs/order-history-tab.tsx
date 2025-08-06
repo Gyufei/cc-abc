@@ -58,8 +58,8 @@ export function OrderHistoryTab() {
    * Transform API data to table format
    */
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
-    const sideText = orderItem.side === 'Buy' ? 'Open Long' : 'Open Short';
-    const orderTypeText = orderItem.order_type === 'market' ? 'Market' : 'Limit';
+    const sideText = orderItem.side;
+    const orderTypeText = orderItem.order_type;
     const avgPrice = orderItem.avg_price > 0 ? orderItem.avg_price.toLocaleString() : 'N/A';
     const orderPrice = orderItem.price > 0 ? orderItem.price.toLocaleString() : 'N/A';
     const priceDisplay = `${avgPrice}/${orderPrice}`;
@@ -80,7 +80,7 @@ export function OrderHistoryTab() {
     return {
       id: orderItem.id,
       market: orderItem.symbol,
-      instrument: 'USDT Perpetuals', // Default value as not provided in API
+      instrument: 'Spot', // Default value as not provided in API
       orderType: orderTypeText,
       direction: sideText,
       avgFilledPrice: priceDisplay,
