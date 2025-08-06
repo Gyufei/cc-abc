@@ -1,12 +1,18 @@
 import Image from 'next/image';
 
 import ThreeDot from '@/components/icons/three-dot';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-import { useIsLogin, useUser } from '@/lib/store';
+import { useAppStore, useIsLogin, useUser } from '@/lib/store';
 
 export function SidebarFooter() {
   const user = useUser();
   const isLogin = useIsLogin();
+  const logout = useAppStore((state) => state.logout);
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="h-[56px] p-3 flex items-center justify-between">
@@ -24,7 +30,19 @@ export function SidebarFooter() {
             </div>
             <div className="text-ui-fg-base smm-text">{user?.username}</div>
           </div>
-          <ThreeDot className="w-[15px] h-[15px] cursor-pointer" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <ThreeDot className="w-[15px] h-[15px] cursor-pointer" />
+            </PopoverTrigger>
+            <PopoverContent className="w-32 p-1" align="end">
+              <div
+                onClick={handleLogout}
+                className="w-full text-left px-3 py-2 text-sm text-ui-fg-base hover:bg-ui-bg-base-hover rounded-md transition-colors"
+              >
+                Logout
+              </div>
+            </PopoverContent>
+          </Popover>
         </>
       ) : (
         <></>

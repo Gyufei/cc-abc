@@ -26,7 +26,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
       ) : (
         <LoginModal />
       )}
-      <Toaster />
+      <Toaster position="top-right" />
     </div>
   );
 }

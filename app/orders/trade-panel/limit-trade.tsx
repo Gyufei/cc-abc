@@ -145,7 +145,12 @@ export function LimitTrade({
       return;
     }
 
-    if (Number(orderValue) > Number(tokenBalance)) {
+    if (isBuy && Number(orderValue) > Number(tokenBalance)) {
+      toast.error('Insufficient balance');
+      return;
+    }
+
+    if (!isBuy && Number(quantity) > Number(tokenBalance)) {
       toast.error('Insufficient balance');
       return;
     }
