@@ -81,6 +81,10 @@ export function LimitTrade({
 
   useEffect(() => {
     handleQuantityChange('');
+    setTpSl(false);
+    setTakeProfit('');
+    setStopLoss('');
+    setTimeInForce('GTC');
   }, [side]);
 
   const handleProgressChange = (value: number) => {
@@ -184,12 +188,12 @@ export function LimitTrade({
 
     if (tpSl && takeProfit) {
       params.take_profit = takeProfit;
-      params.tp_order_type = 'Limit';
+      params.tp_order_type = 'Market';
     }
 
     if (tpSl && stopLoss) {
       params.stop_loss = stopLoss;
-      params.sl_order_type = 'Limit';
+      params.sl_order_type = 'Market';
     }
 
     createOrder(params);
