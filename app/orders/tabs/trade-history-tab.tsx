@@ -15,6 +15,12 @@ interface TradeHistoryTableData {
   direction: string;
   filledValue: string;
   filledPrice: string;
+  filledQty: string;
+  filledType: string;
+  tradingFees: string;
+  transactionTime: string;
+  transactionId: string;
+  impliedVolatility: string;
   indexPrice: string;
   originalData: TradeExecutionItem;
 }
@@ -38,7 +44,7 @@ export function TradeHistoryTab() {
   // Custom theme to match existing design with sticky first column
   const theme = useTheme({
     Table: `
-      --data-table-library_grid-template-columns: 120px 140px 120px 120px 180px 120px 120px;
+      --data-table-library_grid-template-columns: 120px 140px 120px 120px 180px 120px 120px 140px 120px 160px 140px 140px 120px;
       border-collapse: collapse;
       width: 100%;
       background-color: var(--ui-bg-base);
@@ -120,16 +126,34 @@ export function TradeHistoryTab() {
     const orderTypeText = tradeItem.order_type === 'Limit' ? 'Limit' : 'Market';
     const filledValue = `${tradeItem.exec_value.toLocaleString()} USDT`;
     const filledPrice = tradeItem.exec_price.toLocaleString();
+    const filledQty = `${tradeItem.exec_qty.toLocaleString()} BTC`;
+    const filledType = 'Trade'; // Default value for filled type
+    const tradingFees = `${(tradeItem.exec_fee || 0).toLocaleString()} USDT`;
     const indexPrice = tradeItem.index_price ? tradeItem.index_price.toLocaleString() : '--';
+    const transactionTime = new Date(tradeItem.exec_time).toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const transactionId = tradeItem.id;
+    const impliedVolatility = '--'; // Default value as not provided in current API
     
     return {
       id: tradeItem.id,
       market: tradeItem.symbol,
-      instrument: 'USDT perpetuals', // Default value as not provided in API
+      instrument: 'USDT Perpetuals', // Default value as not provided in API
       orderType: orderTypeText,
       direction: sideText,
       filledValue: filledValue,
       filledPrice: filledPrice,
+      filledQty: filledQty,
+      filledType: filledType,
+      tradingFees: tradingFees,
+      transactionTime: transactionTime,
+      transactionId: transactionId,
+      impliedVolatility: impliedVolatility,
       indexPrice: indexPrice,
       originalData: tradeItem
     };
@@ -154,7 +178,13 @@ export function TradeHistoryTab() {
                 <HeaderCell>Order Type</HeaderCell>
                 <HeaderCell>Direction</HeaderCell>
                 <HeaderCell>Filled Value</HeaderCell>
-                <HeaderCell>Filled Pri</HeaderCell>
+                <HeaderCell>Filled Price</HeaderCell>
+                <HeaderCell>Filled Qty</HeaderCell>
+                <HeaderCell>Filled Type</HeaderCell>
+                <HeaderCell>Trading Fees</HeaderCell>
+                <HeaderCell>Transaction Time</HeaderCell>
+                <HeaderCell>Transaction ID</HeaderCell>
+                <HeaderCell>Implied Volatility</HeaderCell>
                 <HeaderCell>Index Price</HeaderCell>
               </HeaderRow>
             </Header>
@@ -165,12 +195,18 @@ export function TradeHistoryTab() {
                   <Cell>{item.instrument}</Cell>
                   <Cell>{item.orderType}</Cell>
                   <Cell>
-                    <span className="text-ui-green">
+                    <span className={item.direction.includes('Long') ? 'text-ui-green' : 'text-ui-red'}>
                       {item.direction}
                     </span>
                   </Cell>
                   <Cell>{item.filledValue}</Cell>
                   <Cell>{item.filledPrice}</Cell>
+                  <Cell>{item.filledQty}</Cell>
+                  <Cell>{item.filledType}</Cell>
+                  <Cell>{item.tradingFees}</Cell>
+                  <Cell>{item.transactionTime}</Cell>
+                  <Cell>{item.transactionId}</Cell>
+                  <Cell>{item.impliedVolatility}</Cell>
                   <Cell>{item.indexPrice}</Cell>
                 </Row>
               ))}

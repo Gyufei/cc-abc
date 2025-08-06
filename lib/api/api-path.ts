@@ -24,4 +24,6 @@ export const ApiPath = {
   tradingOrderHistory: `${ApiHost}/api/v1/trading/orders/history`,
   tradingExecutions: `${ApiHost}/api/v1/trading/executions`,
   tradingAssets: `${ApiHost}/api/v1/trading/assets`,
+  cancelOrder: `${ApiHost}/api/v1/trading/orders/cancel`,
+  marketPrices: `${ApiHost}/api/v1/market/prices`,
 };

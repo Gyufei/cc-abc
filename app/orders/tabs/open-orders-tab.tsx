@@ -5,6 +5,7 @@ import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/r
 import { useTheme } from '@table-library/react-table-library/theme';
 import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+import { useCancelOrder } from '@/lib/api/use-cancel-order';
 
 /**
  * OpenOrdersTab component displays open orders table
@@ -14,7 +15,7 @@ export function OpenOrdersTab() {
   // Custom theme to match existing design with sticky columns
   const theme = useTheme({
     Table: `
-      --data-table-library_grid-template-columns: 120px 140px 120px 120px 140px 120px 120px 100px;
+      --data-table-library_grid-template-columns: 120px 140px 120px 120px 140px 120px 120px 120px 120px 140px 120px 120px 100px;
       border-collapse: collapse;
       width: 100%;
       background-color: var(--ui-bg-base);
@@ -93,6 +94,32 @@ export function OpenOrdersTab() {
   // Get open orders data with loading and error states
   const { data: ordersData, loading, error } = useOpenOrders();
   
+  // Cancel order mutation
+  const cancelOrderMutation = useCancelOrder();
+  
+  /**
+   * Handle cancel order button click
+   * @param orderLinkId - The order link ID to cancel
+   * @param symbol - The trading symbol
+   */
+  const handleCancelOrder = async (orderLinkId: string, symbol: string) => {
+    if (!currentApiKeyData?.api_key) {
+      console.error('No API key available');
+      return;
+    }
+    
+    try {
+      await cancelOrderMutation.mutateAsync({
+        api_key: currentApiKeyData.api_key,
+        category: 'spot',
+        symbol: symbol,
+        order_link_id: orderLinkId
+      });
+    } catch (error) {
+      console.error('Failed to cancel order:', error);
+    }
+  };
+  
   // Transform data for react-table-library format
   const data = {
     nodes: ordersData
@@ -139,6 +166,11 @@ export function OpenOrdersTab() {
                 <HeaderCell>Order Price</HeaderCell>
                 <HeaderCell>Filled/Order Quantity</HeaderCell>
                 <HeaderCell>Order</HeaderCell>
+                <HeaderCell>TP/SL</HeaderCell>
+                <HeaderCell>Trade Type</HeaderCell>
+                <HeaderCell>Order Time</HeaderCell>
+                <HeaderCell>Order ID</HeaderCell>
+                <HeaderCell>Reduce-Only</HeaderCell>
                 <HeaderCell>Action</HeaderCell>
               </HeaderRow>
             </Header>
@@ -169,8 +201,27 @@ export function OpenOrdersTab() {
                     <span className="smm-text text-ui-fg-base">{item.order}</span>
                   </Cell>
                   <Cell>
-                    <button className="smm-text text-ui-fg-muted hover:text-ui-fg-base transition-colors border border-ui-border-base px-2 py-1 rounded">
-                      {item.action}
+                    <span className="smm-text text-ui-fg-base">{item.tpSl}</span>
+                  </Cell>
+                  <Cell>
+                    <span className="smm-text text-ui-fg-base">{item.tradeType}</span>
+                  </Cell>
+                  <Cell>
+                    <span className="smm-text text-ui-fg-base">{item.orderTime}</span>
+                  </Cell>
+                  <Cell>
+                    <span className="smm-text text-ui-fg-base">{item.orderId}</span>
+                  </Cell>
+                  <Cell>
+                    <span className="smm-text text-ui-fg-base">{item.reduceOnly}</span>
+                  </Cell>
+                  <Cell>
+                    <button 
+                      className="smm-text text-ui-fg-muted hover:text-ui-fg-base transition-colors border border-ui-border-base px-2 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => handleCancelOrder(item.orderLinkId || item.id, item.symbol)}
+                      disabled={cancelOrderMutation.isPending}
+                    >
+                      {cancelOrderMutation.isPending ? 'Cancelling...' : 'Cancel'}
                     </button>
                   </Cell>
                 </Row>

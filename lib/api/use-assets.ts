@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Fetcher as _Fetcher } from '../fetcher';
 import { ApiPath as _ApiPath } from './api-path';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+import { useMarketPrices } from './use-market-prices';
 
 // Interface for asset item from API
 export interface AssetItem {
@@ -91,23 +92,32 @@ export async function fetchAssets(
 /**
  * Transform API data to table display format
  * @param assets - Raw asset data from API
+ * @param getUsdPrice - Function to get USD price for a symbol
  * @returns Transformed data for table display
  */
-function transformAssetData(assets: AssetItem[]): AssetTableData[] {
-  return assets.map((asset, index) => ({
-    id: `${asset.symbol}-${index}`,
-    coin: asset.symbol,
-    netAssetValue: asset.total.toFixed(8),
-    netAssetValueUsd: `≈${(asset.total * (asset.symbol === 'BTC' ? 118575.90 : 1)).toFixed(2)} USD`,
-    balance: asset.available.toFixed(8),
-    sportCost: '--',
-    lastPrice: asset.symbol === 'BTC' ? '118575.90 USD' : '1.00 USD',
-    pnl: '--'
-  }));
+function transformAssetData(
+  assets: AssetItem[], 
+  getUsdPrice: (symbol: string) => number
+): AssetTableData[] {
+  return assets.map((asset, index) => {
+    const usdPrice = getUsdPrice(asset.symbol);
+    const netAssetValueUsd = asset.total * usdPrice;
+    
+    return {
+      id: `${asset.symbol}-${index}`,
+      coin: asset.symbol,
+      netAssetValue: asset.total.toFixed(8),
+      netAssetValueUsd: `≈${netAssetValueUsd.toFixed(2)} USD`,
+      balance: asset.available.toFixed(8),
+      sportCost: '--',
+      lastPrice: asset.symbol === 'USDT' ? '1.00 USD' : `${usdPrice.toFixed(2)} USD`,
+      pnl: '--'
+    };
+  });
 }
 
 /**
- * Hook to fetch and manage assets data
+ * Hook to fetch and manage assets data with real-time price updates
  * @param accountType - Account type filter
  * @returns Object containing assets data, loading state, and error state
  */
@@ -115,9 +125,22 @@ export function useAssets(accountType: string = 'unified') {
   const [data, setData] = useState<AssetTableData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [assetsData, setAssetsData] = useState<AssetItem[]>([]);
   
   const { data: currentApiKeyData } = useCurrentApiKey();
   
+  // Get symbols for price tracking
+  const priceSymbols = assetsData
+    .filter(asset => asset.symbol !== 'USDT')
+    .map(asset => `${asset.symbol}USDT`);
+  
+  // Use real-time price service
+  const { getUsdPrice, loading: pricesLoading } = useMarketPrices(
+    priceSymbols,
+    5000 // Update every 5 seconds
+  );
+  
+  // Load assets data
   useEffect(() => {
     if (!currentApiKeyData?.api_key) {
       setLoading(false);
@@ -131,8 +154,7 @@ export function useAssets(accountType: string = 'unified') {
         setError(null);
         
         const response = await fetchAssets(currentApiKeyData.api_key, accountType);
-        const transformedData = transformAssetData(response.data.assets);
-        setData(transformedData);
+        setAssetsData(response.data.assets);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load assets');
       } finally {
@@ -143,5 +165,17 @@ export function useAssets(accountType: string = 'unified') {
     loadAssets();
   }, [currentApiKeyData?.api_key, accountType]);
   
-  return { data, loading, error };
+  // Transform data when assets or prices change
+  useEffect(() => {
+    if (assetsData.length > 0) {
+      const transformedData = transformAssetData(assetsData, getUsdPrice);
+      setData(transformedData);
+    }
+  }, [assetsData, getUsdPrice]);
+  
+  return { 
+    data, 
+    loading: loading || pricesLoading, 
+    error 
+  };
 }

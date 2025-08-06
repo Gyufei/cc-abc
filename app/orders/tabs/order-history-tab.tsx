@@ -14,8 +14,12 @@ interface OrderHistoryTableData {
   orderType: string;
   direction: string;
   avgFilledPrice: string;
-  filled: string;
-  action: string;
+  filledOrderQuantity: string;
+  orderTime: string;
+  orderId: string;
+  filledOrderValue: string;
+  orderStatus: string;
+  tradingFees: string;
   originalData: OrderHistoryItem;
 }
 
@@ -38,7 +42,7 @@ export function OrderHistoryTab() {
   // Custom theme to match existing design with sticky columns
   const theme = useTheme({
     Table: `
-      --data-table-library_grid-template-columns: 120px 140px 120px 120px 200px 120px 100px;
+      --data-table-library_grid-template-columns: 120px 140px 120px 120px 200px 180px 140px 120px 180px 120px 120px 100px;
       border-collapse: collapse;
       width: 100%;
       background-color: var(--ui-bg-base);
@@ -138,7 +142,16 @@ export function OrderHistoryTab() {
     const avgPrice = orderItem.avg_price > 0 ? orderItem.avg_price.toLocaleString() : 'N/A';
     const orderPrice = orderItem.price > 0 ? orderItem.price.toLocaleString() : 'N/A';
     const priceDisplay = `${avgPrice}/${orderPrice}`;
-    const filledDisplay = `${orderItem.filled_quantity}/${orderItem.quantity}`;
+    const filledQuantityDisplay = `${orderItem.filled_quantity}/${orderItem.quantity}`;
+    const orderTime = new Date(orderItem.created_at).toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const filledValue = `${orderItem.cum_exec_value.toFixed(2)} USDT`;
+    const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} USDT`;
     
     return {
       id: orderItem.id,
@@ -147,8 +160,12 @@ export function OrderHistoryTab() {
       orderType: orderTypeText,
       direction: sideText,
       avgFilledPrice: priceDisplay,
-      filled: filledDisplay,
-      action: 'Details',
+      filledOrderQuantity: filledQuantityDisplay,
+      orderTime: orderTime,
+      orderId: orderItem.order_id,
+      filledOrderValue: filledValue,
+      orderStatus: orderItem.status.charAt(0).toUpperCase() + orderItem.status.slice(1),
+      tradingFees: tradingFees,
       originalData: orderItem
     };
   };
@@ -174,7 +191,12 @@ export function OrderHistoryTab() {
                 <HeaderCell>Order Type</HeaderCell>
                 <HeaderCell>Direction</HeaderCell>
                 <HeaderCell>Avg. Filled Price/Order Price</HeaderCell>
-                <HeaderCell>Filled/O</HeaderCell>
+                <HeaderCell>Filled/Order Quantity</HeaderCell>
+                <HeaderCell>Order Time</HeaderCell>
+                <HeaderCell>Order ID</HeaderCell>
+                <HeaderCell>Filled/Order Value</HeaderCell>
+                <HeaderCell>Order Status</HeaderCell>
+                <HeaderCell>Trading Fees</HeaderCell>
                 <HeaderCell>Action</HeaderCell>
               </HeaderRow>
             </Header>
@@ -190,10 +212,19 @@ export function OrderHistoryTab() {
                      </span>
                    </Cell>
                    <Cell>{item.avgFilledPrice}</Cell>
-                   <Cell>{item.filled}</Cell>
+                   <Cell>{item.filledOrderQuantity}</Cell>
+                   <Cell>{item.orderTime}</Cell>
+                   <Cell>{item.orderId}</Cell>
+                   <Cell>{item.filledOrderValue}</Cell>
+                   <Cell>
+                     <span className={item.orderStatus === 'Filled' ? 'text-ui-green' : 'text-ui-fg-base'}>
+                       {item.orderStatus}
+                     </span>
+                   </Cell>
+                   <Cell>{item.tradingFees}</Cell>
                    <Cell>
                      <button className="smm-text text-ui-fg-muted hover:text-ui-fg-base transition-colors border border-ui-border-base rounded px-2 py-1">
-                       {item.action}
+                       Details
                      </button>
                    </Cell>
                  </Row>
