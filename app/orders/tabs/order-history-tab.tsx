@@ -136,7 +136,7 @@ export function OrderHistoryTab() {
                 <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">
-                  <span className={item.direction === 'Open Long' ? 'text-green-600' : 'text-red-600'}>{item.direction}</span>
+                  <span className={item.direction === "Buy" ? 'text-green-600' : 'text-red-600'}>{item.direction}</span>
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.avgFilledPrice}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">

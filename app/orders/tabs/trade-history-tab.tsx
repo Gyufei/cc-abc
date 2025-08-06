@@ -151,7 +151,7 @@ export function TradeHistoryTab() {
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">
                   <span
-                    className={item.direction.includes('Long') ? 'text-green-600' : 'text-red-600'}
+                    className={item.direction === "Buy" ? 'text-green-600' : 'text-red-600'}
                   >
                     {item.direction}
                   </span>
