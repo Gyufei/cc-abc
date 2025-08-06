@@ -1,7 +1,7 @@
 export const isPreview = process.env.NEXT_PUBLIC_IS_PREVIEW === '1';
 export const isProduction = process.env.NODE_ENV === 'production' && !isPreview;
 
-const ProdHost = 'https://api-sandbox.tadle.com';
+const ProdHost = 'https://preview-screener.anymm.com';
 const DevHost = 'https://preview-screener.anymm.com';
 
 export const ApiHost = isProduction ? ProdHost : DevHost;
