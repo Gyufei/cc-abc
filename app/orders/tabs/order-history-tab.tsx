@@ -60,8 +60,8 @@ export function OrderHistoryTab() {
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
     const sideText = orderItem.side;
     const orderTypeText = orderItem.order_type;
-    const avgPrice = orderItem.avg_price > 0 ? orderItem.avg_price.toLocaleString() : 'N/A';
-    const orderPrice = orderItem.price > 0 ? orderItem.price.toLocaleString() : 'N/A';
+    const avgPrice = (orderItem.avg_price || 0).toLocaleString();
+    const orderPrice = (orderItem.price || 0).toLocaleString();
     const priceDisplay = `${avgPrice}/${orderPrice}`;
     const filledQuantityDisplay = `${orderItem.filled_quantity}/${orderItem.quantity}`;
     const orderTime = new Date(orderItem.created_at)
