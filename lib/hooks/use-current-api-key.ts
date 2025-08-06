@@ -1,6 +1,5 @@
+import { useApiKeys } from '@/lib/api/use-api-keys';
 import { useAppStore } from '@/lib/store';
-
-import { useApiKeys } from './use-api-keys';
 
 export function useCurrentApiKey() {
   const res = useApiKeys();

@@ -11,17 +11,26 @@ function NumberInput({ onChange, decimalPlaces = 18, ...props }: NumberInputProp
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
+    if (value === '') {
+      onChange?.('');
+      return;
+    }
+
     // 只允许数字和小数点
     const regex = new RegExp(`^\\d*\\.?\\d{0,${decimalPlaces}}$`);
-    if (value === '' || regex.test(value)) {
-      if (onChange) {
-        onChange(value);
+    if (regex.test(value)) {
+      const numberStr = Number(value).toString();
+
+      if (value.endsWith('.')) {
+        onChange?.(numberStr + '.');
+      } else {
+        onChange?.(numberStr);
       }
     }
   };
 
   return (
-    <Input type="text" inputMode="decimal" pattern="[0-9]*" onChange={handleChange} {...props} />
+    <Input type="text" inputMode="decimal" pattern="[0-9\.]*" onChange={handleChange} {...props} />
   );
 }
 
