@@ -81,6 +81,9 @@ export function LimitTrade({
 
   useEffect(() => {
     handleQuantityChange('');
+    setTpSl(false);
+    setTakeProfit('');
+    setStopLoss('');
   }, [side]);
 
   const handleProgressChange = (value: number) => {
