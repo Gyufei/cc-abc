@@ -1,4 +1,4 @@
-import { Badge, Button } from '@medusajs/ui';
+import { Badge, Button, toast } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -7,23 +7,25 @@ import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
 import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
+import { useMarketInfo } from '@/lib/api/use-market-info';
+import { TradingOrderRequest, useTradingOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
-import { CANCEL_TYPE, SIDE } from '@/lib/types/trade';
+import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
-import { PostOnlyCheck } from './post-only-check';
+import { TimeInForceSelect } from './time-in-force-select';
 import { TpSlCheck } from './tp-sl-check';
 
 export function LimitTrade({
   side,
-  token0,
-  token1,
+  baseCoin,
+  quoteCoin,
 }: {
   side: SIDE;
-  token0: string | null;
-  token1: string | null;
+  baseCoin: string | null;
+  quoteCoin: string | null;
 }) {
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -32,13 +34,14 @@ export function LimitTrade({
   const [tpSl, setTpSl] = useState(false);
   const [takeProfit, setTakeProfit] = useState('');
   const [stopLoss, setStopLoss] = useState('');
-
-  const [postOnly, setPostOnly] = useState(false);
-  const [cancelType, setCancelType] = useState<CANCEL_TYPE>('Good-Till-Cancel');
+  const [timeInForce, setTimeInForce] = useState<TIME_IN_FORCE_TYPE>('GTC');
 
   const isBuy = side === 'buy';
 
-  const { data: tokenBalance } = useTokenBalance(isBuy ? token1 : token0);
+  const { data: tokenBalance } = useTokenBalance(isBuy ? quoteCoin : baseCoin);
+  const { data: marketInfo } = useMarketInfo(`${baseCoin}${quoteCoin}`);
+
+  const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
@@ -53,9 +56,24 @@ export function LimitTrade({
     return Math.round(progressValue);
   }, [orderValue, tokenBalance]);
 
+  const orderValueInUSD = useMemo(() => {
+    const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
+    if (orderValue && quoteCoinPrice) {
+      return multiply(orderValue, String(quoteCoinPrice));
+    }
+
+    return '0';
+  }, [orderValue, quoteCoin]);
+
   useEffect(() => {
     setProgress(calculatedProgress);
   }, [calculatedProgress]);
+
+  useEffect(() => {
+    if (marketInfo) {
+      setPrice(marketInfo.price.toString());
+    }
+  }, [marketInfo]);
 
   const handleProgressChange = (value: number) => {
     setProgress(value);
@@ -117,18 +135,47 @@ export function LimitTrade({
     }
   };
 
-  const orderValueInUSD = useMemo(() => {
-    const token1Price = token1 ? TOKEN_PRICE_MAP[token1] : 0;
-    if (orderValue && token1Price) {
-      return multiply(orderValue, String(token1Price));
+  const handleCreateOrder = () => {
+    if (!baseCoin || !quoteCoin) {
+      return;
     }
 
-    return '0';
-  }, [orderValue, token1]);
+    if (!quantity) {
+      toast.error('Please enter quantity to buy');
+      return;
+    }
+
+    if (Number(orderValue) > Number(tokenBalance)) {
+      toast.error('Insufficient balance');
+      return;
+    }
+
+    const params: Omit<TradingOrderRequest, 'api_key'> = {
+      category: 'spot',
+      symbol: `${baseCoin}${quoteCoin}`,
+      side: isBuy ? 'Buy' : 'Sell',
+      order_type: 'limit',
+      qty: quantity,
+      price: price,
+      time_in_force: timeInForce,
+    };
+
+    if (tpSl && takeProfit) {
+      params.take_profit = takeProfit;
+      params.tp_order_type = 'Limit';
+    }
+
+    if (tpSl && stopLoss) {
+      params.stop_loss = stopLoss;
+      params.sl_order_type = 'Limit';
+    }
+
+    createOrder(params);
+  };
 
   return (
     <div className="flex flex-col justify-stretch">
-      <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? token1 : token0} />
+      <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? quoteCoin : baseCoin} />
       <div className="relative mt-3">
         <NumberInput
           className="pr-4"
@@ -138,7 +185,7 @@ export function LimitTrade({
           onChange={handlePriceChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-          {token1 || '-'}
+          {quoteCoin || '-'}
         </Badge>
       </div>
       <div className="relative mt-4">
@@ -150,7 +197,7 @@ export function LimitTrade({
           onChange={handleQuantityChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-          {token0}
+          {baseCoin}
         </Badge>
       </div>
       <div className="mt-6">
@@ -170,7 +217,7 @@ export function LimitTrade({
           onChange={handleOrderValueChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
-          {token1}
+          {quoteCoin}
         </Badge>
         <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
       </div>
@@ -191,26 +238,26 @@ export function LimitTrade({
       </div> */}
       <div className="mt-4 flex flex-col gap-y-2">
         <TpSlCheck
+          side={side}
           value={tpSl}
           onChange={setTpSl}
           takeProfit={takeProfit}
           stopLoss={stopLoss}
           setTakeProfit={setTakeProfit}
           setStopLoss={setStopLoss}
-          token={token1 || ''}
-          balance={tokenBalance}
+          token={quoteCoin || ''}
+          orderPrice={price}
+          orderQuantity={quantity}
         />
-        <PostOnlyCheck
-          value={postOnly}
-          onChange={setPostOnly}
-          cancelType={cancelType}
-          setCancelType={setCancelType}
-        />
+        <TimeInForceSelect timeInForce={timeInForce} onTimeInForceChange={setTimeInForce} />
       </div>
 
       <div className="mt-6">
         <Button
           variant="secondary"
+          disabled={isCreatingOrder}
+          isLoading={isCreatingOrder}
+          onClick={handleCreateOrder}
           className={cn(
             'w-full text-sm font-medium leading-5 text-ui-fg-on-color',
             side === 'buy'

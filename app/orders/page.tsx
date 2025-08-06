@@ -8,12 +8,12 @@ import { TableContainer } from './table-container';
 import { TradePanel } from './trade-panel';
 
 export default function OrdersPage() {
-  const [token0, setToken0] = useState<string | null>(null);
-  const [token1, setToken1] = useState<string | null>(null);
+  const [baseCoin, setBaseCoin] = useState<string | null>(null);
+  const [quoteCoin, setQuoteCoin] = useState<string | null>(null);
 
-  function setToken(token0: string, token1: string) {
-    setToken0(token0);
-    setToken1(token1);
+  function setToken(bCoin: string, qCoin: string) {
+    setBaseCoin(bCoin);
+    setQuoteCoin(qCoin);
   }
 
   return (
@@ -21,10 +21,10 @@ export default function OrdersPage() {
       <ApiKeysBar />
       <div className="p-4 flex gap-x-4 flex-1 ">
         <div className="part-1 flex flex-col flex-1">
-          <ChartContainer token0={token0} token1={token1} setToken={setToken} />
+          <ChartContainer baseCoin={baseCoin} quoteCoin={quoteCoin} onTokenChange={setToken} />
           <TableContainer />
         </div>
-        <TradePanel token0={token0} token1={token1} />
+        <TradePanel baseCoin={baseCoin} quoteCoin={quoteCoin} />
       </div>
     </div>
   );

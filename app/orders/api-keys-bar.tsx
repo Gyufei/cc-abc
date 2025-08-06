@@ -25,7 +25,7 @@ export function ApiKeysBar() {
           <div
             key={key.id}
             className={cn(
-              'flex h-full items-center border-r border-ui-border-base gap-x-2 px-4 cursor-pointer',
+              'flex h-10 items-center border-r border-ui-border-base gap-x-2 px-4 cursor-pointer',
               key.id === currentApiKeyId ? 'bg-ui-bg-base' : 'bg-transparent'
             )}
             onClick={() => handleClick(key.id)}

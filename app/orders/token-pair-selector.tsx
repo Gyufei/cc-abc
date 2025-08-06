@@ -7,23 +7,23 @@ import { useEffect } from 'react';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 
 interface ChartContainerProps {
-  token0: string | null;
-  token1: string | null;
-  setToken: (token0: string, token1: string) => void;
+  baseCoin: string | null;
+  quoteCoin: string | null;
+  onTokenChange: (bCoin: string, qCoin: string) => void;
 }
 
-export function TokenPairSelector({ token0, token1, setToken }: ChartContainerProps) {
+export function TokenPairSelector({ baseCoin, quoteCoin, onTokenChange }: ChartContainerProps) {
   const { data: tokenPairs = [], isLoading } = useTokenPairs();
 
-  const selectedPair = `${token0}/${token1}`;
+  const selectedPair = `${baseCoin}/${quoteCoin}`;
 
   useEffect(() => {
-    if (tokenPairs.length > 0 && !token0 && !token1) {
+    if (tokenPairs.length > 0 && !baseCoin && !quoteCoin) {
       const defaultTokenPair = tokenPairs[0];
-      const [token0, token1] = defaultTokenPair.display_name.split('/');
-      setToken(token0, token1);
+      const [bCoin, qCoin] = defaultTokenPair.display_name.split('/');
+      onTokenChange(bCoin, qCoin);
     }
-  }, [tokenPairs, setToken, token0, token1]);
+  }, [tokenPairs, onTokenChange, baseCoin, quoteCoin]);
 
   return (
     <div className="mb-4">
@@ -31,8 +31,8 @@ export function TokenPairSelector({ token0, token1, setToken }: ChartContainerPr
       <Select
         value={selectedPair || ''}
         onValueChange={(value) => {
-          const [token0, token1] = value.split('/');
-          setToken(token0, token1);
+          const [bCoin, qCoin] = value.split('/');
+          onTokenChange(bCoin, qCoin);
         }}
         disabled={isLoading}
       >

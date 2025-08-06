@@ -8,23 +8,23 @@ import { SliderBar } from '@/components/ui/slider-bar';
 
 import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
-import { CANCEL_TYPE, SIDE } from '@/lib/types/trade';
+import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
-import { PostOnlyCheck } from './post-only-check';
+import { TimeInForceSelect } from './time-in-force-select';
 
 const TYPE_OPTIONS = ['Limit', 'Market'];
 
 export function TpSlTrade({
   side,
-  token0,
-  token1,
+  baseCoin,
+  quoteCoin,
 }: {
   side: SIDE;
-  token0: string | null;
-  token1: string | null;
+  baseCoin: string | null;
+  quoteCoin: string | null;
 }) {
   const [triggerPrice, setTriggerPrice] = useState('');
   const [type, setType] = useState<'Limit' | 'Market'>('Limit');
@@ -33,12 +33,11 @@ export function TpSlTrade({
   const [quantity, setQuantity] = useState('');
   const [orderValue, setOrderValue] = useState('');
   const [progress, setProgress] = useState(0);
-  const [postOnly, setPostOnly] = useState(false);
-  const [cancelType, setCancelType] = useState<CANCEL_TYPE>('Good-Till-Cancel');
+  const [timeInForce, setTimeInForce] = useState<TIME_IN_FORCE_TYPE>('GTC');
 
   const isBuy = side === 'buy';
 
-  const { data: tokenBalance } = useTokenBalance(isBuy ? token1 : token0);
+  const { data: tokenBalance } = useTokenBalance(isBuy ? quoteCoin : baseCoin);
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
@@ -122,17 +121,17 @@ export function TpSlTrade({
   };
 
   const orderValueInUSD = useMemo(() => {
-    const token1Price = token1 ? TOKEN_PRICE_MAP[token1] : 0;
-    if (orderValue && token1Price) {
-      return multiply(orderValue, String(token1Price));
+    const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
+    if (orderValue && quoteCoinPrice) {
+      return multiply(orderValue, String(quoteCoinPrice));
     }
 
     return '0';
-  }, [orderValue, token1]);
+  }, [orderValue, quoteCoin]);
 
   return (
     <div className="flex flex-col justify-stretch">
-      <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? token1 : token0} />
+      <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? quoteCoin : baseCoin} />
       <div className="relative mt-3">
         <NumberInput
           className="pr-4"
@@ -142,7 +141,7 @@ export function TpSlTrade({
           onChange={handleTriggerPriceChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-          {token1 || '-'}
+          {quoteCoin || '-'}
         </Badge>
       </div>
       <div className="mt-3 flex justify-between gap-2 items-center">
@@ -157,7 +156,7 @@ export function TpSlTrade({
                 onChange={handlePriceChange}
               />
               <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-                {token1 || '-'}
+                {quoteCoin || '-'}
               </Badge>
             </>
           ) : (
@@ -188,7 +187,7 @@ export function TpSlTrade({
               onChange={handleQuantityChange}
             />
             <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-              {token0}
+              {baseCoin}
             </Badge>
           </>
         ) : (
@@ -201,7 +200,7 @@ export function TpSlTrade({
               onChange={handleOrderValueChange}
             />
             <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-              {token1 || '-'}
+              {quoteCoin || '-'}
             </Badge>
           </>
         )}
@@ -224,7 +223,7 @@ export function TpSlTrade({
             onChange={handleOrderValueChange}
           />
           <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
-            {token1}
+            {quoteCoin}
           </Badge>
           <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
         </div>
@@ -246,12 +245,7 @@ export function TpSlTrade({
       </div> */}
       {type === 'Limit' && (
         <div className="mt-4 flex flex-col gap-y-2">
-          <PostOnlyCheck
-            value={postOnly}
-            onChange={setPostOnly}
-            cancelType={cancelType}
-            setCancelType={setCancelType}
-          />
+          <TimeInForceSelect timeInForce={timeInForce} onTimeInForceChange={setTimeInForce} />
         </div>
       )}
 

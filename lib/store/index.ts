@@ -1,14 +1,12 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
+import { User } from '../types/common';
+
 export interface AppState {
   sidebarOpen: boolean;
 
-  user: {
-    user_id: string | null;
-    username: string | null;
-    token: string | null;
-  };
+  user: User;
 
   currentApiKeyId: string | null;
 }

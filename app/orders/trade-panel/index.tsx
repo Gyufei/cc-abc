@@ -27,7 +27,13 @@ const TRADE_SUB_TYPES: TRADE_TYPE[] = [
   'Scaled Order',
 ];
 
-export function TradePanel({ token0, token1 }: { token0: string | null; token1: string | null }) {
+export function TradePanel({
+  baseCoin,
+  quoteCoin,
+}: {
+  baseCoin: string | null;
+  quoteCoin: string | null;
+}) {
   const [side, setSide] = useState<SIDE>('buy');
   const [tradeMode, setTradeMode] = useState<TRADE_TYPE>('Limit');
 
@@ -43,9 +49,15 @@ export function TradePanel({ token0, token1 }: { token0: string | null; token1: 
         <TradeModeSelector tradeType={tradeMode} setTradeType={setTradeMode} />
       </div>
       <div className="px-4 pt-5 pb-4">
-        {tradeMode === 'Limit' && <LimitTrade side={side} token0={token0} token1={token1} />}
-        {tradeMode === 'Market' && <MarketTrade side={side} token0={token0} token1={token1} />}
-        {tradeMode === 'TP/SL' && <TpSlTrade side={side} token0={token0} token1={token1} />}
+        {tradeMode === 'Limit' && (
+          <LimitTrade side={side} baseCoin={baseCoin} quoteCoin={quoteCoin} />
+        )}
+        {tradeMode === 'Market' && (
+          <MarketTrade side={side} baseCoin={baseCoin} quoteCoin={quoteCoin} />
+        )}
+        {tradeMode === 'TP/SL' && (
+          <TpSlTrade side={side} baseCoin={baseCoin} quoteCoin={quoteCoin} />
+        )}
       </div>
     </div>
   );
