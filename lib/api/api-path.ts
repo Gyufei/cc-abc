@@ -27,4 +27,6 @@ export const ApiPath = {
   tradingMarket: `${ApiHost}/api/v1/trading/market`,
   cancelOrder: `${ApiHost}/api/v1/trading/orders/cancel`,
   marketPrices: `${ApiHost}/api/v1/market/prices`,
+  currentSymbol: `${ApiHost}/api/v1/trading/current-symbol`,
+  checkUsername: `${ApiHost}/api/v1/auth/check-username`,
 };

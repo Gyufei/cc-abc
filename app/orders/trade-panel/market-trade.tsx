@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
-import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
 import { useMarketInfo } from '@/lib/api/use-market-info';
 import { useTradingOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
@@ -15,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
+import { CanAmountDisplay } from './can-amount-display';
 import { SlippageTolerance } from './slippage-tolerance';
 
 export function MarketTrade({
@@ -38,14 +38,6 @@ export function MarketTrade({
   const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
 
   const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
-
-  const orderValue = useMemo(() => {
-    if (isBuy) {
-      return buyValue;
-    }
-
-    return multiply(String(marketInfo?.price || 0), String(quantity));
-  }, [buyValue, quantity, isBuy, marketInfo]);
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
@@ -82,7 +74,6 @@ export function MarketTrade({
       return;
     }
 
-    // 根据 progress 百分比计算新的 orderValue
     const ratio = divide(String(value), '100');
     const newValue = multiply(String(tokenBalance), ratio);
 
@@ -96,15 +87,6 @@ export function MarketTrade({
   const handleQuantityChange = (value: string) => {
     setQuantity(value);
   };
-
-  const orderValueInUSD = useMemo(() => {
-    const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
-    if (orderValue && quoteCoinPrice) {
-      return truncateNumber(multiply(orderValue, String(quoteCoinPrice)), 2);
-    }
-
-    return '0';
-  }, [orderValue, quoteCoin]);
 
   const handleCreateOrder = () => {
     createOrder({
@@ -155,21 +137,12 @@ export function MarketTrade({
         />
       </div>
       <div className="mt-4">
-        <div
-          className="flex py-[10px] px-3 items-center rounded-lg bg-ui-bg-field gap-3"
-          style={{
-            boxShadow:
-              '0px 0px 0px 1px rgba(0, 0, 0, 0.08),0px 1px 2px -1px rgba(0, 0, 0, 0.08),0px 2px 4px 0px rgba(0, 0, 0, 0.04)',
-          }}
-        >
-          <div className="bg-ui-bg-interactive rounded-full h-[13px] w-1"></div>
-          <div className="flex items-center">
-            <span className="smm-text text-ui-fg-base">Order Value:&nbsp;</span>
-            <span className="smm-text text-ui-fg-subtle ">
-              {orderValueInUSD} {quoteCoin}
-            </span>
-          </div>
-        </div>
+        <CanAmountDisplay
+          side={side}
+          baseCoin={baseCoin || ''}
+          quoteCoin={quoteCoin || ''}
+          price={String(marketInfo?.price || '0')}
+        />
       </div>
       <div className="mt-4 flex flex-col gap-y-2">
         <SlippageTolerance

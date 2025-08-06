@@ -34,7 +34,6 @@ export interface OpenOrderItem {
   close_on_trigger: boolean;
 }
 
-
 // Interface for table display data
 export interface OpenOrderTableData {
   id: string;
@@ -119,7 +118,7 @@ export function useOpenOrders(symbol?: string) {
 
       const url = `${ApiPath.tradingOrders}?${params.toString()}`;
 
-      const response = await Fetcher<OpenOrderItem[]>(url, {
+      const res = await Fetcher<OpenOrderItem[]>(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +127,7 @@ export function useOpenOrders(symbol?: string) {
         },
       });
 
-      return transformOrderData(response);
+      return transformOrderData(res);
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,

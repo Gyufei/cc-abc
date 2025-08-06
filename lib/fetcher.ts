@@ -1,3 +1,5 @@
+import { useAppStore } from './store';
+
 export async function Fetcher<T = unknown>(
   input: URL | RequestInfo,
   init?: RequestInit | undefined
@@ -29,6 +31,11 @@ async function parsedRes(res: Response) {
       };
 
       if (res.status === 401) {
+        useAppStore.getState().setUser({
+          user_id: '',
+          username: '',
+          token: '',
+        });
         error.message = 'Unauthorized';
       }
 

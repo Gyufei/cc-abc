@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { Table } from '@medusajs/ui';
-import { useQueryClient } from '@tanstack/react-query';
-import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
-import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
+import { OpenOrderTableData, useOpenOrders } from '@/lib/api/use-open-orders';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * OpenOrdersTab component displays open orders table
@@ -14,7 +14,7 @@ import { useCancelOrder } from '@/lib/api/use-cancel-order';
 export function OpenOrdersTab() {
   // Get current API key data
   const { data: currentApiKey } = useCurrentApiKey();
-  
+
   // Get open orders data
   const { data: ordersData, isLoading, error } = useOpenOrders();
 
@@ -40,7 +40,7 @@ export function OpenOrdersTab() {
         api_key: currentApiKey.api_key,
         category: 'spot',
         symbol: symbol,
-        order_link_id: orderLinkId
+        order_link_id: orderLinkId,
       });
       
       // Refresh the orders data after successful cancellation

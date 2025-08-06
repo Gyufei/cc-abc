@@ -31,7 +31,7 @@ export function TpSlTrade({
 
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [orderValue, setOrderValue] = useState('');
+  const [amount, setAmount] = useState('');
   const [progress, setProgress] = useState(0);
   const [timeInForce, setTimeInForce] = useState<TIME_IN_FORCE_TYPE>('GTC');
 
@@ -41,16 +41,16 @@ export function TpSlTrade({
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
-    if (!tokenBalance || !orderValue || tokenBalance === '0') {
+    if (!tokenBalance || !amount || tokenBalance === '0') {
       return 0;
     }
 
-    const ratio = divide(orderValue, String(tokenBalance));
+    const ratio = divide(amount, String(tokenBalance));
     const percentage = multiply(ratio, '100');
     const progressValue = Math.min(100, Math.max(0, parseFloat(percentage)));
 
     return Math.round(progressValue);
-  }, [orderValue, tokenBalance]);
+  }, [amount, tokenBalance]);
 
   useEffect(() => {
     setProgress(calculatedProgress);
@@ -65,7 +65,7 @@ export function TpSlTrade({
 
     const ratio = divide(String(value), '100');
     const newOrderValue = multiply(String(tokenBalance), ratio);
-    setOrderValue(truncateNumber(newOrderValue.toString(), 6));
+    setAmount(truncateNumber(newOrderValue.toString(), 6));
 
     if (price && price !== '0') {
       const newQuantity = divide(newOrderValue, price);
@@ -82,14 +82,14 @@ export function TpSlTrade({
     setPrice(value);
     if (quantity) {
       if (value === '0' || value === '') {
-        setOrderValue(value);
+        setAmount(value);
         return;
       }
 
       const oV = multiply(value, quantity);
-      setOrderValue(oV.toString());
+      setAmount(oV.toString());
     } else {
-      setOrderValue('');
+      setAmount('');
     }
   };
 
@@ -97,18 +97,18 @@ export function TpSlTrade({
     setQuantity(value);
     if (price) {
       if (value === '0' || value === '') {
-        setOrderValue(value);
+        setAmount(value);
         return;
       }
       const oV = multiply(price, value);
-      setOrderValue(oV.toString());
+      setAmount(oV.toString());
     } else {
-      setOrderValue('');
+      setAmount('');
     }
   };
 
   const handleOrderValueChange = (value: string) => {
-    setOrderValue(value);
+    setAmount(value);
     if (price) {
       if (price === '0' || value === '0' || value === '') {
         setQuantity('0');
@@ -122,12 +122,12 @@ export function TpSlTrade({
 
   const orderValueInUSD = useMemo(() => {
     const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
-    if (orderValue && quoteCoinPrice) {
-      return multiply(orderValue, String(quoteCoinPrice));
+    if (amount && quoteCoinPrice) {
+      return multiply(amount, String(quoteCoinPrice));
     }
 
     return '0';
-  }, [orderValue, quoteCoin]);
+  }, [amount, quoteCoin]);
 
   return (
     <div className="flex flex-col justify-stretch">
@@ -196,7 +196,7 @@ export function TpSlTrade({
               className="pr-4"
               placeholder="Value"
               id="search-input"
-              value={orderValue}
+              value={amount}
               onChange={handleOrderValueChange}
             />
             <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -219,7 +219,7 @@ export function TpSlTrade({
             className="pr-4"
             placeholder="Order Value"
             id="search-input"
-            value={orderValue}
+            value={amount}
             onChange={handleOrderValueChange}
           />
           <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">

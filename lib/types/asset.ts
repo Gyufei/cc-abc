@@ -8,4 +8,11 @@ export interface Asset {
 export interface AccountAssets {
   account_type: string;
   assets: Asset[];
+}
+
+export interface TokenPair {
+  symbol: string;
+  display_name: string;
+  base_asset: string;
+  quote_asset: string;
 } 

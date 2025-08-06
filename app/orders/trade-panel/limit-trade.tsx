@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
+import { CanAmountDisplay } from './can-amount-display';
 import { TimeInForceSelect } from './time-in-force-select';
 import { TpSlCheck } from './tp-sl-check';
 
@@ -29,7 +30,7 @@ export function LimitTrade({
 }) {
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [orderValue, setOrderValue] = useState('');
+  const [amount, setAmount] = useState('');
   const [progress, setProgress] = useState(0);
   const [tpSl, setTpSl] = useState(false);
   const [takeProfit, setTakeProfit] = useState('');
@@ -38,32 +39,35 @@ export function LimitTrade({
 
   const isBuy = side === 'buy';
 
-  const { data: tokenBalance } = useTokenBalance(isBuy ? quoteCoin : baseCoin);
+  const { data: quoteBalance } = useTokenBalance(quoteCoin);
+  const { data: baseBalance } = useTokenBalance(baseCoin);
+  const tokenBalance = isBuy ? quoteBalance : baseBalance;
+
   const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
 
   const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
-    if (!tokenBalance || !orderValue || tokenBalance === '0') {
+    if (!tokenBalance || !amount || tokenBalance === '0') {
       return 0;
     }
 
-    const ratio = divide(orderValue, String(tokenBalance));
+    const ratio = divide(amount, String(tokenBalance));
     const percentage = multiply(ratio, '100');
     const progressValue = Math.min(100, Math.max(0, parseFloat(percentage)));
 
     return Math.round(progressValue);
-  }, [orderValue, tokenBalance]);
+  }, [amount, tokenBalance]);
 
-  const orderValueInUSD = useMemo(() => {
+  const amountInUSD = useMemo(() => {
     const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
-    if (orderValue && quoteCoinPrice) {
-      return multiply(orderValue, String(quoteCoinPrice));
+    if (amount && quoteCoinPrice) {
+      return multiply(amount, String(quoteCoinPrice));
     }
 
     return '0';
-  }, [orderValue, quoteCoin]);
+  }, [amount, quoteCoin]);
 
   useEffect(() => {
     setProgress(calculatedProgress);
@@ -75,6 +79,10 @@ export function LimitTrade({
     }
   }, [marketInfo]);
 
+  useEffect(() => {
+    handleQuantityChange('');
+  }, [side]);
+
   const handleProgressChange = (value: number) => {
     setProgress(value);
 
@@ -83,12 +91,21 @@ export function LimitTrade({
     }
 
     const ratio = divide(String(value), '100');
-    const newOrderValue = multiply(String(tokenBalance), ratio);
-    setOrderValue(truncateNumber(newOrderValue.toString(), 6));
+    const balancePart = multiply(String(tokenBalance), ratio);
 
-    if (price && price !== '0') {
-      const newQuantity = divide(newOrderValue, price);
-      setQuantity(truncateNumber(newQuantity.toString(), 6));
+    if (isBuy) {
+      setAmount(truncateNumber(balancePart.toString(), 6));
+      if (price && price !== '0') {
+        const newQuantity = divide(balancePart, price);
+        setQuantity(truncateNumber(newQuantity.toString(), 6));
+      }
+    } else {
+      setQuantity(truncateNumber(balancePart.toString(), 6));
+
+      if (price && price !== '0') {
+        const newOrderValue = multiply(String(balancePart), price);
+        setAmount(truncateNumber(newOrderValue.toString(), 6));
+      }
     }
   };
 
@@ -97,14 +114,14 @@ export function LimitTrade({
     setPrice(value);
     if (quantity) {
       if (value === '0' || value === '') {
-        setOrderValue(value);
+        setAmount(value);
         return;
       }
 
       const oV = multiply(value, quantity);
-      setOrderValue(oV.toString());
+      setAmount(oV.toString());
     } else {
-      setOrderValue('');
+      setAmount('');
     }
   };
 
@@ -112,18 +129,18 @@ export function LimitTrade({
     setQuantity(value);
     if (price) {
       if (value === '0' || value === '') {
-        setOrderValue(value);
+        setAmount(value);
         return;
       }
       const oV = multiply(price, value);
-      setOrderValue(oV.toString());
+      setAmount(oV.toString());
     } else {
-      setOrderValue('');
+      setAmount('');
     }
   };
 
   const handleOrderValueChange = (value: string) => {
-    setOrderValue(value);
+    setAmount(value);
     if (price) {
       if (price === '0' || value === '0' || value === '') {
         setQuantity('0');
@@ -145,7 +162,12 @@ export function LimitTrade({
       return;
     }
 
-    if (Number(orderValue) > Number(tokenBalance)) {
+    if (isBuy && Number(amount) > Number(quoteBalance)) {
+      toast.error('Insufficient balance');
+      return;
+    }
+
+    if (!isBuy && Number(quantity) > Number(baseBalance)) {
       toast.error('Insufficient balance');
       return;
     }
@@ -213,29 +235,22 @@ export function LimitTrade({
           className="pr-4"
           placeholder="Order Value"
           id="search-input"
-          value={orderValue}
+          value={amount}
           onChange={handleOrderValueChange}
         />
         <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
           {quoteCoin}
         </Badge>
-        <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
+        <span className="mt-2 smm-text text-ui-fg-muted">≈{amountInUSD} USD</span>
       </div>
-      {/* <div className="mt-4">
-        <div
-          className="flex py-[10px] px-3 items-center rounded-lg bg-ui-bg-field gap-3"
-          style={{
-            boxShadow:
-              '0px 0px 0px 1px rgba(0, 0, 0, 0.08),0px 1px 2px -1px rgba(0, 0, 0, 0.08),0px 2px 4px 0px rgba(0, 0, 0, 0.04)',
-          }}
-        >
-          <div className="bg-ui-bg-interactive rounded-full h-[13px] w-1"></div>
-          <div className="flex items-center">
-            <span className="smm-text text-ui-fg-base">Order Value:</span>
-            <span className="smm-text text-ui-fg-subtle ">0.000046 {token1}</span>
-          </div>
-        </div>
-      </div> */}
+      <div className="mt-4">
+        <CanAmountDisplay
+          side={side}
+          baseCoin={baseCoin || ''}
+          quoteCoin={quoteCoin || ''}
+          price={price}
+        />
+      </div>
       <div className="mt-4 flex flex-col gap-y-2">
         <TpSlCheck
           side={side}
