@@ -19,18 +19,6 @@ export function useApiKeys() {
         throw new Error('用户未登录');
       }
 
-      // TODO: remove this
-      return [
-        {
-          id: '8dca6d18-62d7-426b-9b39-96534a177c3d',
-          platform: 'bybit',
-          account_name: 'bybit_1',
-          api_key: 'hpQVBVCgZnFYUEPH7U',
-          description: "Danny's bybit api key",
-          created_at: '2025-07-29T09:29:42.409983Z',
-        },
-      ];
-
       return Fetcher<ApiKey[]>(ApiPath.apiKeys, {
         method: 'GET',
         headers: {

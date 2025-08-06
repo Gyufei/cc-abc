@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Fetcher } from '../fetcher';
 import { useCurrentApiKey } from '../hooks/use-current-api-key';
 import { useUser } from '../store';
+import { ErrorRes } from '../types/common';
 import { ApiPath } from './api-path';
 
 export interface TradingOrderRequest {
@@ -37,32 +38,57 @@ export function useTradingOrders() {
   const { data: currentApiKeyObj } = useCurrentApiKey();
 
   const mutation = useMutation({
-    mutationFn: (orderData: Omit<TradingOrderRequest, 'api_key'>) => {
-      if (!user.token || !user.user_id) {
-        throw new Error('User not login');
+    mutationFn: async (orderData: Omit<TradingOrderRequest, 'api_key'>) => {
+      try {
+        if (!user.token || !user.user_id) {
+          throw new Error('User not login');
+        }
+
+        if (!currentApiKeyObj?.api_key) {
+          throw new Error('No api key selected');
+        }
+
+        const params = {
+          ...orderData,
+          api_key: currentApiKeyObj?.api_key,
+        };
+
+        const res = await Fetcher<TradingOrderResponse>(ApiPath.tradingOrder, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+            'X-User-ID': user.user_id,
+          },
+          body: JSON.stringify(params),
+        });
+
+        let errorRes: ErrorRes | null = null;
+        if ('code' in res) {
+          errorRes = res as unknown as ErrorRes;
+        }
+
+        if (errorRes && errorRes?.code !== 200) {
+          throw new Error(errorRes?.msg || 'Unknown error');
+        }
+
+        return res;
+      } catch (e) {
+        if (e instanceof Error) {
+          const errorMessage =
+            'message' in e ? (e as { message: string }).message : 'Unknown error';
+          toast.error(errorMessage);
+        } else {
+          toast.error('Unknown error');
+        }
       }
-
-      if (!currentApiKeyObj?.api_key) {
-        throw new Error('No api key selected');
-      }
-
-      const params = {
-        ...orderData,
-        api_key: currentApiKeyObj?.api_key,
-      };
-
-      return Fetcher<TradingOrderResponse>(ApiPath.tradingOrder, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-          'X-User-ID': user.user_id,
-        },
-        body: JSON.stringify(params),
-      });
     },
 
-    onSuccess: (data: TradingOrderResponse) => {
+    onSuccess: (data: TradingOrderResponse | undefined) => {
+      if (!data) {
+        return;
+      }
+
       toast.success('Order created successfully', {
         description: `Order ID: ${data.order_id}`,
       });

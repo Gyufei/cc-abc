@@ -19,13 +19,14 @@ function NumberInput({ onChange, decimalPlaces = 18, ...props }: NumberInputProp
     // 只允许数字和小数点
     const regex = new RegExp(`^\\d*\\.?\\d{0,${decimalPlaces}}$`);
     if (regex.test(value)) {
-      const numberStr = Number(value).toString();
+      if (value.includes('.')) {
+        const [integerPart, decimalPart] = value.split('.');
+        const integerPartStr = Number(integerPart).toString();
 
-      if (value.endsWith('.')) {
-        onChange?.(numberStr + '.');
-      } else {
-        onChange?.(numberStr);
+        return onChange?.(integerPartStr + '.' + decimalPart);
       }
+
+      onChange?.(value);
     }
   };
 

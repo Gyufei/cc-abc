@@ -46,8 +46,12 @@ async function parsedRes(res: Response) {
 
     const json = await res.json();
 
+    if (json.code === 401) {
+      throw new Error(json.msg || 'Unauthorized');
+    }
+
     if (json.code === 500) {
-      throw new Error(json.message || 'Internal server error');
+      throw new Error(json.msg || 'Internal server error');
     }
 
     return 'data' in json ? json.data : json;

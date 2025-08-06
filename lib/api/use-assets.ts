@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+
 import { Fetcher as _Fetcher } from '../fetcher';
 import { ApiPath as _ApiPath } from './api-path';
-import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useMarketPrices } from './use-market-prices';
 
 // Interface for asset item from API
@@ -45,32 +47,32 @@ export async function fetchAssets(
   _accountType: string = 'unified'
 ): Promise<AssetsResponse> {
   // Mock data for now - replace with real API call when service is ready
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   const mockData: AssetsResponse = {
     code: 200,
-    msg: "success",
+    msg: 'success',
     data: {
-      account_type: "funding",
+      account_type: 'funding',
       assets: [
         {
-          symbol: "BTC",
+          symbol: 'BTC',
           total: 0.298,
           available: 0.298,
-          frozen: 0
+          frozen: 0,
         },
         {
-          symbol: "USDT",
+          symbol: 'USDT',
           total: 11730,
           available: 11730,
-          frozen: 0
-        }
-      ]
-    }
+          frozen: 0,
+        },
+      ],
+    },
   };
-  
+
   return mockData;
-  
+
   // Real API call implementation (commented out for now)
   /*
   const params = new URLSearchParams({
@@ -96,13 +98,13 @@ export async function fetchAssets(
  * @returns Transformed data for table display
  */
 function transformAssetData(
-  assets: AssetItem[], 
+  assets: AssetItem[],
   getUsdPrice: (symbol: string) => number
 ): AssetTableData[] {
   return assets.map((asset, index) => {
     const usdPrice = getUsdPrice(asset.symbol);
     const netAssetValueUsd = asset.total * usdPrice;
-    
+
     return {
       id: `${asset.symbol}-${index}`,
       coin: asset.symbol,
@@ -111,7 +113,7 @@ function transformAssetData(
       balance: asset.available.toFixed(8),
       sportCost: '--',
       lastPrice: asset.symbol === 'USDT' ? '1.00 USD' : `${usdPrice.toFixed(2)} USD`,
-      pnl: '--'
+      pnl: '--',
     };
   });
 }
@@ -126,20 +128,20 @@ export function useAssets(accountType: string = 'unified') {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [assetsData, setAssetsData] = useState<AssetItem[]>([]);
-  
+
   const { data: currentApiKeyData } = useCurrentApiKey();
-  
+
   // Get symbols for price tracking
   const priceSymbols = assetsData
-    .filter(asset => asset.symbol !== 'USDT')
-    .map(asset => `${asset.symbol}USDT`);
-  
+    .filter((asset) => asset.symbol !== 'USDT')
+    .map((asset) => `${asset.symbol}USDT`);
+
   // Use real-time price service
   const { getUsdPrice, loading: pricesLoading } = useMarketPrices(
     priceSymbols,
     5000 // Update every 5 seconds
   );
-  
+
   // Load assets data
   useEffect(() => {
     if (!currentApiKeyData?.api_key) {
@@ -147,12 +149,12 @@ export function useAssets(accountType: string = 'unified') {
       setError('No API key available');
       return;
     }
-    
+
     const loadAssets = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetchAssets(currentApiKeyData.api_key, accountType);
         setAssetsData(response.data.assets);
       } catch (err) {
@@ -161,10 +163,10 @@ export function useAssets(accountType: string = 'unified') {
         setLoading(false);
       }
     };
-    
+
     loadAssets();
   }, [currentApiKeyData?.api_key, accountType]);
-  
+
   // Transform data when assets or prices change
   useEffect(() => {
     if (assetsData.length > 0) {
@@ -172,10 +174,10 @@ export function useAssets(accountType: string = 'unified') {
       setData(transformedData);
     }
   }, [assetsData, getUsdPrice]);
-  
-  return { 
-    data, 
-    loading: loading || pricesLoading, 
-    error 
+
+  return {
+    data,
+    loading: loading || pricesLoading,
+    error,
   };
 }
