@@ -80,10 +80,10 @@ export function useTradingOrders() {
         if (e instanceof Error) {
           const errorMessage =
             'message' in e ? (e as { message: string }).message : 'Unknown error';
-          toast.error(errorMessage);
-        } else {
-          toast.error('Unknown error');
+          throw new Error(errorMessage);
         }
+
+        throw new Error('Unknown error');
       }
     },
 
