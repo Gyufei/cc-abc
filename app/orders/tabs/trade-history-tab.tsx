@@ -117,21 +117,21 @@ export function TradeHistoryTab() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                 Market
               </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Instrument</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled Qty</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Trading Fees</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Transaction Time</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Transaction ID</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Implied Volatility</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Value</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Qty</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Trading Fees</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Transaction Time</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Transaction ID</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Implied Volatility</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">
                 Index Price
               </Table.HeaderCell>
             </Table.Row>
@@ -139,25 +139,25 @@ export function TradeHistoryTab() {
           <Table.Body>
             {tableData.map((item: TradeHistoryTableData) => (
               <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
                   {item.market}
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.instrument}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
                   <span className={item.direction.includes('Long') ? 'text-green-600' : 'text-red-600'}>
                     {item.direction}
                   </span>
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledValue}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledQty}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.tradingFees}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.transactionTime}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.transactionId}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.impliedVolatility}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledValue}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledQty}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.tradingFees}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.transactionTime}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.transactionId}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.impliedVolatility}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
                   {item.indexPrice}
                 </Table.Cell>
               </Table.Row>

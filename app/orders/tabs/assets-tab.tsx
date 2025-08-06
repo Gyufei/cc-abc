@@ -68,16 +68,16 @@ export function AssetsTab() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                 <div className="flex items-center gap-2">
                   Coins
                 </div>
               </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Net Asset Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Balance</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Sport Cost</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Last Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Net Asset Value</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Balance</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Sport Cost</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Last Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">
                 PnL
               </Table.HeaderCell>
             </Table.Row>
@@ -85,7 +85,7 @@ export function AssetsTab() {
           <Table.Body>
             {assetsData.map((item: AssetTableData) => (
               <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
                   <div className="flex items-center gap-2">
                     <Image
                     src={`/icons/${item.coin}.svg`}
@@ -97,16 +97,16 @@ export function AssetsTab() {
                     <span className="text-ui-fg-base font-medium">{item.coin}</span>
                   </div>
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">
                   <div className="flex flex-col">
                     <span className="text-ui-fg-base">{item.netAssetValue}</span>
                     <span className="text-xs text-ui-fg-muted">{item.netAssetValueUsd}</span>
                   </div>
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.balance}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.sportCost}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.lastPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">{item.balance}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.sportCost}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.lastPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
                   {item.pnl}
                 </Table.Cell>
               </Table.Row>

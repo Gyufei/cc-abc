@@ -72,23 +72,21 @@ export function OpenOrdersTab() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                 Market
               </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-2">Instrument</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">
-                Filled/Order Quantity
-              </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">TP/SL</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Trade Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Time</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order ID</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Reduce-Only</Table.HeaderCell>
-              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base shadow-md whitespace-nowrap">
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled/Order Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Value</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">TP/SL</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Trade Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Time</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order ID</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Reduce-Only</Table.HeaderCell>
+              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base sticky-right-header-shadow whitespace-nowrap pl-3">
                 Action
               </Table.HeaderCell>
             </Table.Row>
@@ -96,28 +94,28 @@ export function OpenOrdersTab() {
           <Table.Body>
             {ordersData?.map((item: OpenOrderTableData) => (
               <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
                   {item.market}
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-2">{item.instrument}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
                   <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
                     {item.direction}
                   </span>
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledOrderQuantity}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.order}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.tpSl}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.tradeType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderTime}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderId}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.reduceOnly}</Table.Cell>
-                <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
-                  <button
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.tpSl}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.reduceOnly}</Table.Cell>
+                <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base sticky-right-shadow whitespace-nowrap pl-3">
+                  <button 
                     onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
-                    className=" hover:text-red-800 transition-colors border rounded px-2 py-1 cursor-pointer"
+                    className="text-red-600 hover:text-red-800 transition-colors border border-red-300 hover:border-red-500 rounded px-2 py-1 cursor-pointer"
                     disabled={cancelOrderMutation.isPending}
                   >
                     {cancelOrderMutation.isPending ? 'Canceling...' : 'Cancel'}
