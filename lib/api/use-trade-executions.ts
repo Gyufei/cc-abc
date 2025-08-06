@@ -39,12 +39,6 @@ export interface TradeExecutionItem {
   extra_fees: string;
 }
 
-export interface TradeExecutionResponse {
-  code: number;
-  msg: string;
-  data: TradeExecutionItem[];
-}
-
 export function useTradeExecutions(symbol?: string, days?: number) {
   const { user } = useAppStore();
   const { data: currentApiKey } = useCurrentApiKey();
@@ -68,7 +62,7 @@ export function useTradeExecutions(symbol?: string, days?: number) {
 
       const url = `${ApiPath.tradingExecutions}?${params.toString()}`;
 
-      const response = await Fetcher<TradeExecutionResponse>(url, {
+      const response = await Fetcher<TradeExecutionItem[]>(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +71,7 @@ export function useTradeExecutions(symbol?: string, days?: number) {
         },
       });
 
-      return response.data;
+      return response;
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
