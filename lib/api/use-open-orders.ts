@@ -86,12 +86,13 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       direction: order.side === 'buy' ? 'Buy' : 'Sell',
       orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
       filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
-      order: order.cum_exec_value.toFixed(1),
+      order: `${order.cum_exec_value.toFixed(2)} ${order.symbol.replace('BTC', '')}`,
       tpSl: tpSlText,
-      tradeType: 'Open Long', // Default value
+      tradeType: '--', // Default value、Open Long
       orderTime: orderTime,
       orderId: order.order_id,
-      reduceOnly: order.reduce_only ? 'Yes' : 'No',
+      // reduceOnly: order.reduce_only ? 'Yes' : 'No',
+      reduceOnly: '--',
       orderLinkId: order.order_link_id,
       symbol: order.symbol,
     };

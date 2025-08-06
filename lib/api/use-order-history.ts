@@ -22,6 +22,7 @@ export interface OrderHistoryItem {
   leaves_qty: number;
   cum_exec_qty: number;
   cum_exec_value: number;
+  leaves_value: number;
   cum_exec_fee: number;
   time_in_force: string;
   stop_order_type: string;
@@ -87,6 +88,7 @@ async function fetchOrderHistory(
         leaves_qty: 0,
         cum_exec_qty: 0.003,
         cum_exec_value: 390.44944158,
+        leaves_value: 0,
         cum_exec_fee: 0.39044944158,
         time_in_force: "IOC",
         stop_order_type: "",
