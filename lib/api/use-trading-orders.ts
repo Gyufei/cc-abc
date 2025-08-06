@@ -1,5 +1,5 @@
 import { toast } from '@medusajs/ui';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Fetcher } from '../fetcher';
 import { useCurrentApiKey } from '../hooks/use-current-api-key';
@@ -36,6 +36,7 @@ export interface TradingOrderResponse {
 export function useTradingOrders() {
   const user = useUser();
   const { data: currentApiKeyObj } = useCurrentApiKey();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (orderData: Omit<TradingOrderRequest, 'api_key'>) => {
@@ -88,6 +89,10 @@ export function useTradingOrders() {
       if (!data) {
         return;
       }
+
+      queryClient.invalidateQueries({
+        queryKey: ['open-orders'],
+      });
 
       toast.success('Order created successfully', {
         description: `Order ID: ${data.order_id}`,
