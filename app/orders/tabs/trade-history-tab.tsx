@@ -4,7 +4,7 @@ import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { useTradeExecutions, TradeExecutionItem } from '../../../lib/api/use-trade-executions';
-import { useCurrentApiKey } from '../../../lib/api/use-current-api-key';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 // Type definition for processed trade history data for table display
 interface TradeHistoryTableData {

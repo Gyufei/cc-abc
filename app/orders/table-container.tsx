@@ -25,7 +25,7 @@ export function TableContainer() {
         <TabsList className="w-full justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0">
           <TabsTrigger
             value="open-orders"
-            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none rounded-tl-lg border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Open Orders ({openOrdersCount})
           </TabsTrigger>
@@ -49,7 +49,7 @@ export function TableContainer() {
           </TabsTrigger>
           <TabsTrigger
             value="assets"
-            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none rounded-tr-lg border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Assets
           </TabsTrigger>

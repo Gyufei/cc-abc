@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Fetcher as _Fetcher } from '../fetcher';
 import { ApiPath as _ApiPath } from './api-path';
-import { useCurrentApiKey } from './use-current-api-key';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 // Interface for asset item from API
 export interface AssetItem {

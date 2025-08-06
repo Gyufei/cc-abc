@@ -4,7 +4,7 @@ import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { useOpenOrders, OpenOrderTableData } from '@/lib/api/use-open-orders';
-import { useCurrentApiKey } from '@/lib/api/use-current-api-key';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 /**
  * OpenOrdersTab component displays open orders table

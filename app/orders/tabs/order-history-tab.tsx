@@ -4,7 +4,7 @@ import { Table } from '@table-library/react-table-library/table';
 import { Header, HeaderRow, HeaderCell, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { useOrderHistory, OrderHistoryItem } from '../../../lib/api/use-order-history';
-import { useCurrentApiKey } from '../../../lib/api/use-current-api-key';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 // Type definition for processed order history data for table display
 interface OrderHistoryTableData {
