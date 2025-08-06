@@ -104,19 +104,19 @@ export function OrderHistoryTab() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap">
+              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap pl-3">
                 Market
               </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Instrument</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Direction</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Avg. Filled Price/Order Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled/Order Quantity</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Time</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order ID</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Filled/Order Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Order Status</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap">Trading Fees</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Avg. Filled Price/Order Price</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled/Order Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Time</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order ID</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled/Order Value</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Status</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">Trading Fees</Table.HeaderCell>
               {/* <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base shadow-md whitespace-nowrap">
                 Action
               </Table.HeaderCell> */}
@@ -125,27 +125,27 @@ export function OrderHistoryTab() {
           <Table.Body>
             {tableData.map((item: OrderHistoryTableData) => (
               <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap">
+                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base shadow-md whitespace-nowrap pl-3">
                   {item.market}
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.instrument}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
                   <span className="text-green-600">
                     {item.direction}
                   </span>
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.avgFilledPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledOrderQuantity}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderTime}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.orderId}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.filledOrderValue}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap">
+                <Table.Cell className="whitespace-nowrap pl-3">{item.avgFilledPrice}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderValue}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
                   <span className={item.orderStatus === 'Filled' ? 'text-green-600' : 'text-gray-600'}>
                     {item.orderStatus}
                   </span>
                 </Table.Cell>
-                <Table.Cell className="whitespace-nowrap">{item.tradingFees}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">{item.tradingFees}</Table.Cell>
                 {/* <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base shadow-md whitespace-nowrap">
                   <button className="text-sm text-gray-500 hover:text-gray-700 transition-colors border border-gray-300 rounded px-2 py-1">
                     Details

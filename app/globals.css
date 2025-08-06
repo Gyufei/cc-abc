@@ -35,6 +35,56 @@
     line-height: 20px;
     font-weight: 500;
   }
+
+  /* Sticky column shadow effects using ::after pseudo-elements */
+  .sticky-left-shadow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 8px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .sticky-right-shadow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 8px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Enhanced shadow for header cells */
+  .sticky-left-header-shadow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -10px;
+    width: 10px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.15), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .sticky-right-header-shadow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: 10px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.15), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
 }
 
 body {
