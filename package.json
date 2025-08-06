@@ -12,6 +12,7 @@
     "@medusajs/ui": "latest",
     "@table-library/react-table-library": "^4.1.15",
     "@tanstack/react-query": "^5.84.1",
+    "crypto-js": "^4.2.0",
     "next": "15.4.5",
     "numbro": "^2.5.0",
     "radix-ui": "^1.4.2",

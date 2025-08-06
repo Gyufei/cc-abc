@@ -1,15 +1,17 @@
 import { Badge, Checkbox, Label } from '@medusajs/ui';
-import { divide, subtract } from 'safebase';
+import { divide, multiply, subtract } from 'safebase';
 
 import { useMemo } from 'react';
 
 import Loop from '@/components/icons/loop';
 import { NumberInput } from '@/components/ui/number-input';
 
+import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 import { formatNumber, formatPercentage, truncateNumber } from '@/lib/utils/number';
 
 export function TpSlCheck({
+  side,
   value,
   onChange,
   takeProfit,
@@ -17,8 +19,10 @@ export function TpSlCheck({
   setTakeProfit,
   setStopLoss,
   token,
-  balance,
+  orderPrice,
+  orderQuantity,
 }: {
+  side: SIDE;
   value: boolean;
   onChange: (value: boolean) => void;
   takeProfit: string;
@@ -26,7 +30,8 @@ export function TpSlCheck({
   setTakeProfit: (value: string) => void;
   setStopLoss: (value: string) => void;
   token: string;
-  balance: number;
+  orderPrice: string;
+  orderQuantity: string;
 }) {
   function handleValueChange(val: boolean) {
     onChange(val);
@@ -36,23 +41,35 @@ export function TpSlCheck({
     }
   }
 
+  const takePricePnl = useMemo(() => {
+    const pnl = subtract(String(takeProfit), String(orderPrice));
+    return side === 'buy' ? pnl : multiply(pnl, String(-1));
+  }, [takeProfit, orderPrice, side]);
+
   const takeProfitPnl = useMemo(() => {
-    return subtract(String(takeProfit), String(balance));
-  }, [takeProfit, balance]);
+    const takePnl = multiply(takePricePnl, String(orderQuantity));
+    return takePnl;
+  }, [takePricePnl, orderQuantity]);
 
   const takeProfitRoi = useMemo(() => {
-    if (Number(takeProfitPnl) === 0) return 0;
-    return truncateNumber(divide(String(takeProfitPnl), String(balance)), 4);
-  }, [takeProfitPnl, balance]);
+    const roi = truncateNumber(divide(String(takePricePnl), String(orderPrice)), 4);
+    return roi;
+  }, [takePricePnl, orderPrice]);
+
+  const stopPricePnl = useMemo(() => {
+    const pnl = subtract(String(stopLoss), String(orderPrice));
+    return side === 'buy' ? pnl : multiply(pnl, String(-1));
+  }, [stopLoss, orderPrice, side]);
 
   const stopLossPnl = useMemo(() => {
-    return subtract(String(stopLoss), String(balance));
-  }, [stopLoss, balance]);
+    const stopPnl = multiply(stopPricePnl, String(orderQuantity));
+    return stopPnl;
+  }, [stopPricePnl, orderQuantity]);
 
   const stopLossRoi = useMemo(() => {
-    if (Number(stopLossPnl) === 0) return 0;
-    return truncateNumber(divide(String(stopLossPnl), String(balance)), 4);
-  }, [stopLossPnl, balance]);
+    const roi = truncateNumber(divide(String(stopPricePnl), String(orderPrice)), 4);
+    return roi;
+  }, [stopPricePnl, orderPrice]);
 
   return (
     <div className="flex flex-col">

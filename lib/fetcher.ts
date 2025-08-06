@@ -20,7 +20,9 @@ async function parsedRes(res: Response) {
       try {
         const resBody = await res.json();
         resMsg = resBody.message;
-      } catch (e) {}
+      } catch (e) {
+        console.log(e);
+      }
 
       const error = new Error(resMsg) as Error & {
         status?: number;

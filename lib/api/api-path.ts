@@ -1,7 +1,7 @@
 export const isPreview = process.env.NEXT_PUBLIC_IS_PREVIEW === '1';
 export const isProduction = process.env.NODE_ENV === 'production' && !isPreview;
 
-const ProdHost = 'https://api-sandbox.tadle.com';
+const ProdHost = 'https://preview-screener.anymm.com';
 const DevHost = 'https://preview-screener.anymm.com';
 
 export const ApiHost = isProduction ? ProdHost : DevHost;
@@ -24,6 +24,7 @@ export const ApiPath = {
   tradingOrderHistory: `${ApiHost}/api/v1/trading/orders/history`,
   tradingExecutions: `${ApiHost}/api/v1/trading/executions`,
   tradingAssets: `${ApiHost}/api/v1/trading/assets`,
+  tradingMarket: `${ApiHost}/api/v1/trading/market`,
   cancelOrder: `${ApiHost}/api/v1/trading/orders/cancel`,
   marketPrices: `${ApiHost}/api/v1/market/prices`,
 };

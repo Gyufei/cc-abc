@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, FocusModal, Input } from '@medusajs/ui';
+import { Button, FocusModal, Input, toast } from '@medusajs/ui';
 
 import { useState } from 'react';
 
@@ -14,9 +14,20 @@ export default function LoginModal() {
   const { mutate, isPending } = useLogin();
 
   function handleLogin() {
-    if (username.trim() && password.trim()) {
-      mutate({ username: username.trim(), password: password.trim() });
+    const usernameTrimmed = username.trim();
+    const passwordTrimmed = password.trim();
+
+    if (!usernameTrimmed) {
+      toast.error('Username is required');
+      return;
     }
+
+    if (!passwordTrimmed) {
+      toast.error('Password is required');
+      return;
+    }
+
+    mutate({ username: usernameTrimmed, password: passwordTrimmed });
   }
 
   const isFormValid = username.trim() && password.trim();

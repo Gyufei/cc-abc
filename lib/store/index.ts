@@ -1,14 +1,12 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
+import { User } from '../types/common';
+
 export interface AppState {
   sidebarOpen: boolean;
 
-  user: {
-    user_id: string | null;
-    username: string | null;
-    token: string | null;
-  };
+  user: User;
 
   currentApiKeyId: string | null;
 }
@@ -36,9 +34,9 @@ export const useAppStore = create<AppStore>()(
         toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
         user: {
-          user_id: null,
-          username: null,
-          token: null,
+          user_id: '',
+          username: '',
+          token: '',
         },
         setUser: (userData) =>
           set((state) => ({
@@ -47,9 +45,9 @@ export const useAppStore = create<AppStore>()(
         logout: () =>
           set({
             user: {
-              user_id: null,
-              username: null,
-              token: null,
+              user_id: '',
+              username: '',
+              token: '',
             },
           }),
 
@@ -72,4 +70,4 @@ export const useAppStore = create<AppStore>()(
 );
 
 export const useUser = () => useAppStore((state) => state.user);
-export const useIsLogin = () => useAppStore((state) => state.user.token !== null);
+export const useIsLogin = () => useAppStore((state) => !!state.user.token);

@@ -11,7 +11,7 @@ export type TRADE_TYPE =
   | 'TWAP'
   | 'Scaled Order';
 
-export type CANCEL_TYPE = 'Good-Till-Cancel' | 'Immediate-Or-Cancel' | 'Fill-Or-Kill';
+export type TIME_IN_FORCE_TYPE = 'PostOnly' | 'GTC' | 'IOC' | 'FOK';
 
 export interface TokenPair {
   symbol: string;

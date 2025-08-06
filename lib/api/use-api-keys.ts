@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { Fetcher } from '@/lib/fetcher';
 import { useAppStore } from '@/lib/store';
-import { ApiKey } from '@/lib/types/api-key';
+import { ApiKey } from '@/lib/types/common';
 
 import { ApiPath } from './api-path';
 
