@@ -8,6 +8,7 @@ import { useAppStore, useIsLogin, useUser } from '@/lib/store';
 export function SidebarFooter() {
   const user = useUser();
   const isLogin = useIsLogin();
+  const sidebarOpen = useAppStore((state) => state.sidebarOpen);
   const logout = useAppStore((state) => state.logout);
 
   const handleLogout = () => {
@@ -28,21 +29,25 @@ export function SidebarFooter() {
             >
               <Image src="/images/avatar-place.png" alt="avatar" width={16} height={16} />
             </div>
-            <div className="text-ui-fg-base smm-text">{user?.username}</div>
+            <div className={`text-ui-fg-base smm-text transition-all duration-300 ease-in-out ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+              {user?.username}
+            </div>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <ThreeDot className="w-[15px] h-[15px] cursor-pointer" />
-            </PopoverTrigger>
-            <PopoverContent className="w-32 p-1" align="end">
-              <div
-                onClick={handleLogout}
-                className="w-full text-left px-3 py-2 text-sm text-ui-fg-base hover:bg-ui-bg-base-hover rounded-md transition-colors"
-              >
-                Logout
-              </div>
-            </PopoverContent>
-          </Popover>
+          <div className={`transition-all duration-300 ease-in-out ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+            <Popover>
+              <PopoverTrigger asChild>
+                <ThreeDot className="w-[15px] h-[15px] cursor-pointer" />
+              </PopoverTrigger>
+              <PopoverContent className="w-32 p-1" align="end">
+                <div
+                  onClick={handleLogout}
+                  className="w-full text-left px-3 py-2 text-sm text-ui-fg-base hover:bg-ui-bg-base-hover rounded-md transition-colors"
+                >
+                  Logout
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </>
       ) : (
         <></>

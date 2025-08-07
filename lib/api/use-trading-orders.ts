@@ -28,6 +28,9 @@ export interface TradingOrderRequest {
   stop_loss?: string;
   close_on_trigger?: boolean;
   order_filter?: string;
+
+  slippage_tolerance_type?: 'TickSize' | 'Percentage';
+  slippage_tolerance?: string;
 }
 
 export interface TradingOrderResponse {

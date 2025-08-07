@@ -7,7 +7,7 @@ import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
 import { useMarketInfo } from '@/lib/api/use-market-info';
-import { useTradingOrders } from '@/lib/api/use-trading-orders';
+import { TradingOrderRequest, useTradingOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
@@ -29,7 +29,7 @@ export function MarketTrade({
   const [buyValue, setBuyValue] = useState('');
   const [quantity, setQuantity] = useState('');
   const [progress, setProgress] = useState(0);
-  const [slippageTolerance, setSlippageTolerance] = useState(false);
+  const [slippageToleranceChecked, setSlippageToleranceChecked] = useState(false);
   const [selectedSlippage, setSelectedSlippage] = useState('0.1');
 
   const isBuy = side === 'buy';
@@ -89,13 +89,20 @@ export function MarketTrade({
   };
 
   const handleCreateOrder = () => {
-    createOrder({
+    const params: Omit<TradingOrderRequest, 'api_key'> = {
       category: 'spot',
       symbol: `${baseCoin}${quoteCoin}`,
       side: isBuy ? 'Buy' : 'Sell',
       order_type: 'Market',
       qty: isBuy ? buyValue : quantity,
-    });
+    };
+
+    if (slippageToleranceChecked) {
+      params.slippage_tolerance_type = 'TickSize';
+      params.slippage_tolerance = multiply(selectedSlippage, String(100));
+    }
+
+    createOrder(params);
   };
 
   return (
@@ -146,8 +153,8 @@ export function MarketTrade({
       </div>
       <div className="mt-4 flex flex-col gap-y-2">
         <SlippageTolerance
-          value={slippageTolerance}
-          onChange={setSlippageTolerance}
+          value={slippageToleranceChecked}
+          onChange={setSlippageToleranceChecked}
           selectedSlippage={selectedSlippage}
           setSelectedSlippage={setSelectedSlippage}
           token={quoteCoin || ''}

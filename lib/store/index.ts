@@ -28,7 +28,7 @@ export const useAppStore = create<AppStore>()(
   devtools(
     persist(
       (set) => ({
-        sidebarOpen: false,
+        sidebarOpen: true,
         openSidebar: () => set({ sidebarOpen: true }),
         closeSidebar: () => set({ sidebarOpen: false }),
         toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),

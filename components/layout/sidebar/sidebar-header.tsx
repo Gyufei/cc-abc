@@ -1,9 +1,22 @@
+import { useAppStore } from '@/lib/store';
+import { cn } from '@/lib/utils';
+
 import Collapse from '../../icons/collapse';
 import Logo from '../../icons/logo';
 
 export function SidebarHeader() {
+  const sidebarOpen = useAppStore((state) => state.sidebarOpen);
+  const toggleSidebar = useAppStore((state) => state.toggleSidebar);
+
   return (
-    <div className="h-[52px] flex justify-between items-center px-3">
+    <div
+      className={cn(
+        'flex items-center',
+        sidebarOpen
+          ? 'h-[52px] flex-row px-3 justify-between '
+          : 'h-fit flex-col justify-start gap-y-3 py-3'
+      )}
+    >
       <div className="flex items-center gap-2">
         <div
           className="w-6 h-6 flex items-center justify-center rounded-[6px]"
@@ -13,9 +26,17 @@ export function SidebarHeader() {
         >
           <Logo className="w-5 h-5" />
         </div>
-        <span className="smm-text text-ui-fg-base">AnyMM</span>
+        <span
+          className={`smm-text text-ui-fg-base transition-all duration-300 ease-in-out ${sidebarOpen ? 'inline-block' : 'hidden'}`}
+        >
+          AnyMM
+        </span>
       </div>
-      <Collapse className="h-[15px] w-[15px] cursor-pointer" />
+      <Collapse
+        className="h-[15px] w-[15px] cursor-pointer transition-transform duration-300 ease-in-out hover:opacity-80"
+        onClick={toggleSidebar}
+        style={{ transform: sidebarOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}
+      />
     </div>
   );
 }

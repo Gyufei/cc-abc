@@ -21,7 +21,11 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
       {isLogin ? (
         <>
           <Sidebar />
-          {children}
+          <div
+            className={cn('flex-1 overflow-hidden transition-all duration-300 ease-in-out ml-0')}
+          >
+            {children}
+          </div>
         </>
       ) : (
         <LoginModal />
