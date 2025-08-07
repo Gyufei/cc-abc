@@ -46,7 +46,7 @@ export function useOrderHistory(symbol?: string, days?: number) {
   const { data: currentApiKey } = useCurrentApiKey();
 
   const query = useQuery({
-    queryKey: ['order-history', symbol, currentApiKey?.api_key, days],
+    queryKey: ['order-history', currentApiKey?.api_key, symbol, days],
     queryFn: async (): Promise<OrderHistoryItem[]> => {
       if (!user.token || !user.user_id) {
         throw new Error('user not logged in');

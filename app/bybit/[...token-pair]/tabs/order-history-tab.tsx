@@ -26,7 +26,7 @@ interface OrderHistoryTableData {
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
 export function OrderHistoryTab({
-  baseCoin,
+  baseCoin: _baseCoin,
   quoteCoin,
 }: {
   baseCoin: string | null;
@@ -37,7 +37,7 @@ export function OrderHistoryTab({
     isLoading,
     error,
   } = useOrderHistory(
-    `${baseCoin}${quoteCoin}`,
+    '',
     7 // Last 7 day
   );
 
