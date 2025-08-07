@@ -8,6 +8,8 @@ import { useCancelOrder } from '@/lib/api/use-cancel-order';
 import { OpenOrderTableData, useOpenOrders } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
+import { OrderFilter } from './order-filter';
+
 /**
  * OpenOrdersTab component displays open orders table
  * Uses @medusajs/ui Table component with sticky first and last columns
@@ -24,6 +26,19 @@ export function OpenOrdersTab() {
 
   // Track canceling state for each order
   const [cancelingOrders, setCancelingOrders] = useState<Set<string>>(new Set());
+
+  const FilterTabs = [
+    {
+      label: 'Limit & Market Orders',
+      value: 'limit-market',
+    },
+    {
+      label: 'TP/SL',
+      value: 'tp-sl',
+    },
+  ];
+
+  const [activeFilterStatus, setActiveFilterStatus] = useState(FilterTabs[0].value);
 
   // Handle cancel order
   const handleCancelOrder = async (orderLinkId: string, symbol: string) => {
@@ -83,6 +98,11 @@ export function OpenOrdersTab() {
 
   return (
     <div className="w-full h-full overflow-x-auto">
+      <OrderFilter
+        options={FilterTabs}
+        activeTab={activeFilterStatus}
+        setActiveTab={setActiveFilterStatus}
+      />
       <div className="w-full h-full" style={{ minWidth: '1500px' }}>
         <Table>
           <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
