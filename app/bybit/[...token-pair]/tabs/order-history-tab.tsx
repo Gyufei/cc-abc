@@ -25,15 +25,20 @@ interface OrderHistoryTableData {
  * OrderHistoryTab component displays order history table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function OrderHistoryTab() {
-  // Fetch order history data
+export function OrderHistoryTab({
+  baseCoin,
+  quoteCoin,
+}: {
+  baseCoin: string | null;
+  quoteCoin: string | null;
+}) {
   const {
     data: orderHistoryResponse,
     isLoading,
     error,
   } = useOrderHistory(
-    'BTCUSDT',
-    1 // Last 1 day
+    `${baseCoin}${quoteCoin}`,
+    7 // Last 7 day
   );
 
   // Handle loading state
@@ -74,8 +79,8 @@ export function OrderHistoryTab() {
         second: '2-digit',
       })
       .replace('T', ' ');
-    const filledValue = `${orderItem.cum_exec_value.toFixed(2)}/$${orderItem.leaves_value.toFixed(2)} USDT`;
-    const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} USDT`;
+    const filledValue = `${orderItem.cum_exec_value.toFixed(2)}/$${orderItem.leaves_value.toFixed(2)} ${quoteCoin}`;
+    const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} ${quoteCoin}`;
 
     return {
       id: orderItem.id,

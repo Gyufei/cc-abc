@@ -27,17 +27,22 @@ interface TradeHistoryTableData {
  * TradeHistoryTab component displays trade history table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function TradeHistoryTab() {
+export function TradeHistoryTab({
+  baseCoin,
+  quoteCoin,
+}: {
+  baseCoin: string | null;
+  quoteCoin: string | null;
+}) {
   // Fetch trade execution data
   const {
     data: tradeExecutionResponse,
     isLoading,
     error,
   } = useTradeExecutions(
-    'BTCUSDT',
+    `${baseCoin}${quoteCoin}`,
     7 // Last 7 days
   );
-  console.log('🚀 ~ TradeHistoryTab ~ tradeExecutionResponse:', tradeExecutionResponse);
 
   // Handle loading state
   if (isLoading) {
@@ -64,11 +69,11 @@ export function TradeHistoryTab() {
     // const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
     const sideText = tradeItem.side;
     const orderTypeText = tradeItem.order_type;
-    const filledValue = `${tradeItem.exec_value} USDT`;
+    const filledValue = `${tradeItem.exec_value} ${quoteCoin}`;
     const filledPrice = `${tradeItem.exec_price}`;
-    const filledQty = `${tradeItem.exec_qty} BTC`;
+    const filledQty = `${tradeItem.exec_qty} ${baseCoin}`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${tradeItem.exec_fee || 0} USDT`;
+    const tradingFees = `${tradeItem.exec_fee || 0} ${quoteCoin}`;
     const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
     const transactionTime = new Date(tradeItem.exec_time)
       .toLocaleString('sv-SE', {
