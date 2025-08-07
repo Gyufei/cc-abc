@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { Table } from '@medusajs/ui';
+
+import { useState } from 'react';
+
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
 import { OpenOrderTableData, useOpenOrders } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
-import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * OpenOrdersTab component displays open orders table
@@ -20,7 +21,6 @@ export function OpenOrdersTab() {
 
   // Cancel order mutation
   const cancelOrderMutation = useCancelOrder();
-  const queryClient = useQueryClient();
 
   // Track canceling state for each order
   const [cancelingOrders, setCancelingOrders] = useState<Set<string>>(new Set());
@@ -33,7 +33,7 @@ export function OpenOrdersTab() {
     }
 
     // Add order to canceling set
-    setCancelingOrders(prev => new Set(prev).add(orderLinkId));
+    setCancelingOrders((prev) => new Set(prev).add(orderLinkId));
 
     try {
       await cancelOrderMutation.mutateAsync({
@@ -42,15 +42,11 @@ export function OpenOrdersTab() {
         symbol: symbol,
         order_link_id: orderLinkId,
       });
-      
-      // Refresh the orders data after successful cancellation
-      queryClient.invalidateQueries({ queryKey: ['open-orders'] });
-      
     } catch (error) {
       console.error('Failed to cancel order:', error);
     } finally {
       // Remove order from canceling set
-      setCancelingOrders(prev => {
+      setCancelingOrders((prev) => {
         const newSet = new Set(prev);
         newSet.delete(orderLinkId);
         return newSet;
@@ -98,7 +94,9 @@ export function OpenOrdersTab() {
               <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Order Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled/Order Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">
+                Filled/Order Quantity
+              </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Order Value</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">TP/SL</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Trade Type</Table.HeaderCell>
@@ -124,7 +122,9 @@ export function OpenOrdersTab() {
                   </span>
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
+                <Table.Cell className="whitespace-nowrap pl-3">
+                  {item.filledOrderQuantity}
+                </Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.tpSl}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>
@@ -132,7 +132,7 @@ export function OpenOrdersTab() {
                 <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>
                 <Table.Cell className="whitespace-nowrap pl-3">{item.reduceOnly}</Table.Cell>
                 <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base sticky-right-shadow whitespace-nowrap pl-3">
-                  <button 
+                  <button
                     onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
                     className="hover:text-red-800 transition-colors border hover:border-red-500 rounded px-2 py-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={cancelingOrders.has(item.orderLinkId)}
