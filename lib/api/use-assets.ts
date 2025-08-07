@@ -58,7 +58,7 @@ function transformAssetData(
       netAssetValueUsd: `≈${netAssetValueUsd.toFixed(2)} USD`,
       balance: asset.available.toFixed(8),
       sportCost: '--',
-      lastPrice: asset.symbol === 'USDT' ? '1.00 USD' : `${usdPrice.toFixed(2)} USD`,
+      lastPrice: asset.symbol === 'USDT' ? '--' : `${usdPrice.toFixed(2)} USD`,
       pnl: '--',
     };
   });
