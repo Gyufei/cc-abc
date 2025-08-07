@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { useMemo } from 'react';
+
 import { ApiPath } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
@@ -36,20 +38,12 @@ export interface AssetTableData {
  */
 function transformAssetData(
   assets: AssetItem[],
-  btcPrice?: number,
-  ethPrice?: number
+  priceMap: Record<string, number>
 ): AssetTableData[] {
   return assets.map((asset, index) => {
     // Use market price from useMarketInfo based on asset symbol
-    let usdPrice = 1; // Default for USDT
-    if (asset.symbol === 'BTC') {
-      usdPrice = btcPrice || 113995;
-    } else if (asset.symbol === 'ETH') {
-      usdPrice = ethPrice || 3500; // ETH default price
-    } else if (asset.symbol !== 'USDT') {
-      usdPrice = 100; // Other assets fallback
-    }
-    const netAssetValueUsd = asset.total * usdPrice;
+    const tokenPrice = priceMap[asset.symbol] || 1; // Default for USDT
+    const netAssetValueUsd = asset.total * tokenPrice;
 
     return {
       id: `${asset.symbol}-${index}`,
@@ -58,7 +52,7 @@ function transformAssetData(
       netAssetValueUsd: `≈${netAssetValueUsd.toFixed(2)} USD`,
       balance: asset.available.toFixed(8),
       sportCost: '--',
-      lastPrice: asset.symbol === 'USDT' ? '--' : `${usdPrice.toFixed(2)} USD`,
+      lastPrice: asset.symbol === 'USDT' ? '--' : `${tokenPrice.toFixed(2)} USD`,
       pnl: '--',
     };
   });
@@ -71,6 +65,18 @@ export function useAssets() {
   // Get BTC and ETH market info for more accurate pricing
   const { data: btcMarketInfo } = useMarketInfo('BTC', 'USDT');
   const { data: ethMarketInfo } = useMarketInfo('ETH', 'USDT');
+  const { data: makMarketInfo } = useMarketInfo('MAK', 'USDT');
+  const { data: miaMarketInfo } = useMarketInfo('MIA', 'USDT');
+
+  const priceMap = useMemo(
+    () => ({
+      BTC: btcMarketInfo?.price,
+      ETH: ethMarketInfo?.price,
+      MAK: makMarketInfo?.price,
+      MIA: miaMarketInfo?.price,
+    }),
+    [btcMarketInfo, ethMarketInfo, makMarketInfo, miaMarketInfo]
+  );
 
   const query = useQuery({
     queryKey: ['table-assets', currentApiKey?.api_key],
@@ -99,7 +105,7 @@ export function useAssets() {
         },
       });
 
-      return transformAssetData(response.assets, btcMarketInfo?.price, ethMarketInfo?.price);
+      return transformAssetData(response.assets, priceMap);
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
