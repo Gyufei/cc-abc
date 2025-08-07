@@ -4,6 +4,7 @@ import { ApiPath } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useAppStore } from '@/lib/store';
+
 import { useMarketInfo } from './use-market-info';
 
 // Interface for asset item from API
@@ -13,7 +14,6 @@ export interface AssetItem {
   available: number;
   frozen: number;
 }
-
 
 // Interface for table display data
 export interface AssetTableData {
@@ -26,7 +26,6 @@ export interface AssetTableData {
   lastPrice: string;
   pnl: string;
 }
-
 
 /**
  * Transform API data to table display format
@@ -69,11 +68,9 @@ export function useAssets() {
   const { user } = useAppStore();
   const { data: currentApiKey } = useCurrentApiKey();
 
-  
   // Get BTC and ETH market info for more accurate pricing
   const { data: btcMarketInfo } = useMarketInfo('BTC', 'USDT');
   const { data: ethMarketInfo } = useMarketInfo('ETH', 'USDT');
-
 
   const query = useQuery({
     queryKey: ['table-assets', currentApiKey?.api_key],

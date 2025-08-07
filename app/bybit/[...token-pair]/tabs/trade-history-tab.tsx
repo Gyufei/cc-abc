@@ -40,7 +40,7 @@ export function TradeHistoryTab({
     isLoading,
     error,
   } = useTradeExecutions(
-    `${baseCoin}${quoteCoin}`,
+    '',
     7 // Last 7 days
   );
 

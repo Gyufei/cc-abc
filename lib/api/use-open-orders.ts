@@ -61,14 +61,16 @@ export interface OpenOrderTableData {
  */
 function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
   return orders.map((order) => {
-    const orderTime = new Date(order.created_at).toLocaleString('sv-SE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    }).replace('T', ' ');
+    const orderTime = new Date(order.created_at)
+      .toLocaleString('sv-SE', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+      .replace('T', ' ');
 
     const tpSlText =
       order.take_profit > 0 || order.stop_loss > 0
@@ -101,7 +103,8 @@ export function useOpenOrders(symbol?: string) {
   const { data: currentApiKey } = useCurrentApiKey();
 
   const query = useQuery({
-    queryKey: ['open-orders', symbol, currentApiKey?.api_key],
+    queryKey: ['open-orders', currentApiKey?.api_key, symbol],
+
     queryFn: async (): Promise<OpenOrderTableData[]> => {
       if (!user.token || !user.user_id) {
         throw new Error('user not logged in');

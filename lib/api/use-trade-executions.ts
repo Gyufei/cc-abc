@@ -44,7 +44,7 @@ export function useTradeExecutions(symbol?: string, days?: number) {
   const { data: currentApiKey } = useCurrentApiKey();
 
   const query = useQuery({
-    queryKey: ['trade-executions', symbol, currentApiKey?.api_key, days],
+    queryKey: ['trade-executions', currentApiKey?.api_key, symbol, days],
     queryFn: async (): Promise<TradeExecutionItem[]> => {
       if (!user.token || !user.user_id) {
         throw new Error('user not logged in');
@@ -75,8 +75,6 @@ export function useTradeExecutions(symbol?: string, days?: number) {
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
   });
 
   return query;
