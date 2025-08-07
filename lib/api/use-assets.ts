@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { ApiPath, isProduction } from '@/lib/api/api-path';
+import { ApiPath } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useAppStore } from '@/lib/store';
 
+import { G_TOKEN_PAIRS } from '../configs/token';
 import { getTokensPrice } from './get-tokens-price';
 
 // Interface for asset item from API
@@ -71,19 +72,7 @@ export function useAssets() {
         throw new Error('no api key selected');
       }
 
-      const symbols = isProduction
-        ? ([
-            ['BTC', 'USDT'],
-            ['ETH', 'USDT'],
-            ['MAK', 'USDT'],
-            ['MIA', 'USDT'],
-          ] as [string, string][])
-        : ([
-            ['BTC', 'USDT'],
-            ['ETH', 'USDT'],
-          ] as [string, string][]);
-
-      const priceMap = await getTokensPrice(symbols);
+      const priceMap = await getTokensPrice(G_TOKEN_PAIRS);
       console.log('🚀 ~ queryFn: ~ priceMap:', priceMap);
 
       const params = new URLSearchParams({

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { useOpenOrders } from '@/lib/api/use-open-orders';
 
 import { AssetsTab } from './tabs/assets-tab';
@@ -23,7 +24,7 @@ export function TableContainer({
   quoteCoin: string | null;
 }) {
   const [activeTab, setActiveTab] = useState('open-orders');
- const { data: openOrdersData } = useOpenOrders();
+  const { data: openOrdersData } = useOpenOrders();
   const openOrdersCount = openOrdersData?.length || 0;
   return (
     <div className="flex-1 bg-background border border-t-0 border-ui-border-base rounded-lg mt-4 overflow-auto">
@@ -70,7 +71,7 @@ export function TableContainer({
         </TabsContent>
 
         <TabsContent value="order-history" className="mt-0 p-0 flex-1 overflow-auto">
-          <OrderHistoryTab baseCoin={baseCoin} quoteCoin={quoteCoin} />
+          <OrderHistoryTab />
         </TabsContent>
 
         <TabsContent value="trade-history" className="mt-0 p-0 flex-1 overflow-auto">

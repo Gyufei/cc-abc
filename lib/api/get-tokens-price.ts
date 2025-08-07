@@ -1,3 +1,4 @@
+import { getSymbolToken } from '../configs/token';
 import { getMarketInfoData } from './use-market-info';
 
 export async function getTokensPrice(symbols: [string, string][]) {
@@ -10,12 +11,9 @@ export async function getTokensPrice(symbols: [string, string][]) {
       if (result.status === 'fulfilled' && result.value) {
         const curr = result.value;
         const marketSymbol = curr.symbol; // like BTCUSDT
-
-        for (const [baseCoin, quoteCoin] of symbols) {
-          if (marketSymbol.startsWith(baseCoin) && marketSymbol.endsWith(quoteCoin)) {
-            acc[`${baseCoin}`] = curr.price;
-            break;
-          }
+        const [bCoin] = getSymbolToken(marketSymbol);
+        if (bCoin) {
+          acc[`${bCoin}`] = curr.price;
         }
       }
       return acc;

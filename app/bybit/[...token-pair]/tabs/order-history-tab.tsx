@@ -1,8 +1,10 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
+import { multiply } from 'safebase';
 
 import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
+import { getSymbolToken } from '@/lib/configs/token';
 
 // Type definition for processed order history data for table display
 interface OrderHistoryTableData {
@@ -25,13 +27,7 @@ interface OrderHistoryTableData {
  * OrderHistoryTab component displays order history table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function OrderHistoryTab({
-  baseCoin: _baseCoin,
-  quoteCoin,
-}: {
-  baseCoin: string | null;
-  quoteCoin: string | null;
-}) {
+export function OrderHistoryTab() {
   const {
     data: orderHistoryResponse,
     isLoading,
@@ -64,11 +60,17 @@ export function OrderHistoryTab({
    */
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
     const sideText = orderItem.side;
+    const isBuy = sideText === 'Buy';
     const orderTypeText = orderItem.order_type;
     const avgPrice = (orderItem.avg_price || 0).toLocaleString();
-    const orderPrice = (orderItem.price || 0).toLocaleString();
+    const isMarketOrder = orderTypeText === 'Market';
+    const [baseCoin, quoteCoin] = getSymbolToken(orderItem.symbol);
+
+    const orderPrice = isMarketOrder ? 'Market' : (orderItem.price || 0).toLocaleString();
     const priceDisplay = `${avgPrice}/${orderPrice}`;
-    const filledQuantityDisplay = `${orderItem.filled_quantity}/${orderItem.quantity}`;
+    const filledQuantityDisplay = isMarketOrder
+      ? `${orderItem.filled_quantity}/ ${isBuy ? '--' : orderItem.quantity} ${baseCoin}`
+      : `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
     const orderTime = new Date(orderItem.created_at)
       .toLocaleString('sv-SE', {
         year: 'numeric',
@@ -79,7 +81,11 @@ export function OrderHistoryTab({
         second: '2-digit',
       })
       .replace('T', ' ');
-    const filledValue = `${orderItem.cum_exec_value.toFixed(2)}/$${orderItem.leaves_value.toFixed(2)} ${quoteCoin}`;
+
+    const filledValue = isMarketOrder
+      ? `${orderItem.cum_exec_value.toFixed(4)}/${isBuy ? orderItem.quantity : '--'} ${quoteCoin}`
+      : `${orderItem.cum_exec_value.toFixed(4)}/${Number(multiply(String(orderItem.quantity), String(orderItem.price))).toFixed(4)} ${quoteCoin}`;
+
     const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} ${quoteCoin}`;
 
     return {
