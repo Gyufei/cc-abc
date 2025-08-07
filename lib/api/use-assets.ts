@@ -71,7 +71,7 @@ export function useAssets() {
         throw new Error('no api key selected');
       }
 
-      const symbols = !isProduction
+      const symbols = isProduction
         ? ([
             ['BTC', 'USDT'],
             ['ETH', 'USDT'],
