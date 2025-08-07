@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { ReactElement } from 'react';
 
 import { ApiPath } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
@@ -45,58 +46,17 @@ export interface OpenOrderTableData {
   orderPrice: string;
   filledOrderQuantity: string;
   order: string;
-  tpSl: string;
+  tpSl: string | ReactElement;
   tradeType: string;
   orderTime: string;
   orderId: string;
   reduceOnly: string;
   orderLinkId: string;
   symbol: string;
+  status: string; // Add status field for filtering
 }
 
-/**
- * Transform API data to table display format
- * @param orders - Raw order data from API
- * @returns Transformed data for table display
- */
-function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
-  return orders.map((order) => {
-    const orderTime = new Date(order.created_at)
-      .toLocaleString('sv-SE', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })
-      .replace('T', ' ');
 
-    const tpSlText =
-      order.take_profit > 0 || order.stop_loss > 0
-        ? `${order.take_profit > 0 ? order.take_profit.toFixed(2) : '--'}/${order.stop_loss > 0 ? order.stop_loss.toFixed(2) : '--'}`
-        : '--';
-
-    return {
-      id: order.id,
-      market: order.symbol,
-      instrument: 'Spot', // Default to Spot for now
-      orderType: order.order_type,
-      direction: order.side,
-      orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
-      filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
-      order: `${order.leaves_value.toFixed(2)} USDT`,
-      tpSl: tpSlText,
-      tradeType: '--', // Default value、Open Long
-      orderTime: orderTime,
-      orderId: order.order_id,
-      // reduceOnly: order.reduce_only ? 'Yes' : 'No',
-      reduceOnly: '--',
-      orderLinkId: order.order_link_id,
-      symbol: order.symbol,
-    };
-  });
-}
 
 export function useOpenOrders(symbol?: string) {
   const { user } = useAppStore();
@@ -105,7 +65,7 @@ export function useOpenOrders(symbol?: string) {
   const query = useQuery({
     queryKey: ['open-orders', currentApiKey?.api_key, symbol],
 
-    queryFn: async (): Promise<OpenOrderTableData[]> => {
+    queryFn: async (): Promise<OpenOrderItem[]> => {
       if (!user.token || !user.user_id) {
         throw new Error('user not logged in');
       }
@@ -131,7 +91,7 @@ export function useOpenOrders(symbol?: string) {
         },
       });
 
-      return transformOrderData(res);
+      return res;
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,

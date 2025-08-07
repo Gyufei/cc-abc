@@ -1,14 +1,14 @@
 'use client';
 
-import { Table } from '@medusajs/ui';
-
 import { useState } from 'react';
 
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
-import { OpenOrderTableData, useOpenOrders } from '@/lib/api/use-open-orders';
+import { OpenOrderItem, useOpenOrders } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
+import { LimitMarketOrdersTable } from './limit-market-orders-table';
 import { OrderFilter } from './order-filter';
+import { TPSLOrdersTable } from './tpsl-orders-table';
 
 /**
  * OpenOrdersTab component displays open orders table
@@ -27,18 +27,33 @@ export function OpenOrdersTab() {
   // Track canceling state for each order
   const [cancelingOrders, setCancelingOrders] = useState<Set<string>>(new Set());
 
+  // Filter and split data based on status
+  // Separate orders with status "Untriggered" into TP/SL data
+  const limitMarketData = ordersData?.filter(order => {
+    // Filter orders that are NOT "Untriggered" for Limit & Market Orders tab
+    return order.status !== 'Untriggered';
+  }) || [];
+  
+  const tpslData = ordersData?.filter(order => {
+    // Filter orders with status "Untriggered" for TP/SL tab
+    return order.status === 'Untriggered';
+  }) || [];
+
   const FilterTabs = [
     {
-      label: 'Limit & Market Orders',
+      label: `Limit & Market Orders (${limitMarketData.length})`,
       value: 'limit-market',
     },
     {
-      label: 'TP/SL',
+      label: `TP/SL (${tpslData.length})`,
       value: 'tp-sl',
     },
   ];
 
   const [activeFilterStatus, setActiveFilterStatus] = useState(FilterTabs[0].value);
+
+  // Get current data based on active filter
+  const currentData = activeFilterStatus === 'tp-sl' ? tpslData : limitMarketData;
 
   // Handle cancel order
   const handleCancelOrder = async (orderLinkId: string, symbol: string) => {
@@ -87,84 +102,53 @@ export function OpenOrdersTab() {
     );
   }
 
-  // Show empty state
+  // Show empty state for all orders
   if (!ordersData || ordersData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">No open orders found</div>
+      <div className="w-full h-full overflow-x-auto">
+        <OrderFilter
+          options={FilterTabs}
+          activeTab={activeFilterStatus}
+          setActiveTab={setActiveFilterStatus}
+        />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-ui-fg-muted">No open orders found</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full overflow-x-auto">
+    <div className="">
       <OrderFilter
         options={FilterTabs}
         activeTab={activeFilterStatus}
         setActiveTab={setActiveFilterStatus}
       />
-      <div className="w-full h-full" style={{ minWidth: '1500px' }}>
-        <Table>
-          <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
-            <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
-                Market
-              </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">
-                Filled/Order Quantity
-              </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">TP/SL</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Trade Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Time</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Order ID</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Reduce-Only</Table.HeaderCell>
-              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base sticky-right-header-shadow whitespace-nowrap pl-3">
-                Action
-              </Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {ordersData?.map((item: OpenOrderTableData) => (
-              <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
-                  {item.market}
-                </Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">
-                  <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
-                    {item.direction}
-                  </span>
-                </Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">
-                  {item.filledOrderQuantity}
-                </Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.tpSl}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.reduceOnly}</Table.Cell>
-                <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base sticky-right-shadow whitespace-nowrap pl-3">
-                  <button
-                    onClick={() => handleCancelOrder(item.orderLinkId, item.symbol)}
-                    className="hover:text-red-800 transition-colors border hover:border-red-500 rounded px-2 py-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={cancelingOrders.has(item.orderLinkId)}
-                  >
-                    {cancelingOrders.has(item.orderLinkId) ? 'Canceling...' : 'Cancel'}
-                  </button>
-                </Table.Cell>
-              </Table.Row>
-            )) || []}
-          </Table.Body>
-        </Table>
-      </div>
+    <div className="w-full h-full overflow-auto">
+      
+      {currentData.length === 0 ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-ui-fg-muted">
+            {activeFilterStatus === 'tp-sl' ? 'No TP/SL orders found' : 'No limit & market orders found'}
+          </div>
+        </div>
+      ) : (
+        activeFilterStatus === 'tp-sl' ? (
+          <TPSLOrdersTable
+            data={currentData}
+            cancelingOrders={cancelingOrders}
+            onCancelOrder={handleCancelOrder}
+          />
+        ) : (
+          <LimitMarketOrdersTable
+            data={currentData}
+            cancelingOrders={cancelingOrders}
+            onCancelOrder={handleCancelOrder}
+          />
+        )
+      )}
+    </div>
     </div>
   );
 }
