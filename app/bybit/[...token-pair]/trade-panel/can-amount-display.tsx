@@ -22,7 +22,7 @@ export function CanAmountDisplay({
   const { data: quoteBalance } = useTokenBalance(quoteCoin);
 
   const canBuyAmount = useMemo(() => {
-    if (!quoteBalance) {
+    if (!quoteBalance || Number(price) === 0) {
       return '0';
     }
 
