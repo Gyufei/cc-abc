@@ -14,12 +14,12 @@ export default function OrdersPage() {
   const [baseCoin, quoteCoin] = tokenPair;
 
   return (
-    <div className="flex flex-col flex-1 bg-ui-bg-field overflow-auto">
+    <div className="flex flex-col flex-1 bg-ui-bg-field overflow-auto h-full">
       <ApiKeysBar />
       <div className="p-4 flex gap-x-4 flex-1 overflow-auto">
         <div className="part-1 flex flex-col flex-1 overflow-auto">
           <ChartContainer />
-          <TableContainer baseCoin={baseCoin} quoteCoin={quoteCoin}/>
+          <TableContainer baseCoin={baseCoin} quoteCoin={quoteCoin} />
         </div>
         <TradePanel baseCoin={baseCoin} quoteCoin={quoteCoin} />
       </div>

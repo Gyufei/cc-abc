@@ -4,6 +4,7 @@ import ThreeDot from '@/components/icons/three-dot';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { useAppStore, useIsLogin, useUser } from '@/lib/store';
+import { cn } from '@/lib/utils';
 
 export function SidebarFooter() {
   const user = useUser();
@@ -16,10 +17,15 @@ export function SidebarFooter() {
   };
 
   return (
-    <div className="h-[56px] p-3 flex items-center justify-between">
+    <div
+      className={cn(
+        'h-[56px] p-3 flex items-center',
+        sidebarOpen ? 'justify-between' : 'justify-center'
+      )}
+    >
       {isLogin ? (
         <>
-          <div className="flex gap-2">
+          <div className={cn('flex', sidebarOpen ? 'gap-2' : 'gap-0')}>
             <div
               className="w-5 h-5 flex items-center justify-center bg-background rounded-full"
               style={{
@@ -29,11 +35,15 @@ export function SidebarFooter() {
             >
               <Image src="/images/avatar-place.png" alt="avatar" width={16} height={16} />
             </div>
-            <div className={`text-ui-fg-base smm-text transition-all duration-300 ease-in-out ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+            <div
+              className={`text-ui-fg-base smm-text transition-all duration-300 ease-in-out ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}
+            >
               {user?.username}
             </div>
           </div>
-          <div className={`transition-all duration-300 ease-in-out ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+          <div
+            className={`transition-all duration-300 ease-in-out ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}
+          >
             <Popover>
               <PopoverTrigger asChild>
                 <ThreeDot className="w-[15px] h-[15px] cursor-pointer" />
