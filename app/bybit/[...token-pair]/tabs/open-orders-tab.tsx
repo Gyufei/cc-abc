@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { useCancelOrder } from '@/lib/api/use-cancel-order';
-import { OpenOrderItem, useOpenOrders } from '@/lib/api/use-open-orders';
+import { useOpenOrders } from '@/lib/api/use-open-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 import { LimitMarketOrdersTable } from './limit-market-orders-table';
@@ -29,15 +29,17 @@ export function OpenOrdersTab() {
 
   // Filter and split data based on status
   // Separate orders with status "Untriggered" into TP/SL data
-  const limitMarketData = ordersData?.filter(order => {
-    // Filter orders that are NOT "Untriggered" for Limit & Market Orders tab
-    return order.status !== 'Untriggered';
-  }) || [];
-  
-  const tpslData = ordersData?.filter(order => {
-    // Filter orders with status "Untriggered" for TP/SL tab
-    return order.status === 'Untriggered';
-  }) || [];
+  const limitMarketData =
+    ordersData?.filter((order) => {
+      // Filter orders that are NOT "Untriggered" for Limit & Market Orders tab
+      return order.status !== 'Untriggered';
+    }) || [];
+
+  const tpslData =
+    ordersData?.filter((order) => {
+      // Filter orders with status "Untriggered" for TP/SL tab
+      return order.status === 'Untriggered';
+    }) || [];
 
   const FilterTabs = [
     {
@@ -125,16 +127,16 @@ export function OpenOrdersTab() {
         activeTab={activeFilterStatus}
         setActiveTab={setActiveFilterStatus}
       />
-    <div className="w-full h-full overflow-auto">
-      
-      {currentData.length === 0 ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-ui-fg-muted">
-            {activeFilterStatus === 'tp-sl' ? 'No TP/SL orders found' : 'No limit & market orders found'}
+      <div className="w-full h-full overflow-auto">
+        {currentData.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-ui-fg-muted">
+              {activeFilterStatus === 'tp-sl'
+                ? 'No TP/SL orders found'
+                : 'No limit & market orders found'}
+            </div>
           </div>
-        </div>
-      ) : (
-        activeFilterStatus === 'tp-sl' ? (
+        ) : activeFilterStatus === 'tp-sl' ? (
           <TPSLOrdersTable
             data={currentData}
             cancelingOrders={cancelingOrders}
@@ -146,9 +148,8 @@ export function OpenOrdersTab() {
             cancelingOrders={cancelingOrders}
             onCancelOrder={handleCancelOrder}
           />
-        )
-      )}
-    </div>
+        )}
+      </div>
     </div>
   );
 }
