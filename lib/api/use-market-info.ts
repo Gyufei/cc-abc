@@ -4,6 +4,21 @@ import { ApiPath } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
 import { MarketInfo } from '@/lib/types/common';
 
+export function getMarketInfoData(baseCoin: string, quoteCoin: string) {
+  const symbol = `${baseCoin}${quoteCoin}`;
+
+  if (!symbol) {
+    return;
+  }
+
+  return Fetcher<MarketInfo>(`${ApiPath.tradingMarket}?symbol=${symbol}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 export function useMarketInfo(baseCoin: string, quoteCoin: string) {
   const query = useQuery({
     queryKey: ['market-info', baseCoin, quoteCoin],

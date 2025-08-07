@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useMemo } from 'react';
-
-import { ApiPath } from '@/lib/api/api-path';
+import { ApiPath, isProduction } from '@/lib/api/api-path';
 import { Fetcher } from '@/lib/fetcher';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useAppStore } from '@/lib/store';
 
-import { useMarketInfo } from './use-market-info';
+import { getTokensPrice } from './get-tokens-price';
 
 // Interface for asset item from API
 export interface AssetItem {
@@ -62,22 +60,6 @@ export function useAssets() {
   const { user } = useAppStore();
   const { data: currentApiKey } = useCurrentApiKey();
 
-  // Get BTC and ETH market info for more accurate pricing
-  const { data: btcMarketInfo } = useMarketInfo('BTC', 'USDT');
-  const { data: ethMarketInfo } = useMarketInfo('ETH', 'USDT');
-  const { data: makMarketInfo } = useMarketInfo('MAK', 'USDT');
-  const { data: miaMarketInfo } = useMarketInfo('MIA', 'USDT');
-
-  const priceMap = useMemo(
-    () => ({
-      BTC: btcMarketInfo?.price,
-      ETH: ethMarketInfo?.price,
-      MAK: makMarketInfo?.price,
-      MIA: miaMarketInfo?.price,
-    }),
-    [btcMarketInfo, ethMarketInfo, makMarketInfo, miaMarketInfo]
-  );
-
   const query = useQuery({
     queryKey: ['table-assets', currentApiKey?.api_key],
     queryFn: async (): Promise<AssetTableData[]> => {
@@ -88,6 +70,21 @@ export function useAssets() {
       if (!currentApiKey?.api_key) {
         throw new Error('no api key selected');
       }
+
+      const symbols = !isProduction
+        ? ([
+            ['BTC', 'USDT'],
+            ['ETH', 'USDT'],
+            ['MAK', 'USDT'],
+            ['MIA', 'USDT'],
+          ] as [string, string][])
+        : ([
+            ['BTC', 'USDT'],
+            ['ETH', 'USDT'],
+          ] as [string, string][]);
+
+      const priceMap = await getTokensPrice(symbols);
+      console.log('🚀 ~ queryFn: ~ priceMap:', priceMap);
 
       const params = new URLSearchParams({
         api_key: currentApiKey.api_key,
