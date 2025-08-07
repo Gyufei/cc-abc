@@ -1,7 +1,9 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
+
 import Image from 'next/image';
+
 import { AssetTableData, useAssets } from '@/lib/api/use-assets';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
@@ -12,10 +14,10 @@ import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 export function AssetsTab() {
   // Get current API key data
   const { data: currentApiKeyData } = useCurrentApiKey();
-  
+
   // Get assets data with loading and error states
   const { data: assetsData, isLoading, error } = useAssets();
-  
+
   // Show loading state
   if (isLoading) {
     return (
@@ -24,7 +26,7 @@ export function AssetsTab() {
       </div>
     );
   }
-  
+
   // Show error state
   if (error) {
     return (
@@ -33,7 +35,7 @@ export function AssetsTab() {
       </div>
     );
   }
-  
+
   // Show no API key state
   if (!currentApiKeyData) {
     return (
@@ -54,17 +56,19 @@ export function AssetsTab() {
 
   return (
     <div className="w-full h-full overflow-x-auto">
-     <div className="w-full h-full" style={{ minWidth: '500px' }}>
+      <div className="w-full h-full" style={{ minWidth: '500px' }}>
         <Table>
           <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
             <Table.Row>
               <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
-                <div className="flex items-center gap-2">
-                  Coins
-                </div>
+                <div className="flex items-center gap-2">Coins</div>
               </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Net Asset Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Balance</Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">
+                Net Asset Value
+              </Table.HeaderCell>
+              <Table.HeaderCell className="whitespace-nowrap pl-3">
+                Available Balance
+              </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Last Price</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -74,12 +78,12 @@ export function AssetsTab() {
                 <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
                   <div className="flex items-center gap-2">
                     <Image
-                    src={`/icons/${item.coin}.svg`}
-                    alt={item.coin}
-                    width={16}
-                    height={16}
-                    className="rounded-xs"
-                  />
+                      src={`/icons/${item.coin}.svg`}
+                      alt={item.coin}
+                      width={16}
+                      height={16}
+                      className="rounded-xs"
+                    />
                     <span className="text-ui-fg-base font-medium">{item.coin}</span>
                   </div>
                 </Table.Cell>
