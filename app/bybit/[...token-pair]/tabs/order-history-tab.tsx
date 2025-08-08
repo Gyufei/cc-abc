@@ -7,7 +7,6 @@ import { useState } from 'react';
 
 import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
-import { getSymbolToken } from '@/lib/configs/token';
 
 import { TimeRangeSelect } from './time-range-select';
 
@@ -118,7 +117,6 @@ export function OrderHistoryTab() {
       minimumFractionDigits: 2,
     });
     const isMarketOrder = orderTypeText === 'Market';
-    const [_, quoteCoin] = getSymbolToken(orderItem.symbol);
 
     const orderPrice = isMarketOrder
       ? 'Market'
