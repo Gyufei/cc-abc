@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { ReactElement } from 'react';
 
 import { ApiPath } from '@/lib/api/api-path';
@@ -55,8 +56,6 @@ export interface OpenOrderTableData {
   symbol: string;
   status: string; // Add status field for filtering
 }
-
-
 
 export function useOpenOrders(symbol?: string) {
   const { user } = useAppStore();

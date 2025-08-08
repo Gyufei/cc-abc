@@ -4,6 +4,7 @@ import { Table } from '@medusajs/ui';
 
 import { useState } from 'react';
 
+import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradeExecutionItem, useTradeExecutions } from '@/lib/api/use-trade-executions';
 
 import { TimeRangeSelect } from './time-range-select';
@@ -32,36 +33,51 @@ interface TradeHistoryTableData {
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
 export function TradeHistoryTab({
+  showAllMarkets,
   baseCoin,
   quoteCoin,
 }: {
+  showAllMarkets: boolean;
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
   const [days, setDays] = useState<string | null>('7');
   const [dateRange, setDateRange] = useState<number[] | null>(null);
+  const { data: tokenPairs } = useTokenPairs();
+
+  console.log('tokenPairs', showAllMarkets, baseCoin, quoteCoin);
 
   // Fetch trade execution data
   const {
     data: tradeExecutionResponse,
     isLoading,
     error,
-  } = useTradeExecutions('', days, dateRange);
+  } = useTradeExecutions(
+    showAllMarkets && baseCoin && quoteCoin ? '' : `${baseCoin}${quoteCoin}`,
+    days,
+    dateRange
+  );
 
   /**
    * Transform API data to table format
    */
   const transformTradeData = (tradeItem: TradeExecutionItem): TradeHistoryTableData => {
+    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === tradeItem.symbol);
+    const bCoin = tokenPair?.base_asset;
+    const qCoin = tokenPair?.quote_asset;
+
+    const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
+    const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
+
     // const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
-    const minimumFractionDigitsForToken = baseCoin === 'ETH' ? 5 : 6;
 
     const sideText = tradeItem.side;
     const orderTypeText = tradeItem.order_type;
-    const filledValue = `${tradeItem.exec_value.toLocaleString('en-US', { minimumFractionDigits: 8 })} ${quoteCoin}`;
+    const filledValue = `${tradeItem.exec_value.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForQuote })} ${qCoin}`;
     const filledPrice = `${tradeItem.exec_price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    const filledQty = `${tradeItem.exec_qty.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })} ${baseCoin}`;
+    const filledQty = `${tradeItem.exec_qty.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForBase })} ${bCoin}`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${tradeItem.exec_fee?.toLocaleString('en-US', { minimumFractionDigits: 8 }) || 0} ${quoteCoin}`;
+    const tradingFees = `${tradeItem.exec_fee?.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForQuote }) || 0} ${qCoin}`;
     const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
     const transactionTime = new Date(tradeItem.exec_time)
       .toLocaleString('sv-SE', {

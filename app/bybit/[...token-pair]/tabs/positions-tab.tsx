@@ -35,8 +35,8 @@ export function PositionsTab() {
       liqPrice: '61,099.29',
       im: '20,090.7380 USDT ≈20,090.73 USD',
       mm: '1,098.5482 USDT ≈1,098.54 USD',
-      closeBy: 'Limit Market'
-    }
+      closeBy: 'Limit Market',
+    },
   ];
 
   return (

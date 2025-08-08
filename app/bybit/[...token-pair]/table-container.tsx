@@ -1,5 +1,7 @@
 'use client';
 
+import { Checkbox, Label } from '@medusajs/ui';
+
 import { useState } from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,15 +26,20 @@ export function TableContainer({
   quoteCoin: string | null;
 }) {
   const [activeTab, setActiveTab] = useState('open-orders');
-  const { data: openOrdersData } = useOpenOrders();
+  const [showAllMarkets, setShowAllMarkets] = useState(false);
+
+  const { data: openOrdersData } = useOpenOrders(
+    showAllMarkets && baseCoin && quoteCoin ? `${baseCoin}${quoteCoin}` : ''
+  );
   const openOrdersCount = openOrdersData?.length || 0;
+
   return (
     <div className="flex-1 bg-background border border-t-0 border-ui-border-base rounded-lg mt-4 overflow-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col gap-0">
-        <TabsList className="w-full justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0">
+        <TabsList className="w-full justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0 rounded-t-lg">
           <TabsTrigger
             value="open-orders"
-            className="rounded-none rounded-tl-lg border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Open Orders ({openOrdersCount})
           </TabsTrigger>
@@ -56,14 +63,27 @@ export function TableContainer({
           </TabsTrigger>
           <TabsTrigger
             value="assets"
-            className="rounded-none rounded-tr-lg border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
+            className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
           >
             Assets
           </TabsTrigger>
+          <div className="rounded-none w-[200px] border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors flex items-center justify-end">
+            <div className="flex items-center gap-2 justify-end">
+              <Checkbox
+                checked={showAllMarkets}
+                onCheckedChange={() => setShowAllMarkets(!showAllMarkets)}
+              />
+              <Label className="smm-text text-ui-fg-base">All Markets</Label>
+            </div>
+          </div>
         </TabsList>
 
         <TabsContent value="open-orders" className="mt-0 p-0 flex-1 overflow-auto">
-          <OpenOrdersTab />
+          <OpenOrdersTab
+            showAllMarkets={showAllMarkets}
+            baseCoin={baseCoin}
+            quoteCoin={quoteCoin}
+          />
         </TabsContent>
 
         <TabsContent value="positions" className="mt-0 p-0 flex-1 overflow-auto">
@@ -71,11 +91,19 @@ export function TableContainer({
         </TabsContent>
 
         <TabsContent value="order-history" className="mt-0 p-0 flex-1 overflow-auto">
-          <OrderHistoryTab />
+          <OrderHistoryTab
+            showAllMarkets={showAllMarkets}
+            baseCoin={baseCoin}
+            quoteCoin={quoteCoin}
+          />
         </TabsContent>
 
         <TabsContent value="trade-history" className="mt-0 p-0 flex-1 overflow-auto">
-          <TradeHistoryTab baseCoin={baseCoin} quoteCoin={quoteCoin} />
+          <TradeHistoryTab
+            showAllMarkets={showAllMarkets}
+            baseCoin={baseCoin}
+            quoteCoin={quoteCoin}
+          />
         </TabsContent>
 
         <TabsContent value="assets" className="mt-0 p-0 flex-1 overflow-auto">

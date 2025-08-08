@@ -3,14 +3,30 @@
 import { Table } from '@medusajs/ui';
 
 import { OpenOrderItem, OpenOrderTableData } from '@/lib/api/use-open-orders';
+import { useTokenPairs } from '@/lib/api/use-token-pairs';
+import { TokenPair } from '@/lib/types/asset';
 
 /**
  * Transform raw order data from API to table display format
  * @param orders - Raw order data from API
  * @returns Transformed data for table display
  */
-function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
+function transformOrderData(
+  orders: OpenOrderItem[],
+  tokenPairs: TokenPair[] | undefined
+): OpenOrderTableData[] {
+  if (!tokenPairs) {
+    return [];
+  }
+
   return orders.map((order) => {
+    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === order.symbol);
+    const bCoin = tokenPair?.base_asset;
+    const qCoin = tokenPair?.quote_asset;
+
+    const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
+    const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
+
     const orderTime = new Date(order.created_at)
       .toLocaleString('sv-SE', {
         year: 'numeric',
@@ -34,8 +50,9 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       orderType: order.order_type,
       direction: order.side,
       orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
-      filledOrderQuantity: `${order.filled_quantity.toFixed(8)}/${order.quantity.toFixed(8)} ${order.symbol.replace('USDT', '')}`,
-      order: `${order.leaves_value.toFixed(2)} USDT`,
+
+      filledOrderQuantity: `${order.filled_quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForBase })}/${order.quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForBase })} ${bCoin}`,
+      order: `${order.leaves_value.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForQuote })} ${qCoin}`,
       tpSl: tpSlText,
       tradeType: '--', // Default value、Open Long
       orderTime: orderTime,
@@ -68,8 +85,10 @@ export function LimitMarketOrdersTable({
   isLoading,
   error,
 }: LimitMarketOrdersTableProps) {
+  const { data: tokenPairs } = useTokenPairs();
+
   // Transform raw order data to table format
-  const transformedData = transformOrderData(data);
+  const transformedData = transformOrderData(data, tokenPairs);
 
   return (
     <div className="w-full h-full" style={{ minWidth: '1500px' }}>

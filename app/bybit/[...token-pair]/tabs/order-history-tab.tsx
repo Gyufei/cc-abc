@@ -31,11 +31,27 @@ interface OrderHistoryTableData {
  * OrderHistoryTab component displays order history table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function OrderHistoryTab() {
+export function OrderHistoryTab({
+  showAllMarkets,
+  baseCoin,
+  quoteCoin,
+}: {
+  showAllMarkets: boolean;
+  baseCoin: string | null;
+  quoteCoin: string | null;
+}) {
   const [days, setDays] = useState<string | null>('7');
   const [dateRange, setDateRange] = useState<number[] | null>(null);
 
-  const { data: orderHistoryResponse, isLoading, error } = useOrderHistory('', days, dateRange);
+  const {
+    data: orderHistoryResponse,
+    isLoading,
+    error,
+  } = useOrderHistory(
+    showAllMarkets && baseCoin && quoteCoin ? '' : `${baseCoin}${quoteCoin}`,
+    days,
+    dateRange
+  );
   const { data: tokenPairs } = useTokenPairs();
 
   function getFilledQuantityDisplay(orderItem: OrderHistoryItem) {

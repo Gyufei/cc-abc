@@ -14,12 +14,24 @@ import { TPSLOrdersTable } from './tpsl-orders-table';
  * OpenOrdersTab component displays open orders table
  * Uses @medusajs/ui Table component with sticky first and last columns
  */
-export function OpenOrdersTab() {
+export function OpenOrdersTab({
+  showAllMarkets,
+  baseCoin,
+  quoteCoin,
+}: {
+  showAllMarkets: boolean;
+  baseCoin: string | null;
+  quoteCoin: string | null;
+}) {
   // Get current API key data
   const { data: currentApiKey } = useCurrentApiKey();
 
   // Get open orders data
-  const { data: ordersData, isLoading, error } = useOpenOrders();
+  const {
+    data: ordersData,
+    isLoading,
+    error,
+  } = useOpenOrders(showAllMarkets && baseCoin && quoteCoin ? '' : `${baseCoin}${quoteCoin}`);
 
   // Cancel order mutation
   const cancelOrderMutation = useCancelOrder();
