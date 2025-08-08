@@ -1,7 +1,7 @@
-import { Badge, Button } from '@medusajs/ui';
+import { Button } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
@@ -15,7 +15,19 @@ import { truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
 import { CanAmountDisplay } from './can-amount-display';
+import { OrderByTokenSelect } from './order-by-token-select';
 import { SlippageTolerance } from './slippage-tolerance';
+
+function calcProgress(value: string, balance: string) {
+  if (Number(value) === 0 || Number(balance) === 0) {
+    return 0;
+  }
+
+  const ratio = divide(String(value), String(balance));
+  const percentage = multiply(ratio, '100');
+  const progressValue = Math.min(100, Math.max(0, parseFloat(percentage)));
+  return Math.round(progressValue);
+}
 
 export function MarketTrade({
   side,
@@ -34,6 +46,10 @@ export function MarketTrade({
 
   const isBuy = side === 'buy';
 
+  const [marketUnitToken, setMarketUnit] = useState<string>(
+    isBuy ? quoteCoin || '' : baseCoin || ''
+  );
+
   const { data: quoteBalance } = useTokenBalance(quoteCoin || '');
   const { data: baseBalance } = useTokenBalance(baseCoin || '');
   const tokenBalance = isBuy ? quoteBalance : baseBalance;
@@ -42,33 +58,17 @@ export function MarketTrade({
 
   const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
 
-  // 计算当前 progress 应该的值
-  const calculatedProgress = useMemo(() => {
-    if (!tokenBalance || tokenBalance === '0') {
-      return 0;
-    }
-
-    const flagValue = isBuy ? buyValue : quantity;
-
-    const ratio = divide(String(flagValue), String(tokenBalance));
-    const percentage = multiply(ratio, '100');
-    const progressValue = Math.min(100, Math.max(0, parseFloat(percentage)));
-
-    return Math.round(progressValue);
-  }, [buyValue, quantity, tokenBalance, isBuy]);
-
   useEffect(() => {
-    setProgress(calculatedProgress);
-  }, [calculatedProgress]);
+    const flagValue = marketUnitToken === baseCoin ? quantity : buyValue;
+    const useBalance = marketUnitToken === baseCoin ? baseBalance : quoteBalance;
+    const pro = calcProgress(String(flagValue), String(useBalance));
+    setProgress(pro);
+  }, [buyValue, quantity, marketUnitToken, baseBalance, quoteBalance, baseCoin]);
 
   useEffect(() => {
     setBuyValue('');
     setQuantity('');
   }, [side]);
-
-  const handleBuyValueChange = (value: string) => {
-    setBuyValue(value);
-  };
 
   const handleProgressChange = (value: number) => {
     setProgress(value);
@@ -78,13 +78,18 @@ export function MarketTrade({
     }
 
     const ratio = divide(String(value), '100');
-    const newValue = multiply(String(tokenBalance), ratio);
+    const useBalance = marketUnitToken === baseCoin ? baseBalance : quoteBalance;
+    const newValue = multiply(String(useBalance), ratio);
 
-    if (isBuy) {
-      setBuyValue(truncateNumber(newValue.toString(), 6));
-    } else {
+    if (marketUnitToken === baseCoin) {
       setQuantity(truncateNumber(newValue.toString(), 6));
+    } else {
+      setBuyValue(truncateNumber(newValue.toString(), 6));
     }
+  };
+
+  const handleBuyValueChange = (value: string) => {
+    setBuyValue(value);
   };
 
   const handleQuantityChange = (value: string) => {
@@ -97,8 +102,16 @@ export function MarketTrade({
       symbol: `${baseCoin}${quoteCoin}`,
       side: isBuy ? 'Buy' : 'Sell',
       order_type: 'Market',
-      qty: isBuy ? buyValue : quantity,
+      qty: marketUnitToken === baseCoin ? quantity : buyValue,
+      market_unit: marketUnitToken === baseCoin ? 'baseCoin' : 'quoteCoin',
     };
+
+    if ((isBuy && marketUnitToken === baseCoin) || (!isBuy && marketUnitToken === quoteCoin)) {
+      params.price = String(marketInfo?.price || '0');
+    }
+
+    console.log(params);
+    return;
 
     if (slippageToleranceChecked) {
       params.slippage_tolerance_type = 'TickSize';
@@ -111,7 +124,7 @@ export function MarketTrade({
   return (
     <div className="flex flex-col justify-stretch">
       <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? quoteCoin : baseCoin} />
-      {isBuy ? (
+      {marketUnitToken === quoteCoin ? (
         <div className="relative mt-3">
           <NumberInput
             className="pr-4"
@@ -120,9 +133,12 @@ export function MarketTrade({
             value={buyValue}
             onChange={handleBuyValueChange}
           />
-          <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-            {quoteCoin || '-'}
-          </Badge>
+          <OrderByTokenSelect
+            baseCoin={baseCoin || ''}
+            quoteCoin={quoteCoin || ''}
+            marketUnitToken={marketUnitToken}
+            setMarketUnit={setMarketUnit}
+          />
         </div>
       ) : (
         <div className="relative mt-4">
@@ -133,9 +149,12 @@ export function MarketTrade({
             value={quantity}
             onChange={handleQuantityChange}
           />
-          <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
-            {baseCoin}
-          </Badge>
+          <OrderByTokenSelect
+            baseCoin={baseCoin || ''}
+            quoteCoin={quoteCoin || ''}
+            marketUnitToken={marketUnitToken}
+            setMarketUnit={setMarketUnit}
+          />
         </div>
       )}
       <div className="mt-6">

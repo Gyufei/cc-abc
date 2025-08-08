@@ -1,7 +1,7 @@
 'use client';
 
 import { Table } from '@medusajs/ui';
-import { multiply } from 'safebase';
+import { add, multiply } from 'safebase';
 
 import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
 import { getSymbolToken } from '@/lib/configs/token';
@@ -55,22 +55,55 @@ export function OrderHistoryTab() {
     );
   }
 
+  function getFilledQuantityDisplay(orderItem: OrderHistoryItem) {
+    const isMarketOrder = orderItem.order_type === 'Market';
+    const [baseCoin] = getSymbolToken(orderItem.symbol);
+
+    if (!isMarketOrder) {
+      return `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
+    }
+
+    const calcByBaseCoin = add(String(orderItem.cum_exec_qty), String(orderItem.leaves_qty));
+    const isBaseCoin = Number(orderItem.quantity) === Number(calcByBaseCoin);
+
+    if (isBaseCoin) {
+      return `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
+    } else {
+      return `${orderItem.filled_quantity}/-- ${baseCoin}`;
+    }
+  }
+
+  function getFilledValueDisplay(orderItem: OrderHistoryItem) {
+    const isMarketOrder = orderItem.order_type === 'Market';
+    const [_, quoteCoin] = getSymbolToken(orderItem.symbol);
+
+    if (!isMarketOrder) {
+      return `${orderItem.cum_exec_value.toFixed(4)}/${Number(multiply(String(orderItem.quantity), String(orderItem.price))).toFixed(4)} ${quoteCoin}`;
+    }
+
+    const calcByQuoteCoin = add(String(orderItem.cum_exec_value), String(orderItem.leaves_value));
+    const isQuoteCoin = Number(orderItem.quantity) === Number(calcByQuoteCoin);
+
+    if (isQuoteCoin) {
+      return `${orderItem.cum_exec_value.toFixed(4)}/${orderItem.quantity} ${quoteCoin}`;
+    } else {
+      return `${orderItem.cum_exec_value.toFixed(4)}/-- ${quoteCoin}`;
+    }
+  }
+
   /**
    * Transform API data to table format
    */
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
     const sideText = orderItem.side;
-    const isBuy = sideText === 'Buy';
     const orderTypeText = orderItem.order_type;
     const avgPrice = (orderItem.avg_price || 0).toLocaleString();
     const isMarketOrder = orderTypeText === 'Market';
-    const [baseCoin, quoteCoin] = getSymbolToken(orderItem.symbol);
+    const [_, quoteCoin] = getSymbolToken(orderItem.symbol);
 
     const orderPrice = isMarketOrder ? 'Market' : (orderItem.price || 0).toLocaleString();
     const priceDisplay = `${avgPrice}/${orderPrice}`;
-    const filledQuantityDisplay = isMarketOrder
-      ? `${orderItem.filled_quantity}/ ${isBuy ? '--' : orderItem.quantity} ${baseCoin}`
-      : `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
+    const filledQuantityDisplay = getFilledQuantityDisplay(orderItem);
     const orderTime = new Date(orderItem.created_at)
       .toLocaleString('sv-SE', {
         year: 'numeric',
@@ -82,9 +115,7 @@ export function OrderHistoryTab() {
       })
       .replace('T', ' ');
 
-    const filledValue = isMarketOrder
-      ? `${orderItem.cum_exec_value.toFixed(4)}/${isBuy ? orderItem.quantity : '--'} ${quoteCoin}`
-      : `${orderItem.cum_exec_value.toFixed(4)}/${Number(multiply(String(orderItem.quantity), String(orderItem.price))).toFixed(4)} ${quoteCoin}`;
+    const filledValueDisplay = getFilledValueDisplay(orderItem);
 
     const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} ${quoteCoin}`;
 
@@ -98,7 +129,7 @@ export function OrderHistoryTab() {
       filledOrderQuantity: filledQuantityDisplay,
       orderTime: orderTime,
       orderId: orderItem.order_id,
-      filledOrderValue: filledValue,
+      filledOrderValue: filledValueDisplay,
       orderStatus: orderItem.status.charAt(0).toUpperCase() + orderItem.status.slice(1),
       tradingFees: tradingFees,
       originalData: orderItem,
@@ -112,9 +143,9 @@ export function OrderHistoryTab() {
     <div className="w-full h-full overflow-x-auto">
       <div className="w-full h-full" style={{ minWidth: '1500px' }}>
         <Table>
-          <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
+          <Table.Header className="sticky top-0 z-20 bg-ui-bg-subtle">
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap pl-3">
+              <Table.HeaderCell className="sticky left-0 z-10 bg-ui-bg-subtle border-r border-ui-border-base shadow-md whitespace-nowrap pl-3">
                 Market
               </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>

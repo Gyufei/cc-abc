@@ -113,3 +113,11 @@ body {
 .sl-option-1 span:first-child {
   display: none;
 }
+
+.order-preferences-dialog-content h2[id^='radix-'] {
+  display: none;
+}
+
+.order-preferences-header kbd {
+  display: none;
+}

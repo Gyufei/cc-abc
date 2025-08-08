@@ -123,9 +123,9 @@ export function TradeHistoryTab({
     <div className="w-full h-full overflow-x-auto">
       <div className="w-full h-full" style={{ minWidth: '1500px' }}>
         <Table>
-          <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
+          <Table.Header className="sticky top-0 z-20 bg-ui-bg-subtle">
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
+              <Table.HeaderCell className="sticky left-0 z-10 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                 Market
               </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>

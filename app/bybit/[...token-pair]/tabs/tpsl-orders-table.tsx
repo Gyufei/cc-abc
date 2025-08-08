@@ -78,9 +78,9 @@ export function TPSLOrdersTable({ data, cancelingOrders, onCancelOrder }: TPSLOr
   return (
     <div className="w-full h-full" style={{ minWidth: '1200px' }}>
       <Table>
-        <Table.Header className="sticky top-0 z-30 bg-ui-bg-subtle">
+        <Table.Header className="sticky top-0 z-20 bg-ui-bg-subtle">
           <Table.Row>
-            <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
+            <Table.HeaderCell className="sticky left-0 z-10 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
               Market
             </Table.HeaderCell>
             <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
@@ -93,7 +93,7 @@ export function TPSLOrdersTable({ data, cancelingOrders, onCancelOrder }: TPSLOr
             <Table.HeaderCell className="whitespace-nowrap pl-3">Order Time</Table.HeaderCell>
             <Table.HeaderCell className="whitespace-nowrap pl-3">Order ID</Table.HeaderCell>
             <Table.HeaderCell className="whitespace-nowrap pl-3">Order Status</Table.HeaderCell>
-            <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base sticky-right-header-shadow whitespace-nowrap pl-3">
+            <Table.HeaderCell className="sticky right-0 z-10 bg-ui-bg-subtle border-l border-ui-border-base sticky-right-header-shadow whitespace-nowrap pl-3">
               Action
             </Table.HeaderCell>
           </Table.Row>
@@ -115,9 +115,12 @@ export function TPSLOrdersTable({ data, cancelingOrders, onCancelOrder }: TPSLOr
               <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">
-                 <span className={item.tradeType === 'Close Short' ? 'text-green-600' : 'text-red-600'}>
+                <span
+                  className={item.tradeType === 'Close Short' ? 'text-green-600' : 'text-red-600'}
+                >
                   {item.tradeType}
-                </span></Table.Cell>
+                </span>
+              </Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">
                 <>

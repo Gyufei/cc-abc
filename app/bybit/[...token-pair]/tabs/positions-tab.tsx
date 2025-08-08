@@ -45,7 +45,7 @@ export function PositionsTab() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-20 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
+              <Table.HeaderCell className="sticky left-0 z-10 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
                 Contracts
               </Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">Qty</Table.HeaderCell>
@@ -55,7 +55,7 @@ export function PositionsTab() {
               <Table.HeaderCell className="whitespace-nowrap pl-3">Liq. Price</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">IM</Table.HeaderCell>
               <Table.HeaderCell className="whitespace-nowrap pl-3">MM</Table.HeaderCell>
-              <Table.HeaderCell className="sticky right-0 z-20 bg-ui-bg-subtle border-l border-ui-border-base sticky-right-header-shadow whitespace-nowrap pl-3">
+              <Table.HeaderCell className="sticky right-0 z-10 bg-ui-bg-subtle border-l border-ui-border-base sticky-right-header-shadow whitespace-nowrap pl-3">
                 Close By
               </Table.HeaderCell>
             </Table.Row>
