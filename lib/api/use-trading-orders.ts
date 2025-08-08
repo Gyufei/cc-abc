@@ -89,6 +89,7 @@ export function useTradingOrders() {
         throw new Error('Unknown error');
       }
     },
+    
 
     onSuccess: (data: TradingOrderResponse | undefined) => {
       if (!data) {
@@ -96,7 +97,19 @@ export function useTradingOrders() {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ['open-orders', 'order-history', 'trade-executions', 'account-assets'],
+        queryKey: ['open-orders'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['order-history'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['trade-executions'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['account-assets'],
       });
 
       toast.success('Order created successfully', {

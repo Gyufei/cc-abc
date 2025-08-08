@@ -42,7 +42,11 @@ export function LimitTrade({
   const { data: baseBalance } = useTokenBalance(baseCoin);
   const tokenBalance = isBuy ? quoteBalance : baseBalance;
 
-  const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
+  const {
+    mutate: createOrder,
+    isPending: isCreatingOrder,
+    isSuccess: isOrderCreated,
+  } = useTradingOrders();
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
@@ -71,12 +75,25 @@ export function LimitTrade({
   }, [calculatedProgress]);
 
   useEffect(() => {
-    handleQuantityChange('');
+    handleReset();
+  }, [side]);
+
+  useEffect(() => {
+    if (isOrderCreated) {
+      handleReset();
+    }
+  }, [isOrderCreated]);
+
+  const handleReset = () => {
+    setPrice('');
+    setQuantity('');
+    setAmount('');
+    setProgress(0);
     setTpSl(false);
     setTakeProfit('');
     setStopLoss('');
     setTimeInForce('GTC');
-  }, [side]);
+  };
 
   const handleProgressChange = (value: number) => {
     setProgress(value);

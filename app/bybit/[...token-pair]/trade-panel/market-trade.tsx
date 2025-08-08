@@ -56,7 +56,11 @@ export function MarketTrade({
 
   const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
 
-  const { mutate: createOrder, isPending: isCreatingOrder } = useTradingOrders();
+  const {
+    mutate: createOrder,
+    isPending: isCreatingOrder,
+    isSuccess: isOrderCreated,
+  } = useTradingOrders();
 
   useEffect(() => {
     const flagValue = marketUnitToken === baseCoin ? quantity : buyValue;
@@ -66,9 +70,22 @@ export function MarketTrade({
   }, [buyValue, quantity, marketUnitToken, baseBalance, quoteBalance, baseCoin]);
 
   useEffect(() => {
+    handleReset();
+  }, [side]);
+
+  useEffect(() => {
+    if (isOrderCreated) {
+      handleReset();
+    }
+  }, [isOrderCreated]);
+
+  const handleReset = () => {
     setBuyValue('');
     setQuantity('');
-  }, [side]);
+    setProgress(0);
+    setSlippageToleranceChecked(false);
+    setSelectedSlippage('0.1');
+  };
 
   const handleProgressChange = (value: number) => {
     setProgress(value);
@@ -107,7 +124,7 @@ export function MarketTrade({
     };
 
     if ((isBuy && marketUnitToken === baseCoin) || (!isBuy && marketUnitToken === quoteCoin)) {
-      params.price = String(marketInfo?.price || '0');
+      // params.price = String(marketInfo?.price || '0');
     }
 
     if (slippageToleranceChecked) {
