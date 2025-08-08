@@ -1,4 +1,4 @@
-import { Button } from '@medusajs/ui';
+import { Button, toast } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
 import { useEffect, useState } from 'react';
@@ -172,6 +172,37 @@ export function MarketTrade({
   };
 
   const handleCreateOrder = () => {
+    if (marketUnitToken === quoteCoin && !buyValue) {
+      toast.error(`Please enter the value to ${isBuy ? 'buy' : 'sell'}.`);
+      return;
+    }
+
+    if (marketUnitToken === baseCoin && !quantity) {
+      toast.error(`Please enter the quantity to ${isBuy ? 'buy' : 'sell'}.`);
+      return;
+    }
+
+    // if (isBuy) {
+    //   if (marketUnitToken === quoteCoin) {
+    //     if (Number(buyValue) < 1) {
+    //       toast.error(`The order value to buy cannot be less than 1.`);
+    //       return;
+    //     }
+
+    //     if (Number(buyValue) > 100_0000) {
+    //       toast.error(`The maximum amount for a single Buy order is 1000000 ${quoteCoin}.`);
+    //       return;
+    //     }
+    //   }
+
+    //   if (marketUnitToken === baseCoin) {
+    //     if (Number(quantity) > 10) {
+    //       toast.error(`Max. 10 ${baseCoin} can be bought per order.`);
+    //       return;
+    //     }
+    //   }
+    // }
+
     const params: Omit<TradingOrderRequest, 'api_key'> = {
       category: 'spot',
       symbol: `${baseCoin}${quoteCoin}`,

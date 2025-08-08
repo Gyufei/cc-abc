@@ -187,11 +187,6 @@ export function LimitTrade({
       return;
     }
 
-    if (Number(quantity) < Number(tokenPair?.base_asset_step || 0)) {
-      toast.error(`Min.${tokenPair?.base_asset_step} ${baseCoin} must be bought per order`);
-      return;
-    }
-
     if (isBuy && Number(amount) > Number(quoteBalance)) {
       toast.error('Insufficient balance');
       return;
