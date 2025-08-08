@@ -6,6 +6,7 @@ import { add, multiply } from 'safebase';
 import { useState } from 'react';
 
 import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
+import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { getSymbolToken } from '@/lib/configs/token';
 
 import { TimeRangeSelect } from './time-range-select';
@@ -36,12 +37,14 @@ export function OrderHistoryTab() {
   const [dateRange, setDateRange] = useState<number[] | null>(null);
 
   const { data: orderHistoryResponse, isLoading, error } = useOrderHistory('', days, dateRange);
+  const { data: tokenPairs } = useTokenPairs();
 
   function getFilledQuantityDisplay(orderItem: OrderHistoryItem) {
-    const isMarketOrder = orderItem.order_type === 'Market';
-    const [baseCoin] = getSymbolToken(orderItem.symbol);
+    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const baseCoin = tokenPair?.base_asset;
 
-    const minimumFractionDigitsForToken = baseCoin === 'ETH' ? 5 : 6;
+    const isMarketOrder = orderItem.order_type === 'Market';
+    const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
     const filledQuantity = orderItem.filled_quantity.toLocaleString('en-US', {
       minimumFractionDigits: minimumFractionDigitsForToken,
     });
@@ -64,16 +67,23 @@ export function OrderHistoryTab() {
   }
 
   function getFilledValueDisplay(orderItem: OrderHistoryItem) {
+    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const quoteCoin = tokenPair?.quote_asset;
+
     const isMarketOrder = orderItem.order_type === 'Market';
-    const [_, quoteCoin] = getSymbolToken(orderItem.symbol);
+
+    const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
 
     const filledValue = orderItem.cum_exec_value.toLocaleString('en-US', {
-      minimumFractionDigits: 8,
+      minimumFractionDigits: minimumFractionDigitsForToken,
     });
     const orderValue = Number(
       multiply(String(orderItem.quantity), String(orderItem.price))
-    ).toLocaleString('en-US', { minimumFractionDigits: 8 });
-    const quantity = orderItem.quantity.toLocaleString('en-US', { minimumFractionDigits: 8 });
+    ).toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken });
+
+    const quantity = orderItem.quantity.toLocaleString('en-US', {
+      minimumFractionDigits: minimumFractionDigitsForToken,
+    });
 
     if (!isMarketOrder) {
       return `${filledValue}/${orderValue} ${quoteCoin}`;
@@ -87,6 +97,15 @@ export function OrderHistoryTab() {
     } else {
       return `${filledValue}/-- ${quoteCoin}`;
     }
+  }
+
+  function getTradingFees(orderItem: OrderHistoryItem) {
+    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const quoteCoin = tokenPair?.quote_asset;
+
+    const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
+
+    return `${orderItem.cum_exec_fee.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })} ${quoteCoin}`;
   }
 
   /**
@@ -119,7 +138,7 @@ export function OrderHistoryTab() {
 
     const filledValueDisplay = getFilledValueDisplay(orderItem);
 
-    const tradingFees = `${orderItem.cum_exec_fee.toLocaleString('en-US', { minimumFractionDigits: 8 })} ${quoteCoin}`;
+    const tradingFees = getTradingFees(orderItem);
 
     return {
       id: orderItem.id,
