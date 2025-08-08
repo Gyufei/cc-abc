@@ -65,13 +65,21 @@ interface TPSLOrdersTableProps {
   data: OpenOrderItem[];
   cancelingOrders: Set<string>;
   onCancelOrder: (orderLinkId: string, symbol: string) => void;
+  isLoading: boolean;
+  error: Error | null;
 }
 
 /**
  * TPSLOrdersTable component displays TP/SL (Take Profit/Stop Loss) orders
  * Shows specialized columns for TP/SL orders including trigger price and order status
  */
-export function TPSLOrdersTable({ data, cancelingOrders, onCancelOrder }: TPSLOrdersTableProps) {
+export function TPSLOrdersTable({
+  data,
+  cancelingOrders,
+  onCancelOrder,
+  isLoading,
+  error,
+}: TPSLOrdersTableProps) {
   // Transform raw order data to table format
   const transformedData = transformOrderData(data);
 
@@ -99,6 +107,17 @@ export function TPSLOrdersTable({ data, cancelingOrders, onCancelOrder }: TPSLOr
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {(!transformedData?.length || isLoading || error) && (
+            <Table.Row>
+              <td colSpan={12} className="text-center h-30">
+                {isLoading
+                  ? 'Loading TP/SL orders...'
+                  : error
+                    ? 'Failed to load TP/SL orders'
+                    : 'No TP/SL orders found'}
+              </td>
+            </Table.Row>
+          )}
           {transformedData?.map((item: OpenOrderTableData) => (
             <Table.Row key={item.id}>
               <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">

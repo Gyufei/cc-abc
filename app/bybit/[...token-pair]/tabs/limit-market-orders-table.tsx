@@ -53,6 +53,8 @@ interface LimitMarketOrdersTableProps {
   data: OpenOrderItem[];
   cancelingOrders: Set<string>;
   onCancelOrder: (orderLinkId: string, symbol: string) => void;
+  isLoading: boolean;
+  error: Error | null;
 }
 
 /**
@@ -63,6 +65,8 @@ export function LimitMarketOrdersTable({
   data,
   cancelingOrders,
   onCancelOrder,
+  isLoading,
+  error,
 }: LimitMarketOrdersTableProps) {
   // Transform raw order data to table format
   const transformedData = transformOrderData(data);
@@ -94,6 +98,17 @@ export function LimitMarketOrdersTable({
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {(!transformedData?.length || isLoading || error) && (
+            <Table.Row>
+              <td colSpan={13} className="text-center h-30">
+                {isLoading
+                  ? 'Loading limit & market orders...'
+                  : error
+                    ? 'Failed to load limit & market orders'
+                    : 'No limit & market orders found'}
+              </td>
+            </Table.Row>
+          )}
           {transformedData?.map((item: OpenOrderTableData) => (
             <Table.Row key={item.id}>
               <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
@@ -107,9 +122,7 @@ export function LimitMarketOrdersTable({
                 </span>
               </Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
-              <Table.Cell className="whitespace-nowrap pl-3">
-                {item.filledOrderQuantity}
-              </Table.Cell>
+              <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.tpSl}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>

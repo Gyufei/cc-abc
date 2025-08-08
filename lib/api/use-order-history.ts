@@ -41,12 +41,16 @@ export interface OrderHistoryResponse {
   data: OrderHistoryItem[];
 }
 
-export function useOrderHistory(symbol?: string, days?: number) {
+export function useOrderHistory(
+  symbol?: string,
+  days?: string | null,
+  dateRange?: number[] | null
+) {
   const { user } = useAppStore();
   const { data: currentApiKey } = useCurrentApiKey();
 
   const query = useQuery({
-    queryKey: ['order-history', currentApiKey?.api_key, symbol, days],
+    queryKey: ['order-history', currentApiKey?.api_key, symbol, days, dateRange],
     queryFn: async (): Promise<OrderHistoryItem[]> => {
       if (!user.token || !user.user_id) {
         throw new Error('user not logged in');
@@ -60,6 +64,10 @@ export function useOrderHistory(symbol?: string, days?: number) {
         api_key: currentApiKey.api_key,
         ...(symbol && { symbol }),
         ...(days && { days: days.toString() }),
+        ...(dateRange && {
+          start_time: dateRange[0].toString(),
+          end_time: dateRange[1].toString(),
+        }),
       });
 
       const url = `${ApiPath.tradingOrderHistory}?${params.toString()}`;
@@ -77,8 +85,6 @@ export function useOrderHistory(symbol?: string, days?: number) {
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
   });
 
   return query;

@@ -39,12 +39,16 @@ export interface TradeExecutionItem {
   extra_fees: string;
 }
 
-export function useTradeExecutions(symbol?: string, days?: number) {
+export function useTradeExecutions(
+  symbol: string,
+  days: string | null,
+  dateRange: number[] | null
+) {
   const { user } = useAppStore();
   const { data: currentApiKey } = useCurrentApiKey();
 
   const query = useQuery({
-    queryKey: ['trade-executions', currentApiKey?.api_key, symbol, days],
+    queryKey: ['trade-executions', currentApiKey?.api_key, symbol, days, dateRange],
     queryFn: async (): Promise<TradeExecutionItem[]> => {
       if (!user.token || !user.user_id) {
         throw new Error('user not logged in');
@@ -58,6 +62,10 @@ export function useTradeExecutions(symbol?: string, days?: number) {
         api_key: currentApiKey.api_key,
         ...(symbol && { symbol }),
         ...(days && { days: days.toString() }),
+        ...(dateRange && {
+          start_time: dateRange[0].toString(),
+          end_time: dateRange[1].toString(),
+        }),
       });
 
       const url = `${ApiPath.tradingExecutions}?${params.toString()}`;

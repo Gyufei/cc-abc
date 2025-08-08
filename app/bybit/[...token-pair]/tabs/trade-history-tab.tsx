@@ -2,7 +2,11 @@
 
 import { Table } from '@medusajs/ui';
 
+import { useState } from 'react';
+
 import { TradeExecutionItem, useTradeExecutions } from '@/lib/api/use-trade-executions';
+
+import { TimeRangeSelect } from './time-range-select';
 
 // Type definition for processed trade history data for table display
 interface TradeHistoryTableData {
@@ -34,33 +38,15 @@ export function TradeHistoryTab({
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
+  const [days, setDays] = useState<string | null>('7');
+  const [dateRange, setDateRange] = useState<number[] | null>(null);
+
   // Fetch trade execution data
   const {
     data: tradeExecutionResponse,
     isLoading,
     error,
-  } = useTradeExecutions(
-    '',
-    7 // Last 7 days
-  );
-
-  // Handle loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">Loading trade history...</div>
-      </div>
-    );
-  }
-
-  // Handle error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-error">Failed to load trade history</div>
-      </div>
-    );
-  }
+  } = useTradeExecutions('', days, dateRange);
 
   /**
    * Transform API data to table format
@@ -110,69 +96,83 @@ export function TradeHistoryTab({
   // Process data for table
   const tableData = tradeExecutionResponse?.map(transformTradeData) || [];
 
-  // Show empty state
-  if (tableData.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">No trade history found</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full h-full overflow-x-auto">
-      <div className="w-full h-full" style={{ minWidth: '1500px' }}>
-        <Table>
-          <Table.Header className="sticky top-0 z-20 bg-ui-bg-subtle">
-            <Table.Row>
-              <Table.HeaderCell className="sticky left-0 z-10 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
-                Market
-              </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Value</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Price</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Qty</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Type</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Trading Fees</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">
-                Transaction Time
-              </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Transaction ID</Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">
-                Implied Volatility
-              </Table.HeaderCell>
-              <Table.HeaderCell className="whitespace-nowrap pl-3">Index Price</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {tableData.map((item: TradeHistoryTableData) => (
-              <Table.Row key={item.id}>
-                <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
-                  {item.market}
-                </Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">
-                  <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
-                    {item.direction}
-                  </span>
-                </Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.filledValue}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.filledPrice}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.filledQty}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.filledType}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.tradingFees}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.transactionTime}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.transactionId}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.impliedVolatility}</Table.Cell>
-                <Table.Cell className="whitespace-nowrap pl-3">{item.indexPrice}</Table.Cell>
+    <>
+      <TimeRangeSelect
+        days={days}
+        setDays={setDays}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
+      <div className="w-full h-full overflow-x-auto">
+        <div className="w-full h-full" style={{ minWidth: '1500px' }}>
+          <Table>
+            <Table.Header className="sticky top-0 z-20 bg-ui-bg-subtle">
+              <Table.Row>
+                <Table.HeaderCell className="sticky left-0 z-10 bg-ui-bg-subtle border-r border-ui-border-base sticky-left-header-shadow whitespace-nowrap pl-3">
+                  Market
+                </Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Instrument</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Order Type</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Direction</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Value</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Price</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Qty</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Filled Type</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Trading Fees</Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">
+                  Transaction Time
+                </Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">
+                  Transaction ID
+                </Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">
+                  Implied Volatility
+                </Table.HeaderCell>
+                <Table.HeaderCell className="whitespace-nowrap pl-3">Index Price</Table.HeaderCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Header>
+            <Table.Body>
+              {(!tableData?.length || isLoading || error) && (
+                <Table.Row>
+                  <td colSpan={11} className="text-center h-30">
+                    {isLoading
+                      ? 'Loading trade history...'
+                      : error
+                        ? 'Failed to load trade history'
+                        : 'No trade history found'}
+                  </td>
+                </Table.Row>
+              )}
+              {tableData.map((item: TradeHistoryTableData) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
+                    {item.market}
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">
+                    <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
+                      {item.direction}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.filledValue}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.filledPrice}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.filledQty}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.filledType}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.tradingFees}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.transactionTime}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.transactionId}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">
+                    {item.impliedVolatility}
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3">{item.indexPrice}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

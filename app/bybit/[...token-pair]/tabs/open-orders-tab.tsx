@@ -86,67 +86,31 @@ export function OpenOrdersTab() {
     }
   };
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">Loading open orders...</div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-error">Failed to load open orders</div>
-      </div>
-    );
-  }
-
-  // Show empty state for all orders
-  if (!ordersData || ordersData.length === 0) {
-    return (
-      <div className="w-full h-full overflow-x-auto">
+  return (
+    <div className="">
+      <div className="py-[10px] px-6 flex items-center select-none">
         <OrderFilter
           options={FilterTabs}
           activeTab={activeFilterStatus}
           setActiveTab={setActiveFilterStatus}
         />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-ui-fg-muted">No open orders found</div>
-        </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="">
-      <OrderFilter
-        options={FilterTabs}
-        activeTab={activeFilterStatus}
-        setActiveTab={setActiveFilterStatus}
-      />
       <div className="w-full h-full overflow-auto">
-        {currentData.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-ui-fg-muted">
-              {activeFilterStatus === 'tp-sl'
-                ? 'No TP/SL orders found'
-                : 'No limit & market orders found'}
-            </div>
-          </div>
-        ) : activeFilterStatus === 'tp-sl' ? (
+        {activeFilterStatus === 'tp-sl' ? (
           <TPSLOrdersTable
             data={currentData}
             cancelingOrders={cancelingOrders}
             onCancelOrder={handleCancelOrder}
+            isLoading={isLoading}
+            error={error}
           />
         ) : (
           <LimitMarketOrdersTable
             data={currentData}
             cancelingOrders={cancelingOrders}
             onCancelOrder={handleCancelOrder}
+            isLoading={isLoading}
+            error={error}
           />
         )}
       </div>
