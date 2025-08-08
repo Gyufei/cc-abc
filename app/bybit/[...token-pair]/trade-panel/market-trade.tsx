@@ -110,9 +110,6 @@ export function MarketTrade({
       params.price = String(marketInfo?.price || '0');
     }
 
-    console.log(params);
-    return;
-
     if (slippageToleranceChecked) {
       params.slippage_tolerance_type = 'TickSize';
       params.slippage_tolerance = multiply(selectedSlippage, String(100));

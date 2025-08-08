@@ -96,7 +96,7 @@ export function useTradingOrders() {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ['open-orders', 'order-history', 'trade-executions'],
+        queryKey: ['open-orders', 'order-history', 'trade-executions', 'account-assets'],
       });
 
       toast.success('Order created successfully', {
