@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradeExecutionItem, useTradeExecutions } from '@/lib/api/use-trade-executions';
+import { fixedNumber } from '@/lib/utils/number';
 
 import { TimeRangeSelect } from './time-range-select';
 
@@ -73,11 +74,11 @@ export function TradeHistoryTab({
 
     const sideText = tradeItem.side;
     const orderTypeText = tradeItem.order_type;
-    const filledValue = `${tradeItem.exec_value.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForQuote })} ${qCoin}`;
-    const filledPrice = `${tradeItem.exec_price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-    const filledQty = `${tradeItem.exec_qty.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForBase })} ${bCoin}`;
+    const filledValue = `${fixedNumber(tradeItem.exec_value, minimumFractionDigitsForQuote)} ${qCoin}`;
+    const filledPrice = `${fixedNumber(tradeItem.exec_price, 2)}`;
+    const filledQty = `${fixedNumber(tradeItem.exec_qty, minimumFractionDigitsForBase)} ${bCoin}`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${tradeItem.exec_fee?.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForQuote }) || 0} ${qCoin}`;
+    const tradingFees = `${fixedNumber(tradeItem.exec_fee || 0, minimumFractionDigitsForQuote)} ${qCoin}`;
     const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
     const transactionTime = new Date(tradeItem.exec_time)
       .toLocaleString('sv-SE', {

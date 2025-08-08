@@ -12,7 +12,7 @@ import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orde
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
-import { truncateNumber } from '@/lib/utils/number';
+import { fixedNumber, mantissaNum } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
 import { CanAmountDisplay } from './can-amount-display';
@@ -69,11 +69,44 @@ export function MarketTrade({
   } = useCreateOrders();
 
   useEffect(() => {
-    const flagValue = marketUnitToken === baseCoin ? quantity : buyValue;
-    const useBalance = marketUnitToken === baseCoin ? baseBalance : quoteBalance;
-    const pro = calcProgress(String(flagValue), String(useBalance));
-    setProgress(pro);
-  }, [buyValue, quantity, marketUnitToken, baseBalance, quoteBalance, baseCoin]);
+    if (isBuy) {
+      if (marketUnitToken === quoteCoin) {
+        const pro = calcProgress(String(buyValue), String(quoteBalance));
+        setProgress(pro);
+      }
+
+      if (marketUnitToken === baseCoin) {
+        const shouldPay = multiply(String(quantity), String(marketInfo?.price || '0'));
+        const pro = calcProgress(String(shouldPay), String(quoteBalance));
+        setProgress(pro);
+      }
+    } else {
+      if (marketUnitToken === baseCoin) {
+        const pro = calcProgress(String(quantity), String(baseBalance));
+        setProgress(pro);
+      }
+
+      if (marketUnitToken === quoteCoin) {
+        if (!marketInfo?.price || Number(marketInfo.price) === 0) {
+          return;
+        }
+
+        const shouldSell = divide(String(buyValue), String(marketInfo?.price || '0'));
+        const pro = calcProgress(String(shouldSell), String(baseBalance));
+        setProgress(pro);
+      }
+    }
+  }, [
+    isBuy,
+    quantity,
+    baseBalance,
+    quoteBalance,
+    marketInfo,
+    marketUnitToken,
+    baseCoin,
+    quoteCoin,
+    buyValue,
+  ]);
 
   useEffect(() => {
     handleReset();
@@ -95,19 +128,38 @@ export function MarketTrade({
 
   const handleProgressChange = (value: number) => {
     setProgress(value);
-
-    if (!tokenBalance || tokenBalance === '0') {
-      return;
-    }
-
     const ratio = divide(String(value), '100');
-    const useBalance = marketUnitToken === baseCoin ? baseBalance : quoteBalance;
-    const newValue = multiply(String(useBalance), ratio);
 
-    if (marketUnitToken === baseCoin) {
-      setQuantity(truncateNumber(newValue.toString(), 6));
+    if (isBuy) {
+      if (marketUnitToken === quoteCoin) {
+        const newValue = multiply(String(quoteBalance), ratio);
+        setBuyValue(mantissaNum(newValue, minimumFractionDigitsForQuote));
+      }
+
+      if (marketUnitToken === baseCoin) {
+        if (!marketInfo?.price || Number(marketInfo.price) === 0) {
+          return;
+        }
+
+        const canBuy = divide(String(quoteBalance), String(marketInfo.price));
+        const newQ = multiply(canBuy, ratio);
+        setQuantity(mantissaNum(newQ.toString(), minimumFractionDigitsForBase));
+      }
     } else {
-      setBuyValue(truncateNumber(newValue.toString(), 6));
+      if (marketUnitToken === baseCoin) {
+        const newQ = multiply(String(baseBalance), ratio);
+        setQuantity(mantissaNum(newQ.toString(), minimumFractionDigitsForBase));
+      }
+
+      if (marketUnitToken === quoteCoin) {
+        if (!marketInfo?.price || Number(marketInfo.price) === 0) {
+          return;
+        }
+
+        const canSell = multiply(String(baseBalance), String(marketInfo.price || 0));
+        const newBuyValue = multiply(canSell, ratio);
+        setBuyValue(mantissaNum(newBuyValue.toString(), minimumFractionDigitsForQuote));
+      }
     }
   };
 
@@ -143,7 +195,13 @@ export function MarketTrade({
 
   return (
     <div className="flex flex-col justify-stretch">
-      <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? quoteCoin : baseCoin} />
+      <AvailableBalance
+        balance={fixedNumber(
+          isBuy ? quoteBalance : baseBalance,
+          isBuy ? minimumFractionDigitsForQuote : minimumFractionDigitsForBase
+        )}
+        tokenName={isBuy ? quoteCoin : baseCoin}
+      />
       {marketUnitToken === quoteCoin ? (
         <div className="relative mt-3">
           <NumberInput

@@ -1,5 +1,18 @@
 import numbro from 'numbro';
 
+export function fixedNumber(num: string | number, precision: number) {
+  return Number(num).toLocaleString('en-US', {
+    minimumFractionDigits: precision,
+  });
+}
+
+export function mantissaNum(num: string | number, precision: number) {
+  return numbro(num).format({
+    mantissa: precision,
+    roundingFunction: Math.floor,
+  });
+}
+
 export function formatNumber(num: string | number) {
   if (isNaN(Number(num))) {
     return String(num);

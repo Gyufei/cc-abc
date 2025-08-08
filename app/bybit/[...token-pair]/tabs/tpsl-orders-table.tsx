@@ -4,6 +4,7 @@ import { Table } from '@medusajs/ui';
 
 import { OpenOrderItem, OpenOrderTableData } from '@/lib/api/use-open-orders';
 import { getSymbolToken } from '@/lib/configs/token';
+import { fixedNumber } from '@/lib/utils/number';
 
 /**
  * Transform raw order data from API to table display format for TP/SL orders
@@ -29,19 +30,17 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       if (order.take_profit > 0 && order.stop_loss > 0) {
         return (
           <>
-            TP {order.take_profit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            TP {fixedNumber(order.take_profit, 2)}
             <br />
-            SL {order.stop_loss.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            SL {fixedNumber(order.stop_loss, 2)}
           </>
         );
       } else if (order.take_profit > 0) {
-        return `TP ${order.take_profit.toLocaleString('en-US', { minimumFractionDigits: 2 })} (Last)`;
+        return `TP ${fixedNumber(order.take_profit, 2)} (Last)`;
       } else if (order.stop_loss > 0) {
-        return `SL ${order.stop_loss.toLocaleString('en-US', { minimumFractionDigits: 2 })} (Last)`;
+        return `SL ${fixedNumber(order.stop_loss, 2)} (Last)`;
       }
-      return order.trigger_price > 0
-        ? order.trigger_price.toLocaleString('en-US', { minimumFractionDigits: 2 })
-        : '--';
+      return order.trigger_price > 0 ? fixedNumber(order.trigger_price, 2) : '--';
     };
     const orderPriceText = (
       <>
@@ -58,7 +57,7 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       direction: order.side,
       orderPrice: orderPriceText,
       filledOrderQuantity: `${order.leaves_qty ? order.leaves_qty + ' ' + baseCoin : '--'}`, // TP/SL typically close entire position
-      order: `${order.leaves_value ? order.leaves_value.toLocaleString('en-US', { minimumFractionDigits: 7 }) + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
+      order: `${order.leaves_value ? fixedNumber(order.leaves_value, 7) + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
       tpSl: triggerPriceText(),
       tradeType: '--', // TP/SL are closing positions
       orderTime: orderTime,

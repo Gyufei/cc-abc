@@ -1,18 +1,17 @@
 import { Badge, Button, toast } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
-import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
-import { truncateNumber } from '@/lib/utils/number';
+import { fixedNumber, mantissaNum } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
 import { CanAmountDisplay } from './can-amount-display';
@@ -45,7 +44,12 @@ export function LimitTrade({
 
   const { data: tokenPairs } = useTokenPairs();
   const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === `${baseCoin}${quoteCoin}`);
-  const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
+  const minimumFractionDigitsForBase = tokenPair
+    ? Math.abs(Math.log10(Number(tokenPair?.base_asset_step)))
+    : 0;
+  const minimumFractionDigitsForQuote = tokenPair
+    ? Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)))
+    : 0;
 
   const {
     mutate: createOrder,
@@ -53,31 +57,37 @@ export function LimitTrade({
     isSuccess: isOrderCreated,
   } = useCreateOrders();
 
-  // 计算当前 progress 应该的值
-  const calculatedProgress = useMemo(() => {
-    if (!tokenBalance || !amount || tokenBalance === '0') {
-      return 0;
+  useEffect(() => {
+    if (!isBuy) {
+      return;
     }
 
-    const ratio = divide(amount, String(tokenBalance));
+    if (!amount || !quoteBalance) {
+      return;
+    }
+
+    const ratio = divide(amount, String(quoteBalance));
     const percentage = multiply(ratio, '100');
     const progressValue = Math.min(100, Math.max(0, parseFloat(percentage)));
-
-    return Math.round(progressValue);
-  }, [amount, tokenBalance]);
-
-  const amountInUSD = useMemo(() => {
-    const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
-    if (amount && quoteCoinPrice) {
-      return multiply(amount, String(quoteCoinPrice));
-    }
-
-    return '0';
-  }, [amount, quoteCoin]);
+    const pro = Math.round(progressValue);
+    setProgress(pro);
+  }, [isBuy, amount, quoteBalance]);
 
   useEffect(() => {
-    setProgress(calculatedProgress);
-  }, [calculatedProgress]);
+    if (isBuy) {
+      return;
+    }
+
+    if (!quantity || !baseBalance) {
+      return;
+    }
+
+    const ratio = divide(quantity, String(baseBalance));
+    const percentage = multiply(ratio, '100');
+    const progressValue = Math.min(100, Math.max(0, parseFloat(percentage)));
+    const pro = Math.round(progressValue);
+    setProgress(pro);
+  }, [isBuy, quantity, baseBalance]);
 
   useEffect(() => {
     handleReset();
@@ -103,25 +113,23 @@ export function LimitTrade({
   const handleProgressChange = (value: number) => {
     setProgress(value);
 
-    if (!tokenBalance || tokenBalance === '0') {
-      return;
-    }
-
     const ratio = divide(String(value), '100');
-    const balancePart = multiply(String(tokenBalance), ratio);
 
     if (isBuy) {
-      setAmount(truncateNumber(balancePart.toString(), 6));
+      const balancePart = multiply(String(quoteBalance), ratio);
+      const newAmount = mantissaNum(balancePart.toString(), minimumFractionDigitsForQuote);
+      setAmount(newAmount);
       if (price && price !== '0') {
         const newQuantity = divide(balancePart, price);
-        setQuantity(truncateNumber(newQuantity.toString(), 6));
+        setQuantity(mantissaNum(newQuantity.toString(), minimumFractionDigitsForBase));
       }
     } else {
-      setQuantity(truncateNumber(balancePart.toString(), 6));
+      const balancePart = multiply(String(baseBalance), ratio);
+      setQuantity(mantissaNum(balancePart.toString(), minimumFractionDigitsForBase));
 
       if (price && price !== '0') {
         const newOrderValue = multiply(String(balancePart), price);
-        setAmount(truncateNumber(newOrderValue.toString(), 6));
+        setAmount(mantissaNum(newOrderValue.toString(), minimumFractionDigitsForQuote));
       }
     }
   };
@@ -165,7 +173,7 @@ export function LimitTrade({
       }
 
       const q = divide(value, price);
-      setQuantity(truncateNumber(q.toString(), 6));
+      setQuantity(mantissaNum(q.toString(), minimumFractionDigitsForBase));
     }
   };
 
@@ -176,6 +184,11 @@ export function LimitTrade({
 
     if (!quantity) {
       toast.error('Please enter quantity to buy');
+      return;
+    }
+
+    if (Number(quantity) < Number(tokenPair?.base_asset_step || 0)) {
+      toast.error(`Min.${tokenPair?.base_asset_step} ${baseCoin} must be bought per order`);
       return;
     }
 
@@ -214,7 +227,13 @@ export function LimitTrade({
 
   return (
     <div className="flex flex-col justify-stretch">
-      <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? quoteCoin : baseCoin} />
+      <AvailableBalance
+        balance={fixedNumber(
+          isBuy ? quoteBalance : baseBalance,
+          isBuy ? minimumFractionDigitsForQuote : minimumFractionDigitsForBase
+        )}
+        tokenName={isBuy ? quoteCoin : baseCoin}
+      />
       <div className="relative mt-3">
         <NumberInput
           className="pr-4"
@@ -256,11 +275,12 @@ export function LimitTrade({
           id="search-input"
           value={amount}
           onChange={handleOrderValueChange}
+          decimalPlaces={minimumFractionDigitsForQuote}
         />
         <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
           {quoteCoin}
         </Badge>
-        <span className="mt-2 smm-text text-ui-fg-muted">≈{amountInUSD} USD</span>
+        <span className="mt-2 smm-text text-ui-fg-muted">≈{fixedNumber(amount, 2)} USD</span>
       </div>
       <div className="mt-4">
         <CanAmountDisplay

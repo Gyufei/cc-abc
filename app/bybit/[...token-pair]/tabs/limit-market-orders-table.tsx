@@ -5,6 +5,7 @@ import { Table } from '@medusajs/ui';
 import { OpenOrderItem, OpenOrderTableData } from '@/lib/api/use-open-orders';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TokenPair } from '@/lib/types/asset';
+import { fixedNumber } from '@/lib/utils/number';
 
 /**
  * Transform raw order data from API to table display format
@@ -49,10 +50,9 @@ function transformOrderData(
       instrument: 'Spot', // Default to Spot for now
       orderType: order.order_type,
       direction: order.side,
-      orderPrice: order.price.toLocaleString('en-US', { minimumFractionDigits: 2 }),
-
-      filledOrderQuantity: `${order.filled_quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForBase })}/${order.quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForBase })} ${bCoin}`,
-      order: `${order.leaves_value.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForQuote })} ${qCoin}`,
+      orderPrice: fixedNumber(order.price, 2),
+      filledOrderQuantity: `${fixedNumber(order.filled_quantity, minimumFractionDigitsForBase)}/${fixedNumber(order.quantity, minimumFractionDigitsForBase)} ${bCoin}`,
+      order: `${fixedNumber(order.leaves_value, minimumFractionDigitsForQuote)} ${qCoin}`,
       tpSl: tpSlText,
       tradeType: '--', // Default value、Open Long
       orderTime: orderTime,

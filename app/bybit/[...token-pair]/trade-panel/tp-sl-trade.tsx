@@ -6,11 +6,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
-import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
-import { truncateNumber } from '@/lib/utils/number';
+import { fixedNumber, truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
 import { TimeInForceSelect } from './time-in-force-select';
@@ -120,15 +119,6 @@ export function TpSlTrade({
     }
   };
 
-  const orderValueInUSD = useMemo(() => {
-    const quoteCoinPrice = quoteCoin ? TOKEN_PRICE_MAP[quoteCoin] : 0;
-    if (amount && quoteCoinPrice) {
-      return multiply(amount, String(quoteCoinPrice));
-    }
-
-    return '0';
-  }, [amount, quoteCoin]);
-
   return (
     <div className="flex flex-col justify-stretch">
       <AvailableBalance balance={String(tokenBalance)} tokenName={isBuy ? quoteCoin : baseCoin} />
@@ -225,7 +215,7 @@ export function TpSlTrade({
           <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
             {quoteCoin}
           </Badge>
-          <span className="mt-2 smm-text text-ui-fg-muted">≈{orderValueInUSD} USD</span>
+          <span className="mt-2 smm-text text-ui-fg-muted">≈{fixedNumber(amount, 2)} USD</span>
         </div>
       )}
       {/* <div className="mt-4">
