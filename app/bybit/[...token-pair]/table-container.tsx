@@ -78,7 +78,7 @@ export function TableContainer({
           </div>
         </TabsList>
 
-        <TabsContent value="open-orders" className="mt-0 p-0 flex-1 overflow-auto">
+        <TabsContent value="open-orders" className="mt-0 p-0 flex-1 overflow-hidden">
           <OpenOrdersTab
             showAllMarkets={showAllMarkets}
             baseCoin={baseCoin}
@@ -86,11 +86,11 @@ export function TableContainer({
           />
         </TabsContent>
 
-        <TabsContent value="positions" className="mt-0 p-0 flex-1 overflow-auto">
+        <TabsContent value="positions" className="mt-0 p-0 flex-1 overflow-hidden">
           <PositionsTab />
         </TabsContent>
 
-        <TabsContent value="order-history" className="mt-0 p-0 flex-1 overflow-auto">
+        <TabsContent value="order-history" className="mt-0 p-0 flex-1 overflow-hidden">
           <OrderHistoryTab
             showAllMarkets={showAllMarkets}
             baseCoin={baseCoin}
@@ -98,7 +98,7 @@ export function TableContainer({
           />
         </TabsContent>
 
-        <TabsContent value="trade-history" className="mt-0 p-0 flex-1 overflow-auto">
+        <TabsContent value="trade-history" className="mt-0 p-0 flex-1 overflow-hidden">
           <TradeHistoryTab
             showAllMarkets={showAllMarkets}
             baseCoin={baseCoin}
@@ -106,7 +106,7 @@ export function TableContainer({
           />
         </TabsContent>
 
-        <TabsContent value="assets" className="mt-0 p-0 flex-1 overflow-auto">
+        <TabsContent value="assets" className="mt-0 p-0 flex-1 overflow-hidden">
           <AssetsTab />
         </TabsContent>
       </Tabs>

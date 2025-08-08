@@ -121,3 +121,6 @@ body {
 .order-preferences-header kbd {
   display: none;
 }
+div[data-radix-popper-content-wrapper] {
+  z-index: 100 !important;
+}
