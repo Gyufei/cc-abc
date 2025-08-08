@@ -41,17 +41,25 @@ export function OrderHistoryTab() {
     const isMarketOrder = orderItem.order_type === 'Market';
     const [baseCoin] = getSymbolToken(orderItem.symbol);
 
+    const minimumFractionDigitsForToken = baseCoin === 'ETH' ? 5 : 6;
+    const filledQuantity = orderItem.filled_quantity.toLocaleString('en-US', {
+      minimumFractionDigits: minimumFractionDigitsForToken,
+    });
+    const orderQuantity = orderItem.quantity.toLocaleString('en-US', {
+      minimumFractionDigits: minimumFractionDigitsForToken,
+    });
+
     if (!isMarketOrder) {
-      return `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
+      return `${filledQuantity}/${orderQuantity} ${baseCoin}`;
     }
 
     const calcByBaseCoin = add(String(orderItem.cum_exec_qty), String(orderItem.leaves_qty));
     const isBaseCoin = Number(orderItem.quantity) === Number(calcByBaseCoin);
 
     if (isBaseCoin) {
-      return `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
+      return `${filledQuantity}/${orderQuantity} ${baseCoin}`;
     } else {
-      return `${orderItem.filled_quantity}/-- ${baseCoin}`;
+      return `${filledQuantity}/-- ${baseCoin}`;
     }
   }
 
@@ -59,17 +67,25 @@ export function OrderHistoryTab() {
     const isMarketOrder = orderItem.order_type === 'Market';
     const [_, quoteCoin] = getSymbolToken(orderItem.symbol);
 
+    const filledValue = orderItem.cum_exec_value.toLocaleString('en-US', {
+      minimumFractionDigits: 8,
+    });
+    const orderValue = Number(
+      multiply(String(orderItem.quantity), String(orderItem.price))
+    ).toLocaleString('en-US', { minimumFractionDigits: 8 });
+    const quantity = orderItem.quantity.toLocaleString('en-US', { minimumFractionDigits: 8 });
+
     if (!isMarketOrder) {
-      return `${orderItem.cum_exec_value.toFixed(4)}/${Number(multiply(String(orderItem.quantity), String(orderItem.price))).toFixed(4)} ${quoteCoin}`;
+      return `${filledValue}/${orderValue} ${quoteCoin}`;
     }
 
     const calcByQuoteCoin = add(String(orderItem.cum_exec_value), String(orderItem.leaves_value));
     const isQuoteCoin = Number(orderItem.quantity) === Number(calcByQuoteCoin);
 
     if (isQuoteCoin) {
-      return `${orderItem.cum_exec_value.toFixed(4)}/${orderItem.quantity} ${quoteCoin}`;
+      return `${filledValue}/${quantity} ${quoteCoin}`;
     } else {
-      return `${orderItem.cum_exec_value.toFixed(4)}/-- ${quoteCoin}`;
+      return `${filledValue}/-- ${quoteCoin}`;
     }
   }
 
@@ -79,11 +95,15 @@ export function OrderHistoryTab() {
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
     const sideText = orderItem.side;
     const orderTypeText = orderItem.order_type;
-    const avgPrice = (orderItem.avg_price || 0).toLocaleString();
+    const avgPrice = (orderItem.avg_price || 0).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+    });
     const isMarketOrder = orderTypeText === 'Market';
     const [_, quoteCoin] = getSymbolToken(orderItem.symbol);
 
-    const orderPrice = isMarketOrder ? 'Market' : (orderItem.price || 0).toLocaleString();
+    const orderPrice = isMarketOrder
+      ? 'Market'
+      : (orderItem.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     const priceDisplay = `${avgPrice}/${orderPrice}`;
     const filledQuantityDisplay = getFilledQuantityDisplay(orderItem);
     const orderTime = new Date(orderItem.created_at)
@@ -99,7 +119,7 @@ export function OrderHistoryTab() {
 
     const filledValueDisplay = getFilledValueDisplay(orderItem);
 
-    const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} ${quoteCoin}`;
+    const tradingFees = `${orderItem.cum_exec_fee.toLocaleString('en-US', { minimumFractionDigits: 8 })} ${quoteCoin}`;
 
     return {
       id: orderItem.id,

@@ -53,13 +53,15 @@ export function TradeHistoryTab({
    */
   const transformTradeData = (tradeItem: TradeExecutionItem): TradeHistoryTableData => {
     // const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
+    const minimumFractionDigitsForToken = baseCoin === 'ETH' ? 5 : 6;
+
     const sideText = tradeItem.side;
     const orderTypeText = tradeItem.order_type;
-    const filledValue = `${tradeItem.exec_value} ${quoteCoin}`;
-    const filledPrice = `${tradeItem.exec_price}`;
-    const filledQty = `${tradeItem.exec_qty} ${baseCoin}`;
+    const filledValue = `${tradeItem.exec_value.toLocaleString('en-US', { minimumFractionDigits: 8 })} ${quoteCoin}`;
+    const filledPrice = `${tradeItem.exec_price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    const filledQty = `${tradeItem.exec_qty.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })} ${baseCoin}`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${tradeItem.exec_fee || 0} ${quoteCoin}`;
+    const tradingFees = `${tradeItem.exec_fee?.toLocaleString('en-US', { minimumFractionDigits: 8 }) || 0} ${quoteCoin}`;
     const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
     const transactionTime = new Date(tradeItem.exec_time)
       .toLocaleString('sv-SE', {
