@@ -29,7 +29,7 @@ export function TableContainer({
   const [showAllMarkets, setShowAllMarkets] = useState(false);
 
   const { data: openOrdersData } = useOpenOrders(
-    showAllMarkets && baseCoin && quoteCoin ? `${baseCoin}${quoteCoin}` : ''
+    showAllMarkets && baseCoin && quoteCoin ? '' : `${baseCoin}${quoteCoin}`
   );
   const openOrdersCount = openOrdersData?.length || 0;
 
