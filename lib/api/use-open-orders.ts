@@ -43,7 +43,7 @@ export interface OpenOrderTableData {
   instrument: string;
   orderType: string;
   direction: string;
-  orderPrice: string;
+  orderPrice: string | ReactElement;
   filledOrderQuantity: string;
   order: string;
   tpSl: string | ReactElement;

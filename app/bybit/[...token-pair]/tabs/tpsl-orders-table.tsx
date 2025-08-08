@@ -3,6 +3,7 @@
 import { Table } from '@medusajs/ui';
 
 import { OpenOrderItem, OpenOrderTableData } from '@/lib/api/use-open-orders';
+import { getSymbolToken } from '@/lib/configs/token';
 
 /**
  * Transform raw order data from API to table display format for TP/SL orders
@@ -10,7 +11,8 @@ import { OpenOrderItem, OpenOrderTableData } from '@/lib/api/use-open-orders';
  * @returns Transformed data for table display
  */
 function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
-  return orders.map((order) => {
+  return orders.map((order): OpenOrderTableData => {
+    const [baseCoin, quoteCoin] = getSymbolToken(order.symbol);
     const orderTime = new Date(order.created_at)
       .toLocaleString('sv-SE', {
         year: 'numeric',
@@ -27,9 +29,9 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       if (order.take_profit > 0 && order.stop_loss > 0) {
         return (
           <>
-            TP {order.take_profit.toLocaleString('en-US')} (Last)
+            TP {order.take_profit.toLocaleString('en-US')}
             <br />
-            SL {order.stop_loss.toLocaleString('en-US')} (Last)
+            SL {order.stop_loss.toLocaleString('en-US')}
           </>
         );
       } else if (order.take_profit > 0) {
@@ -39,18 +41,24 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       }
       return order.trigger_price > 0 ? order.trigger_price.toLocaleString('en-US') : '--';
     };
-
+    const orderPriceText = (
+      <>
+        TP Market
+        <br />
+        SL Market
+      </>
+    );
     return {
       id: order.id,
       market: order.symbol,
       instrument: 'Spot', // Default to Spot for now
       orderType: order.order_type,
       direction: order.side,
-      orderPrice: 'Market', // TP/SL orders are typically market orders when triggered
-      filledOrderQuantity: 'Entire Position', // TP/SL typically close entire position
-      order: '--', // Order value not applicable for TP/SL
+      orderPrice: orderPriceText,
+      filledOrderQuantity: `${order.leaves_qty ? order.leaves_qty + ' ' + baseCoin : '--'}`, // TP/SL typically close entire position
+      order: `${order.leaves_value ? order.leaves_value + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
       tpSl: triggerPriceText(),
-      tradeType: order.side === 'buy' ? 'Close Short' : 'Close Long', // TP/SL are closing positions
+      tradeType: '--', // TP/SL are closing positions
       orderTime: orderTime,
       orderId: order.order_id,
       reduceOnly: '--',
@@ -114,18 +122,9 @@ export function TPSLOrdersTable({ data, cancelingOrders, onCancelOrder }: TPSLOr
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
-              <Table.Cell className="whitespace-nowrap pl-3">
-                 <span className={item.tradeType === 'Close Short' ? 'text-green-600' : 'text-red-600'}>
-                  {item.tradeType}
-                </span></Table.Cell>
+              <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>
-              <Table.Cell className="whitespace-nowrap pl-3">
-                <>
-                  {item.orderId}
-                  <br />
-                  {item.orderLinkId}
-                </>
-              </Table.Cell>
+              <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">
                 <span
                   className={item.status === 'Untriggered' ? 'text-yellow-600' : 'text-gray-600'}
