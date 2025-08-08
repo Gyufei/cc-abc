@@ -62,15 +62,16 @@ export function OrderHistoryTab() {
     const sideText = orderItem.side;
     const isBuy = sideText === 'Buy';
     const orderTypeText = orderItem.order_type;
-    const avgPrice = (orderItem.avg_price || 0).toLocaleString();
+    const avgPrice = (orderItem.avg_price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     const isMarketOrder = orderTypeText === 'Market';
     const [baseCoin, quoteCoin] = getSymbolToken(orderItem.symbol);
 
-    const orderPrice = isMarketOrder ? 'Market' : (orderItem.price || 0).toLocaleString();
+    const orderPrice = isMarketOrder ? 'Market' : (orderItem.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     const priceDisplay = `${avgPrice}/${orderPrice}`;
+    const minimumFractionDigitsForToken = baseCoin === 'ETH' ? 5 : 6;
     const filledQuantityDisplay = isMarketOrder
-      ? `${orderItem.filled_quantity}/ ${isBuy ? '--' : orderItem.quantity} ${baseCoin}`
-      : `${orderItem.filled_quantity}/${orderItem.quantity} ${baseCoin}`;
+      ? `${orderItem.filled_quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })}/ ${isBuy ? '--' : orderItem.quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })} ${baseCoin}`
+      : `${orderItem.filled_quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })}/${orderItem.quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken })} ${baseCoin}`;
     const orderTime = new Date(orderItem.created_at)
       .toLocaleString('sv-SE', {
         year: 'numeric',
@@ -83,10 +84,10 @@ export function OrderHistoryTab() {
       .replace('T', ' ');
 
     const filledValue = isMarketOrder
-      ? `${orderItem.cum_exec_value.toFixed(4)}/${isBuy ? orderItem.quantity : '--'} ${quoteCoin}`
-      : `${orderItem.cum_exec_value.toFixed(4)}/${Number(multiply(String(orderItem.quantity), String(orderItem.price))).toFixed(4)} ${quoteCoin}`;
+      ? `${orderItem.cum_exec_value.toLocaleString('en-US', { minimumFractionDigits: 8 })}/${isBuy ? orderItem.quantity.toLocaleString('en-US', { minimumFractionDigits: minimumFractionDigitsForToken }) : '--'} ${quoteCoin}`
+      : `${orderItem.cum_exec_value.toLocaleString('en-US', { minimumFractionDigits: 8 })}/${Number(multiply(String(orderItem.quantity), String(orderItem.price))).toLocaleString('en-US', { minimumFractionDigits: 8 })} ${quoteCoin}`;
 
-    const tradingFees = `${orderItem.cum_exec_fee.toFixed(8)} ${quoteCoin}`;
+    const tradingFees = `${orderItem.cum_exec_fee.toLocaleString('en-US', { minimumFractionDigits: 8 })} ${quoteCoin}`;
 
     return {
       id: orderItem.id,

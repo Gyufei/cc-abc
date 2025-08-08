@@ -29,17 +29,17 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       if (order.take_profit > 0 && order.stop_loss > 0) {
         return (
           <>
-            TP {order.take_profit.toLocaleString('en-US')}
+            TP {order.take_profit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             <br />
-            SL {order.stop_loss.toLocaleString('en-US')}
+            SL {order.stop_loss.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </>
         );
       } else if (order.take_profit > 0) {
-        return `TP ${order.take_profit.toLocaleString('en-US')} (Last)`;
+        return `TP ${order.take_profit.toLocaleString('en-US', { minimumFractionDigits: 2 })} (Last)`;
       } else if (order.stop_loss > 0) {
-        return `SL ${order.stop_loss.toLocaleString('en-US')} (Last)`;
+        return `SL ${order.stop_loss.toLocaleString('en-US', { minimumFractionDigits: 2 })} (Last)`;
       }
-      return order.trigger_price > 0 ? order.trigger_price.toLocaleString('en-US') : '--';
+      return order.trigger_price > 0 ? order.trigger_price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '--';
     };
     const orderPriceText = (
       <>
@@ -56,7 +56,7 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       direction: order.side,
       orderPrice: orderPriceText,
       filledOrderQuantity: `${order.leaves_qty ? order.leaves_qty + ' ' + baseCoin : '--'}`, // TP/SL typically close entire position
-      order: `${order.leaves_value ? order.leaves_value + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
+      order: `${order.leaves_value ? order.leaves_value.toLocaleString('en-US', { minimumFractionDigits: 7 }) + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
       tpSl: triggerPriceText(),
       tradeType: '--', // TP/SL are closing positions
       orderTime: orderTime,
