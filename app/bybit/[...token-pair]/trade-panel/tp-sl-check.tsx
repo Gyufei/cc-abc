@@ -47,11 +47,19 @@ export function TpSlCheck({
   }, [takeProfit, orderPrice, side]);
 
   const takeProfitPnl = useMemo(() => {
+    if (Number(orderQuantity) === 0) {
+      return '0';
+    }
+
     const takePnl = multiply(takePricePnl, String(orderQuantity));
     return takePnl;
   }, [takePricePnl, orderQuantity]);
 
   const takeProfitRoi = useMemo(() => {
+    if (!orderPrice || Number(orderPrice) === 0) {
+      return '0';
+    }
+
     const roi = truncateNumber(divide(String(takePricePnl), String(orderPrice)), 4);
     return roi;
   }, [takePricePnl, orderPrice]);
@@ -67,6 +75,10 @@ export function TpSlCheck({
   }, [stopPricePnl, orderQuantity]);
 
   const stopLossRoi = useMemo(() => {
+    if (!orderPrice || Number(orderPrice) === 0) {
+      return '0';
+    }
+
     const roi = truncateNumber(divide(String(stopPricePnl), String(orderPrice)), 4);
     return roi;
   }, [stopPricePnl, orderPrice]);

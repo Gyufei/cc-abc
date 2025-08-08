@@ -2,9 +2,12 @@
 
 import { Table } from '@medusajs/ui';
 
+import { useMemo } from 'react';
+
 import Image from 'next/image';
 
 import { AssetTableData, useAssets } from '@/lib/api/use-assets';
+import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 
 /**
@@ -18,41 +21,18 @@ export function AssetsTab() {
   // Get assets data with loading and error states
   const { data: assetsData, isLoading, error } = useAssets();
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">Loading assets...</div>
-      </div>
-    );
-  }
+  const { data: tokenPairs } = useTokenPairs();
 
-  // Show error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-error">Error: {error.message}</div>
-      </div>
-    );
-  }
+  const tokenImgsMap = useMemo(() => {
+    const imgMap = new Map<string, string>();
 
-  // Show no API key state
-  if (!currentApiKeyData) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">Please select an API key to view assets</div>
-      </div>
-    );
-  }
+    for (const tokenPair of tokenPairs || []) {
+      imgMap.set(tokenPair.base_asset, tokenPair.base_asset_logo_url);
+      imgMap.set(tokenPair.quote_asset, tokenPair.quote_asset_logo_url);
+    }
 
-  // Show empty state
-  if (!assetsData || assetsData.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-ui-fg-muted">No assets found</div>
-      </div>
-    );
-  }
+    return imgMap;
+  }, [tokenPairs]);
 
   return (
     <div className="w-full h-full overflow-x-auto">
@@ -73,12 +53,27 @@ export function AssetsTab() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {assetsData.map((item: AssetTableData) => (
+            {(!assetsData?.length || isLoading || error || !currentApiKeyData) && (
+              <Table.Row>
+                <td colSpan={12} className="text-center h-30">
+                  {isLoading
+                    ? 'Loading assets...'
+                    : error
+                      ? error.message
+                        ? error.message
+                        : 'Failed to load assets'
+                      : !currentApiKeyData
+                        ? 'Please select an API key to view assets'
+                        : 'No assets found'}
+                </td>
+              </Table.Row>
+            )}
+            {(assetsData || []).map((item: AssetTableData) => (
               <Table.Row key={item.id}>
                 <Table.Cell className="sticky left-0 z-10 bg-ui-bg-base border-r border-ui-border-base sticky-left-shadow whitespace-nowrap pl-3">
                   <div className="flex items-center gap-2">
                     <Image
-                      src={`/icons/${item.coin}.svg`}
+                      src={tokenImgsMap.get(item.coin) || ''}
                       alt={item.coin}
                       width={16}
                       height={16}

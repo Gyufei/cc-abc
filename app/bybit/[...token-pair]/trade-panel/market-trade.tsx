@@ -7,6 +7,7 @@ import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
 import { useMarketInfo } from '@/lib/api/use-market-info';
+import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE } from '@/lib/types/trade';
@@ -55,6 +56,11 @@ export function MarketTrade({
   const tokenBalance = isBuy ? quoteBalance : baseBalance;
 
   const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
+
+  const { data: tokenPairs } = useTokenPairs();
+  const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === `${baseCoin}${quoteCoin}`);
+  const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
+  const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
 
   const {
     mutate: createOrder,
@@ -146,6 +152,7 @@ export function MarketTrade({
             id="search-input"
             value={buyValue}
             onChange={handleBuyValueChange}
+            decimalPlaces={minimumFractionDigitsForQuote}
           />
           <OrderByTokenSelect
             baseCoin={baseCoin || ''}
@@ -162,6 +169,7 @@ export function MarketTrade({
             id="search-input"
             value={quantity}
             onChange={handleQuantityChange}
+            decimalPlaces={minimumFractionDigitsForBase}
           />
           <OrderByTokenSelect
             baseCoin={baseCoin || ''}

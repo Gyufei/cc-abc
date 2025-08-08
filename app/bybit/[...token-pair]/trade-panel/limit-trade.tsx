@@ -7,6 +7,7 @@ import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
 import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
+import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
@@ -41,6 +42,10 @@ export function LimitTrade({
   const { data: quoteBalance } = useTokenBalance(quoteCoin);
   const { data: baseBalance } = useTokenBalance(baseCoin);
   const tokenBalance = isBuy ? quoteBalance : baseBalance;
+
+  const { data: tokenPairs } = useTokenPairs();
+  const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === `${baseCoin}${quoteCoin}`);
+  const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
 
   const {
     mutate: createOrder,
@@ -217,6 +222,7 @@ export function LimitTrade({
           id="search-input"
           value={price}
           onChange={handlePriceChange}
+          decimalPlaces={2}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {quoteCoin || '-'}
@@ -229,6 +235,7 @@ export function LimitTrade({
           id="search-input"
           value={quantity}
           onChange={handleQuantityChange}
+          decimalPlaces={minimumFractionDigitsForBase}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {baseCoin}
