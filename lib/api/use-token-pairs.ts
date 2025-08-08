@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Fetcher } from '@/lib/fetcher';
 import { useAppStore } from '@/lib/store';
-import { TokenPair } from '@/lib/types/trade';
+import { TokenPair } from '@/lib/types/asset';
 
 import { ApiPath } from './api-path';
 
@@ -13,20 +13,8 @@ export function useTokenPairs() {
     queryKey: ['token-pairs'],
     queryFn: async (): Promise<TokenPair[]> => {
       if (!user.token || !user.user_id) {
-        throw new Error('用户未登录');
+        throw new Error('user not logged in');
       }
-
-      // TODO: remove this
-      return [
-        {
-          symbol: 'BTCUSDT',
-          display_name: 'BTC/USDT',
-        },
-        {
-          symbol: 'ETHUSDT',
-          display_name: 'ETH/USDT',
-        },
-      ];
 
       return Fetcher<TokenPair[]>(ApiPath.tradingSymbols, {
         method: 'GET',
@@ -41,4 +29,4 @@ export function useTokenPairs() {
   });
 
   return query;
-} 
+}

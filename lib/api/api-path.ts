@@ -11,7 +11,7 @@ export const ApiPath = {
   register: `${ApiHost}/api/v1/auth/register`,
   login: `${ApiHost}/api/v1/auth/login`,
   apiKeys: `${ApiHost}/api/v1/api-bindings`,
-  tradingOrder: `${ApiHost}/api/v1/trading/orders`,
+
   tradingOrders: `${ApiHost}/api/v1/trading/orders`,
   tradingSymbols: `${ApiHost}/api/v1/trading/symbols`,
   tradingOrderHistory: `${ApiHost}/api/v1/trading/orders/history`,

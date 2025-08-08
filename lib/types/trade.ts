@@ -12,8 +12,3 @@ export type TRADE_TYPE =
   | 'Scaled Order';
 
 export type TIME_IN_FORCE_TYPE = 'PostOnly' | 'GTC' | 'IOC' | 'FOK';
-
-export interface TokenPair {
-  symbol: string;
-  display_name: string;
-}

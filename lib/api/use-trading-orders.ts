@@ -38,7 +38,7 @@ export interface TradingOrderResponse {
   status: string;
 }
 
-export function useTradingOrders() {
+export function useCreateOrders() {
   const user = useUser();
   const { data: currentApiKeyObj } = useCurrentApiKey();
   const queryClient = useQueryClient();
@@ -59,7 +59,7 @@ export function useTradingOrders() {
           api_key: currentApiKeyObj?.api_key,
         };
 
-        const res = await Fetcher<TradingOrderResponse>(ApiPath.tradingOrder, {
+        const res = await Fetcher<TradingOrderResponse>(ApiPath.tradingOrders, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -89,7 +89,6 @@ export function useTradingOrders() {
         throw new Error('Unknown error');
       }
     },
-    
 
     onSuccess: (data: TradingOrderResponse | undefined) => {
       if (!data) {

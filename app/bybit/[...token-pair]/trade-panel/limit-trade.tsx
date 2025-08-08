@@ -7,7 +7,7 @@ import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
 
 import { TOKEN_PRICE_MAP } from '@/lib/api/g-config';
-import { TradingOrderRequest, useTradingOrders } from '@/lib/api/use-trading-orders';
+import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
@@ -46,7 +46,7 @@ export function LimitTrade({
     mutate: createOrder,
     isPending: isCreatingOrder,
     isSuccess: isOrderCreated,
-  } = useTradingOrders();
+  } = useCreateOrders();
 
   // 计算当前 progress 应该的值
   const calculatedProgress = useMemo(() => {
