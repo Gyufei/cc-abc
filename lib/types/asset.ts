@@ -21,4 +21,5 @@ export interface TokenPair {
   max_order_amount: string;
   base_asset_logo_url: string;
   quote_asset_logo_url: string;
+  price_filter_tick_size: string;
 }

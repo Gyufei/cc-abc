@@ -47,8 +47,13 @@ export function LimitTrade({
   const minimumFractionDigitsForBase = tokenPair
     ? Math.abs(Math.log10(Number(tokenPair?.base_asset_step)))
     : 0;
+
   const minimumFractionDigitsForQuote = tokenPair
     ? Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)))
+    : 0;
+
+  const priceFractionDigits = tokenPair
+    ? Math.abs(Math.log10(Number(tokenPair?.price_filter_tick_size)))
     : 0;
 
   const {
@@ -236,7 +241,7 @@ export function LimitTrade({
           id="search-input"
           value={price}
           onChange={handlePriceChange}
-          decimalPlaces={minimumFractionDigitsForQuote}
+          decimalPlaces={priceFractionDigits}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {quoteCoin || '-'}
