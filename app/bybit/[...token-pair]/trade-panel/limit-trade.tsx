@@ -236,7 +236,7 @@ export function LimitTrade({
           id="search-input"
           value={price}
           onChange={handlePriceChange}
-          decimalPlaces={2}
+          decimalPlaces={minimumFractionDigitsForQuote}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {quoteCoin || '-'}
