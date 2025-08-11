@@ -36,7 +36,7 @@ export function TableContainer({
   return (
     <div className="flex-1 bg-background border border-t-0 border-ui-border-base rounded-lg mt-4 overflow-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col gap-0">
-        <TabsList className="w-full justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0 rounded-t-lg">
+        <TabsList className="w-full relative justify-start bg-transparent border-ui-border-base rounded-none h-auto p-0 flex-shrink-0 rounded-t-lg">
           <TabsTrigger
             value="open-orders"
             className="rounded-none border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors"
@@ -67,15 +67,17 @@ export function TableContainer({
           >
             Assets
           </TabsTrigger>
-          <div className="rounded-none w-[200px] border-ui-border-base border data-[state=active]:bg-ui-bg-subtle bg-transparent px-4 py-3 smm-text text-ui-fg-muted data-[state=active]:text-ui-fg-base hover:bg-ui-bg-subtle-hover transition-colors flex items-center justify-end">
-            <div className="flex items-center gap-2 justify-end">
-              <Checkbox
-                checked={showAllMarkets}
-                onCheckedChange={() => setShowAllMarkets(!showAllMarkets)}
-              />
-              <Label className="smm-text text-ui-fg-base">All Markets</Label>
+          {activeTab !== 'assets' && (
+            <div className="w-[200px] absolute top-12 right-6 bg-transparent py-3 smm-text text-ui-fg-muted transition-colors flex items-center justify-end">
+              <div className="flex items-center gap-2 justify-end">
+                <Checkbox
+                  checked={showAllMarkets}
+                  onCheckedChange={() => setShowAllMarkets(!showAllMarkets)}
+                />
+                <Label className="smm-text text-ui-fg-base">All Markets</Label>
+              </div>
             </div>
-          </div>
+          )}
         </TabsList>
 
         <TabsContent value="open-orders" className="mt-0 p-0 flex-1 overflow-hidden">

@@ -55,8 +55,27 @@ export function OrderHistoryTab({
   );
   const { data: tokenPairs } = useTokenPairs();
 
+  function getTokenPair(symbol: string) {
+    return (tokenPairs || []).find((pair) => pair.symbol === symbol);
+  }
+
+  function getPriceDisplay(orderItem: OrderHistoryItem) {
+    const tokenPair = getTokenPair(orderItem.symbol);
+    const priceFilterTickSize = tokenPair?.price_filter_tick_size;
+
+    const minimumFractionDigitsPrice = Math.abs(Math.log10(Number(priceFilterTickSize)));
+
+    const isMarketOrder = orderItem.order_type === 'Market';
+    const orderPrice = isMarketOrder
+      ? 'Market'
+      : fixedNumber(orderItem.price || 0, minimumFractionDigitsPrice);
+    const avgPrice = fixedNumber(orderItem.avg_price, minimumFractionDigitsPrice);
+
+    return `${avgPrice}/${orderPrice}`;
+  }
+
   function getFilledQuantityDisplay(orderItem: OrderHistoryItem) {
-    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const tokenPair = getTokenPair(orderItem.symbol);
     const baseCoin = tokenPair?.base_asset;
 
     const isMarketOrder = orderItem.order_type === 'Market';
@@ -79,7 +98,7 @@ export function OrderHistoryTab({
   }
 
   function getFilledValueDisplay(orderItem: OrderHistoryItem) {
-    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const tokenPair = getTokenPair(orderItem.symbol);
     const quoteCoin = tokenPair?.quote_asset;
 
     const isMarketOrder = orderItem.order_type === 'Market';
@@ -109,7 +128,7 @@ export function OrderHistoryTab({
   }
 
   function getTradingFees(orderItem: OrderHistoryItem) {
-    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const tokenPair = getTokenPair(orderItem.symbol);
     const quoteCoin = tokenPair?.quote_asset;
     const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
 
@@ -124,11 +143,7 @@ export function OrderHistoryTab({
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
     const sideText = orderItem.side;
     const orderTypeText = orderItem.order_type;
-    const avgPrice = fixedNumber(orderItem.avg_price || 0, 2);
-    const isMarketOrder = orderTypeText === 'Market';
 
-    const orderPrice = isMarketOrder ? 'Market' : fixedNumber(orderItem.price || 0, 2);
-    const priceDisplay = `${avgPrice}/${orderPrice}`;
     const filledQuantityDisplay = getFilledQuantityDisplay(orderItem);
     const orderTime = new Date(orderItem.created_at)
       .toLocaleString('sv-SE', {
@@ -151,7 +166,7 @@ export function OrderHistoryTab({
       instrument: 'Spot', // Default value as not provided in API
       orderType: orderTypeText,
       direction: sideText,
-      avgFilledPrice: priceDisplay,
+      avgFilledPrice: getPriceDisplay(orderItem),
       filledOrderQuantity: filledQuantityDisplay,
       orderTime: orderTime,
       orderId: orderItem.order_id,
