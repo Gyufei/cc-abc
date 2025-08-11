@@ -33,7 +33,6 @@ export interface OrderHistoryItem {
   stop_loss: number;
   reduce_only: boolean;
   close_on_trigger: boolean;
-  price_filter_tick_size: string;
 }
 
 export interface OrderHistoryResponse {

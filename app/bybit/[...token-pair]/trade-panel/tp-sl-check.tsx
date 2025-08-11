@@ -8,7 +8,7 @@ import { NumberInput } from '@/components/ui/number-input';
 
 import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
-import { formatNumber, formatPercentage, truncateNumber } from '@/lib/utils/number';
+import { fixedNumber, formatNumber, formatPercentage, truncateNumber } from '@/lib/utils/number';
 
 export function TpSlCheck({
   side,
@@ -19,6 +19,7 @@ export function TpSlCheck({
   setTakeProfit,
   setStopLoss,
   token,
+  digit,
   orderPrice,
   orderQuantity,
 }: {
@@ -30,6 +31,7 @@ export function TpSlCheck({
   setTakeProfit: (value: string) => void;
   setStopLoss: (value: string) => void;
   token: string;
+  digit: number;
   orderPrice: string;
   orderQuantity: string;
 }) {
@@ -51,16 +53,16 @@ export function TpSlCheck({
       return '0';
     }
 
-    const takePnl = multiply(takePricePnl, String(orderQuantity));
+    const takePnl = fixedNumber(multiply(takePricePnl, String(orderQuantity)), digit);
     return takePnl;
-  }, [takePricePnl, orderQuantity]);
+  }, [takePricePnl, orderQuantity, digit]);
 
   const takeProfitRoi = useMemo(() => {
     if (!orderPrice || Number(orderPrice) === 0) {
       return '0';
     }
 
-    const roi = truncateNumber(divide(String(takePricePnl), String(orderPrice)), 4);
+    const roi = fixedNumber(divide(String(takePricePnl), String(orderPrice)), 4);
     return roi;
   }, [takePricePnl, orderPrice]);
 
@@ -70,9 +72,9 @@ export function TpSlCheck({
   }, [stopLoss, orderPrice, side]);
 
   const stopLossPnl = useMemo(() => {
-    const stopPnl = multiply(stopPricePnl, String(orderQuantity));
+    const stopPnl = fixedNumber(multiply(stopPricePnl, String(orderQuantity)), digit);
     return stopPnl;
-  }, [stopPricePnl, orderQuantity]);
+  }, [stopPricePnl, orderQuantity, digit]);
 
   const stopLossRoi = useMemo(() => {
     if (!orderPrice || Number(orderPrice) === 0) {

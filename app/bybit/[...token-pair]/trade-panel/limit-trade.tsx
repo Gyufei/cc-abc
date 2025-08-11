@@ -287,6 +287,8 @@ export function LimitTrade({
           side={side}
           baseCoin={baseCoin || ''}
           quoteCoin={quoteCoin || ''}
+          baseDigit={minimumFractionDigitsForBase}
+          quoteDigit={minimumFractionDigitsForQuote}
           price={price}
         />
       </div>
@@ -300,6 +302,7 @@ export function LimitTrade({
           setTakeProfit={setTakeProfit}
           setStopLoss={setStopLoss}
           token={quoteCoin || ''}
+          digit={minimumFractionDigitsForQuote}
           orderPrice={price}
           orderQuantity={quantity}
         />

@@ -4,17 +4,21 @@ import { useMemo } from 'react';
 
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE } from '@/lib/types/trade';
-import { truncateNumber } from '@/lib/utils/number';
+import { fixedNumber } from '@/lib/utils/number';
 
 export function CanAmountDisplay({
   side,
   baseCoin,
   quoteCoin,
+  baseDigit,
+  quoteDigit,
   price,
 }: {
   side: SIDE;
   baseCoin: string;
   quoteCoin: string;
+  baseDigit: number;
+  quoteDigit: number;
   price: string;
 }) {
   const isBuy = side === 'buy';
@@ -26,16 +30,16 @@ export function CanAmountDisplay({
       return '0';
     }
 
-    return truncateNumber(divide(String(quoteBalance), price), 6);
-  }, [quoteBalance, price]);
+    return fixedNumber(divide(String(quoteBalance), price), baseDigit);
+  }, [quoteBalance, price, baseDigit]);
 
   const canSellAmount = useMemo(() => {
     if (!baseBalance) {
       return '0';
     }
 
-    return truncateNumber(multiply(String(baseBalance), price), 6);
-  }, [baseBalance, price]);
+    return fixedNumber(multiply(String(baseBalance), price), quoteDigit);
+  }, [baseBalance, price, quoteDigit]);
 
   return (
     <div
