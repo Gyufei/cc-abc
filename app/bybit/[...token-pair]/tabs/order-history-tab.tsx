@@ -128,11 +128,8 @@ export function OrderHistoryTab({
   }
 
   function getTradingFees(orderItem: OrderHistoryItem) {
-    const tokenPair = getTokenPair(orderItem.symbol);
-    const quoteCoin = tokenPair?.quote_asset;
-    const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
-
-    const fee = fixedNumber(orderItem.cum_exec_fee, minimumFractionDigitsForToken);
+    // fees fixed at 8 bits
+    const fee = fixedNumber(orderItem.cum_exec_fee, 8);
 
     return `${fee} ${quoteCoin}`;
   }

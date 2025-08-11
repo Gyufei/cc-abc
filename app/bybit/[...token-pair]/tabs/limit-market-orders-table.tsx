@@ -27,6 +27,7 @@ function transformOrderData(
 
     const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
     const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
+    const minimumFractionDigitsForPrice = Math.abs(Math.log10(Number(tokenPair?.price_filter_tick_size)));
 
     const orderTime = new Date(order.created_at)
       .toLocaleString('sv-SE', {
@@ -50,9 +51,9 @@ function transformOrderData(
       instrument: 'Spot', // Default to Spot for now
       orderType: order.order_type,
       direction: order.side,
-      orderPrice: fixedNumber(order.price, 2),
+      orderPrice: fixedNumber(order.price, minimumFractionDigitsForPrice),
       filledOrderQuantity: `${fixedNumber(order.filled_quantity, minimumFractionDigitsForBase)}/${fixedNumber(order.quantity, minimumFractionDigitsForBase)} ${bCoin}`,
-      order: `${fixedNumber(order.leaves_value, minimumFractionDigitsForQuote)} ${qCoin}`,
+      orderValue: `${fixedNumber(order.leaves_value, minimumFractionDigitsForQuote)} ${qCoin}`,
       tpSl: tpSlText,
       tradeType: '--', // Default value、Open Long
       orderTime: orderTime,
@@ -142,7 +143,7 @@ export function LimitMarketOrdersTable({
               </Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
-              <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
+              <Table.Cell className="whitespace-nowrap pl-3">{item.orderValue}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.tpSl}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>

@@ -69,16 +69,17 @@ export function TradeHistoryTab({
 
     const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
     const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
+    const minimumFractionDigitsForPrice = Math.abs(Math.log10(Number(tokenPair?.price_filter_tick_size)));
 
     // const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
 
     const sideText = tradeItem.side;
     const orderTypeText = tradeItem.order_type;
     const filledValue = `${fixedNumber(tradeItem.exec_value, minimumFractionDigitsForQuote)} ${qCoin}`;
-    const filledPrice = `${fixedNumber(tradeItem.exec_price, 2)}`;
+    const filledPrice = `${fixedNumber(tradeItem.exec_price, minimumFractionDigitsForPrice)}`;
     const filledQty = `${fixedNumber(tradeItem.exec_qty, minimumFractionDigitsForBase)} ${bCoin}`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${fixedNumber(tradeItem.exec_fee || 0, minimumFractionDigitsForQuote)} ${qCoin}`;
+    const tradingFees = `${fixedNumber(tradeItem.exec_fee || 0, 8)} ${qCoin}`;
     const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
     const transactionTime = new Date(tradeItem.exec_time)
       .toLocaleString('sv-SE', {

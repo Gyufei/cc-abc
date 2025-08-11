@@ -46,7 +46,7 @@ export interface OpenOrderTableData {
   direction: string;
   orderPrice: string | ReactElement;
   filledOrderQuantity: string;
-  order: string;
+  orderValue: string;
   tpSl: string | ReactElement;
   tradeType: string;
   orderTime: string;
