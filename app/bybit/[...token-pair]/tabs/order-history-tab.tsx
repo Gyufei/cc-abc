@@ -122,12 +122,14 @@ export function OrderHistoryTab({
    * Transform API data to table format
    */
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
+    const priceFractionDigits = Math.abs(Math.log10(Number(orderItem?.price_filter_tick_size)))
+
     const sideText = orderItem.side;
     const orderTypeText = orderItem.order_type;
-    const avgPrice = fixedNumber(orderItem.avg_price || 0, 2);
+    const avgPrice = fixedNumber(orderItem.avg_price || 0, priceFractionDigits);
     const isMarketOrder = orderTypeText === 'Market';
 
-    const orderPrice = isMarketOrder ? 'Market' : fixedNumber(orderItem.price || 0, 2);
+    const orderPrice = isMarketOrder ? 'Market' : fixedNumber(orderItem.price || 0, priceFractionDigits);
     const priceDisplay = `${avgPrice}/${orderPrice}`;
     const filledQuantityDisplay = getFilledQuantityDisplay(orderItem);
     const orderTime = new Date(orderItem.created_at)
