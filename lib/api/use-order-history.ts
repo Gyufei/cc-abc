@@ -33,6 +33,7 @@ export interface OrderHistoryItem {
   stop_loss: number;
   reduce_only: boolean;
   close_on_trigger: boolean;
+  price_filter_tick_size: string;
 }
 
 export interface OrderHistoryResponse {
@@ -64,10 +65,12 @@ export function useOrderHistory(
         api_key: currentApiKey.api_key,
         ...(symbol && { symbol }),
         ...(days && { days: days.toString() }),
-        ...(dateRange && {
-          start_time: dateRange[0].toString(),
-          end_time: dateRange[1].toString(),
-        }),
+        ...(dateRange &&
+          dateRange[0] &&
+          dateRange[1] && {
+            start_time: dateRange[0].toString(),
+            end_time: dateRange[1].toString(),
+          }),
       });
 
       const url = `${ApiPath.tradingOrderHistory}?${params.toString()}`;

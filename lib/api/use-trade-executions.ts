@@ -62,7 +62,7 @@ export function useTradeExecutions(
         api_key: currentApiKey.api_key,
         ...(symbol && { symbol }),
         ...(days && { days: days.toString() }),
-        ...(dateRange && {
+        ...(dateRange && dateRange[0] && dateRange[1] && {
           start_time: dateRange[0].toString(),
           end_time: dateRange[1].toString(),
         }),

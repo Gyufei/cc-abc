@@ -143,7 +143,6 @@ export function OrderHistoryTab({
   const transformOrderData = (orderItem: OrderHistoryItem): OrderHistoryTableData => {
     const sideText = orderItem.side;
     const orderTypeText = orderItem.order_type;
-
     const filledQuantityDisplay = getFilledQuantityDisplay(orderItem);
     const orderTime = new Date(orderItem.created_at)
       .toLocaleString('sv-SE', {
