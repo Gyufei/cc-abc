@@ -57,7 +57,7 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
       direction: order.side,
       orderPrice: orderPriceText,
       filledOrderQuantity: `${order.leaves_qty ? order.leaves_qty + ' ' + baseCoin : '--'}`, // TP/SL typically close entire position
-      order: `${order.leaves_value ? fixedNumber(order.leaves_value, 7) + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
+      orderValue: `${order.leaves_value ? fixedNumber(order.leaves_value, 7) + ' ' + quoteCoin : '--'}`, // Order value not applicable for TP/SL
       tpSl: triggerPriceText(),
       tradeType: '--', // TP/SL are closing positions
       orderTime: orderTime,
@@ -141,7 +141,7 @@ export function TPSLOrdersTable({
               <Table.Cell className="whitespace-nowrap pl-3">{item.tpSl}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderPrice}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.filledOrderQuantity}</Table.Cell>
-              <Table.Cell className="whitespace-nowrap pl-3">{item.order}</Table.Cell>
+              <Table.Cell className="whitespace-nowrap pl-3">{item.orderValue}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.tradeType}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderTime}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>

@@ -282,6 +282,8 @@ export function MarketTrade({
           baseCoin={baseCoin || ''}
           quoteCoin={quoteCoin || ''}
           price={String(marketInfo?.price || '0')}
+          baseDigit={minimumFractionDigitsForBase}
+          quoteDigit={minimumFractionDigitsForQuote}
         />
       </div>
       <div className="mt-4 flex flex-col gap-y-2">
