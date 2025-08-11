@@ -53,7 +53,7 @@ export function TpSlCheck({
       return '0';
     }
 
-    const takePnl = fixedNumber(multiply(takePricePnl, String(orderQuantity)), digit);
+    const takePnl = multiply(takePricePnl, String(orderQuantity));
     return takePnl;
   }, [takePricePnl, orderQuantity, digit]);
 
@@ -72,7 +72,11 @@ export function TpSlCheck({
   }, [stopLoss, orderPrice, side]);
 
   const stopLossPnl = useMemo(() => {
-    const stopPnl = fixedNumber(multiply(stopPricePnl, String(orderQuantity)), digit);
+    if (!orderQuantity || Number(orderQuantity) === 0) {
+      return '0';
+    }
+
+    const stopPnl = multiply(stopPricePnl, String(orderQuantity));
     return stopPnl;
   }, [stopPricePnl, orderQuantity, digit]);
 
@@ -118,6 +122,7 @@ export function TpSlCheck({
             id="search-input"
             value={takeProfit}
             onChange={setTakeProfit}
+            decimalPlaces={digit}
           />
           <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
             {token}
@@ -149,6 +154,7 @@ export function TpSlCheck({
             id="search-input"
             value={stopLoss}
             onChange={setStopLoss}
+            decimalPlaces={digit}
           />
           <Badge size="2xsmall" className="absolute right-2 top-4 -translate-y-1/2">
             {token}

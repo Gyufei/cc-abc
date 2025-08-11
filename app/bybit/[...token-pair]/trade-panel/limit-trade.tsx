@@ -241,7 +241,7 @@ export function LimitTrade({
           id="search-input"
           value={price}
           onChange={handlePriceChange}
-          decimalPlaces={priceFractionDigits}
+          decimalPlaces={Number(priceFractionDigits)}
         />
         <Badge size="2xsmall" className="absolute right-2 top-1/2 -translate-y-1/2">
           {quoteCoin || '-'}
@@ -302,7 +302,7 @@ export function LimitTrade({
           setTakeProfit={setTakeProfit}
           setStopLoss={setStopLoss}
           token={quoteCoin || ''}
-          digit={minimumFractionDigitsForQuote}
+          digit={Number(priceFractionDigits)}
           orderPrice={price}
           orderQuantity={quantity}
         />
