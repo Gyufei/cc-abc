@@ -55,7 +55,7 @@ export function TpSlCheck({
 
     const takePnl = multiply(takePricePnl, String(orderQuantity));
     return takePnl;
-  }, [takePricePnl, orderQuantity, digit]);
+  }, [takePricePnl, orderQuantity]);
 
   const takeProfitRoi = useMemo(() => {
     if (!orderPrice || Number(orderPrice) === 0) {
@@ -78,7 +78,7 @@ export function TpSlCheck({
 
     const stopPnl = multiply(stopPricePnl, String(orderQuantity));
     return stopPnl;
-  }, [stopPricePnl, orderQuantity, digit]);
+  }, [stopPricePnl, orderQuantity]);
 
   const stopLossRoi = useMemo(() => {
     if (!orderPrice || Number(orderPrice) === 0) {

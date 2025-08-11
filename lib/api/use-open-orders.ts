@@ -94,6 +94,11 @@ export function useOpenOrders(symbol?: string) {
     },
 
     enabled: !!user.token && !!user.user_id && !!currentApiKey?.api_key,
+
+    // 定时5秒刷新数据
+    refetchInterval: 5000,
+    // 当窗口失去焦点时暂停刷新，获得焦点时恢复
+    refetchIntervalInBackground: false,
   });
 
   return query;
