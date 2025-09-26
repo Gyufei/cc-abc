@@ -69,7 +69,9 @@ export function TradeHistoryTab({
 
     const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
     const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
-    const minimumFractionDigitsForPrice = Math.abs(Math.log10(Number(tokenPair?.price_filter_tick_size)));
+    const minimumFractionDigitsForPrice = Math.abs(
+      Math.log10(Number(tokenPair?.price_filter_tick_size))
+    );
 
     // const sideText = tradeItem.side.toLowerCase() === 'buy' ? 'Open Long' : 'Close Short';
 
@@ -170,9 +172,13 @@ export function TradeHistoryTab({
                     {item.market}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
-                  <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3 capitalize">
+                    {item.orderType}
+                  </Table.Cell>
                   <Table.Cell className="whitespace-nowrap pl-3">
-                    <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
+                    <span
+                      className={`capitalize ${item.direction === 'buy' ? 'text-green-600' : 'text-red-600'}`}
+                    >
                       {item.direction}
                     </span>
                   </Table.Cell>

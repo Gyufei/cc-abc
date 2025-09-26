@@ -135,9 +135,9 @@ export function LimitMarketOrdersTable({
                 {item.market}
               </Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
-              <Table.Cell className="whitespace-nowrap pl-3">{item.orderType}</Table.Cell>
+              <Table.Cell className="whitespace-nowrap pl-3 capitalize">{item.orderType}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">
-                <span className={item.direction === 'Buy' ? 'text-green-600' : 'text-red-600'}>
+                <span className={`capitalize ${item.direction === 'buy' ? 'text-green-600' : 'text-red-600'}`}>
                   {item.direction}
                 </span>
               </Table.Cell>
