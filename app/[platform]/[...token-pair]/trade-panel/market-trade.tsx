@@ -41,6 +41,7 @@ export function MarketTrade({
   quoteCoin: string | null;
 }) {
   const { data: currentApiKeyObj } = useCurrentApiKey();
+  const isBigGet = currentApiKeyObj?.platform === 'bitget';
 
   const [buyValue, setBuyValue] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -63,6 +64,7 @@ export function MarketTrade({
   const { data: tokenPairs } = useTokenPairs();
   const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === `${baseCoin}${quoteCoin}`);
   const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
+
   const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
 
   const {
@@ -194,7 +196,7 @@ export function MarketTrade({
       market_unit: marketUnitToken === baseCoin ? 'baseCoin' : 'quoteCoin',
     };
 
-    if (isBuy && currentApiKeyObj?.platform === 'bitget') {
+    if (isBuy && isBigGet) {
       params.market_unit = 'quoteCoin';
 
       const buyAmount =
@@ -204,17 +206,20 @@ export function MarketTrade({
       params.qty = buyAmount;
     }
 
-    if (!isBuy && currentApiKeyObj?.platform === 'bitget') {
+    if (!isBuy && isBigGet) {
       params.market_unit = 'baseCoin';
 
       const sellQuantity =
         marketUnitToken === baseCoin
           ? quantity
-          : truncateNumber(divide(buyValue, String(marketInfo?.price || '0')), minimumFractionDigitsForBase);
+          : truncateNumber(
+              divide(buyValue, String(marketInfo?.price || '0')),
+              minimumFractionDigitsForBase
+            );
       params.qty = sellQuantity;
     }
 
-    if (slippageToleranceChecked) {
+    if (slippageToleranceChecked && !isBigGet) {
       params.slippage_tolerance_type = 'TickSize';
       params.slippage_tolerance = multiply(selectedSlippage, String(100));
     }
@@ -284,15 +289,17 @@ export function MarketTrade({
           quoteDigit={minimumFractionDigitsForQuote}
         />
       </div>
-      <div className="mt-4 flex flex-col gap-y-2">
-        <SlippageTolerance
-          value={slippageToleranceChecked}
-          onChange={setSlippageToleranceChecked}
-          selectedSlippage={selectedSlippage}
-          setSelectedSlippage={setSelectedSlippage}
-          token={quoteCoin || ''}
-        />
-      </div>
+      {!isBigGet && (
+        <div className="mt-4 flex flex-col gap-y-2">
+          <SlippageTolerance
+            value={slippageToleranceChecked}
+            onChange={setSlippageToleranceChecked}
+            selectedSlippage={selectedSlippage}
+            setSelectedSlippage={setSelectedSlippage}
+            token={quoteCoin || ''}
+          />
+        </div>
+      )}
 
       <div className="mt-6">
         <Button
