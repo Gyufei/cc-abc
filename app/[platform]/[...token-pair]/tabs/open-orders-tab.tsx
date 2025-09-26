@@ -43,14 +43,12 @@ export function OpenOrdersTab({
   // Separate orders with status "Untriggered" into TP/SL data
   const limitMarketData =
     ordersData?.filter((order) => {
-      // Filter orders that are NOT "Untriggered" for Limit & Market Orders tab
-      return order.status !== 'Untriggered';
+      return !order.take_profit && !order.stop_loss;
     }) || [];
 
   const tpslData =
     ordersData?.filter((order) => {
-      // Filter orders with status "Untriggered" for TP/SL tab
-      return order.status === 'Untriggered';
+      return !!order.take_profit || !!order.stop_loss;
     }) || [];
 
   const FilterTabs = [

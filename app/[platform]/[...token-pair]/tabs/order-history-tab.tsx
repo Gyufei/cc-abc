@@ -248,7 +248,7 @@ export function OrderHistoryTab({
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap pl-3">
                     <span
-                      className={item.orderStatus === 'Filled' ? 'text-green-600' : 'text-gray-600'}
+                      className={`capitalize ${item.orderStatus === 'Filled' ? 'text-green-600' : 'text-gray-600'}`}
                     >
                       {item.orderStatus}
                     </span>

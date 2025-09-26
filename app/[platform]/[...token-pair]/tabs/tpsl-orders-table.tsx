@@ -147,7 +147,7 @@ export function TPSLOrdersTable({
               <Table.Cell className="whitespace-nowrap pl-3">{item.orderId}</Table.Cell>
               <Table.Cell className="whitespace-nowrap pl-3">
                 <span
-                  className={item.status === 'Untriggered' ? 'text-yellow-600' : 'text-gray-600'}
+                  className={`capitalize ${item.status === 'Untriggered' ? 'text-yellow-600' : 'text-gray-600'}`}
                 >
                   {item.status}
                 </span>
