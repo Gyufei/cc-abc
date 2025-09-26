@@ -70,7 +70,7 @@ export function OpenOrdersTab({
   const currentData = activeFilterStatus === 'tp-sl' ? tpslData : limitMarketData;
 
   // Handle cancel order
-  const handleCancelOrder = async (orderLinkId: string, symbol: string) => {
+  const handleCancelOrder = async (orderLinkId: string, symbol: string, orderId: string) => {
     if (!currentApiKey?.api_key) {
       console.error('No API key available');
       return;
@@ -85,6 +85,7 @@ export function OpenOrdersTab({
         category: 'spot',
         symbol: symbol,
         order_link_id: orderLinkId,
+        order_id: orderId,
       });
     } catch (error) {
       console.error('Failed to cancel order:', error);

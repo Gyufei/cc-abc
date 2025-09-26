@@ -10,6 +10,7 @@ export interface CancelOrderRequest {
   category: string;
   symbol: string;
   order_link_id: string;
+  order_id: string;
 }
 
 // Cancel order response interface

@@ -73,7 +73,7 @@ function transformOrderData(orders: OpenOrderItem[]): OpenOrderTableData[] {
 interface TPSLOrdersTableProps {
   data: OpenOrderItem[];
   cancelingOrders: Set<string>;
-  onCancelOrder: (orderLinkId: string, symbol: string) => void;
+  onCancelOrder: (orderLinkId: string, symbol: string, orderId: string) => void;
   isLoading: boolean;
   error: Error | null;
 }
@@ -154,7 +154,7 @@ export function TPSLOrdersTable({
               </Table.Cell>
               <Table.Cell className="sticky right-0 z-10 bg-ui-bg-base border-l border-ui-border-base sticky-right-shadow whitespace-nowrap pl-3">
                 <button
-                  onClick={() => onCancelOrder(item.orderLinkId, item.symbol)}
+                  onClick={() => onCancelOrder(item.orderLinkId, item.symbol, item.orderId)}
                   className="hover:text-red-800 transition-colors border hover:border-red-500 rounded px-2 py-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={cancelingOrders.has(item.orderLinkId)}
                 >
