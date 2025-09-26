@@ -10,7 +10,7 @@ import { Sidebar } from './sidebar/sidebar';
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
   const isLogin = useIsLogin();
-
+  
   return (
     <div
       className={cn(
