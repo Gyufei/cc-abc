@@ -83,6 +83,7 @@ export function TimeRangeSelect({
       />
       <div className="flex items-center gap-2 ml-6">
         <DatePicker
+          minValue={endDate ? new Date(endDate.getTime() - 6 * 24 * 60 * 60 * 1000) : undefined}
           maxValue={today}
           className="w-40"
           value={startDate}
@@ -91,7 +92,7 @@ export function TimeRangeSelect({
         <span>-</span>
         <DatePicker
           minValue={startDate || undefined}
-          maxValue={today}
+          maxValue={startDate ? new Date(Math.min(startDate.getTime() + 6 * 24 * 60 * 60 * 1000, today.getTime())) : today}
           className="w-40"
           value={endDate}
           onChange={handleEndDateChange}

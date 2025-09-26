@@ -9,10 +9,11 @@ import { SliderBar } from '@/components/ui/slider-bar';
 import { useMarketInfo } from '@/lib/api/use-market-info';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
-import { fixedNumber, mantissaNum } from '@/lib/utils/number';
+import { fixedNumber, mantissaNum, truncateNumber } from '@/lib/utils/number';
 
 import { AvailableBalance } from './available-balance';
 import { CanAmountDisplay } from './can-amount-display';
@@ -39,6 +40,8 @@ export function MarketTrade({
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
+  const { data: currentApiKeyObj } = useCurrentApiKey();
+
   const [buyValue, setBuyValue] = useState('');
   const [quantity, setQuantity] = useState('');
   const [progress, setProgress] = useState(0);
@@ -182,27 +185,6 @@ export function MarketTrade({
       return;
     }
 
-    // if (isBuy) {
-    //   if (marketUnitToken === quoteCoin) {
-    //     if (Number(buyValue) < 1) {
-    //       toast.error(`The order value to buy cannot be less than 1.`);
-    //       return;
-    //     }
-
-    //     if (Number(buyValue) > 100_0000) {
-    //       toast.error(`The maximum amount for a single Buy order is 1000000 ${quoteCoin}.`);
-    //       return;
-    //     }
-    //   }
-
-    //   if (marketUnitToken === baseCoin) {
-    //     if (Number(quantity) > 10) {
-    //       toast.error(`Max. 10 ${baseCoin} can be bought per order.`);
-    //       return;
-    //     }
-    //   }
-    // }
-
     const params: Omit<TradingOrderRequest, 'api_key'> = {
       category: 'spot',
       symbol: `${baseCoin}${quoteCoin}`,
@@ -212,8 +194,24 @@ export function MarketTrade({
       market_unit: marketUnitToken === baseCoin ? 'baseCoin' : 'quoteCoin',
     };
 
-    if ((isBuy && marketUnitToken === baseCoin) || (!isBuy && marketUnitToken === quoteCoin)) {
-      // params.price = String(marketInfo?.price || '0');
+    if (isBuy && currentApiKeyObj?.platform === 'bitget') {
+      params.market_unit = 'quoteCoin';
+
+      const buyAmount =
+        marketUnitToken === baseCoin
+          ? multiply(quantity, String(marketInfo?.price || '0'))
+          : buyValue;
+      params.qty = buyAmount;
+    }
+
+    if (!isBuy && currentApiKeyObj?.platform === 'bitget') {
+      params.market_unit = 'baseCoin';
+
+      const sellQuantity =
+        marketUnitToken === baseCoin
+          ? quantity
+          : truncateNumber(divide(buyValue, String(marketInfo?.price || '0')), minimumFractionDigitsForBase);
+      params.qty = sellQuantity;
     }
 
     if (slippageToleranceChecked) {

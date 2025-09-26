@@ -62,10 +62,12 @@ export function useTradeExecutions(
         api_key: currentApiKey.api_key,
         ...(symbol && { symbol }),
         ...(days && { days: days.toString() }),
-        ...(dateRange && dateRange[0] && dateRange[1] && {
-          start_time: dateRange[0].toString(),
-          end_time: dateRange[1].toString(),
-        }),
+        ...(dateRange &&
+          dateRange[0] &&
+          dateRange[1] && {
+            start_time: dateRange[0].toString(),
+            end_time: dateRange[1].toString(),
+          }),
       });
 
       const url = `${ApiPath.tradingExecutions}?${params.toString()}`;
@@ -78,6 +80,11 @@ export function useTradeExecutions(
           'X-User-ID': user.user_id || '',
         },
       });
+
+      if ('code' in response && response.code !== 200) {
+        const msg = 'msg' in response ? (response.msg as string) : 'Unknown error';
+        throw new Error(msg || 'Unknown error');
+      }
 
       return response;
     },

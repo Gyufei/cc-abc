@@ -83,6 +83,11 @@ export function useOrderHistory(
         },
       });
 
+      if ('code' in response && response.code !== 200) {
+        const msg = 'msg' in response ? (response.msg as string) : 'Unknown error';
+        throw new Error(msg || 'Unknown error');
+      }
+
       return response;
     },
 

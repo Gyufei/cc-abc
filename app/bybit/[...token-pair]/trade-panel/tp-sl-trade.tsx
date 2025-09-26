@@ -218,21 +218,6 @@ export function TpSlTrade({
           <span className="mt-2 smm-text text-ui-fg-muted">≈{fixedNumber(amount, 2)} USD</span>
         </div>
       )}
-      {/* <div className="mt-4">
-        <div
-          className="flex py-[10px] px-3 items-center rounded-lg bg-ui-bg-field gap-3"
-          style={{
-            boxShadow:
-              '0px 0px 0px 1px rgba(0, 0, 0, 0.08),0px 1px 2px -1px rgba(0, 0, 0, 0.08),0px 2px 4px 0px rgba(0, 0, 0, 0.04)',
-          }}
-        >
-          <div className="bg-ui-bg-interactive rounded-full h-[13px] w-1"></div>
-          <div className="flex items-center">
-            <span className="smm-text text-ui-fg-base">Order Value:</span>
-            <span className="smm-text text-ui-fg-subtle ">0.000046 {token1}</span>
-          </div>
-        </div>
-      </div> */}
       {type === 'Limit' && (
         <div className="mt-4 flex flex-col gap-y-2">
           <TimeInForceSelect timeInForce={timeInForce} onTimeInForceChange={setTimeInForce} />

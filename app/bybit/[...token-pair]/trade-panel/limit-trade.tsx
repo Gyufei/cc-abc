@@ -8,6 +8,7 @@ import { SliderBar } from '@/components/ui/slider-bar';
 
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,8 @@ export function LimitTrade({
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
+  const { data: currentApiKeyObj } = useCurrentApiKey();
+
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
   const [amount, setAmount] = useState('');
@@ -211,6 +214,10 @@ export function LimitTrade({
       price: price,
       time_in_force: timeInForce,
     };
+
+    if (currentApiKeyObj?.platform === 'bitget') {
+      params.market_unit = 'baseCoin';
+    }
 
     if (tpSl && takeProfit) {
       params.take_profit = takeProfit;
