@@ -43,12 +43,13 @@ export function OpenOrdersTab({
   // Separate orders with status "Untriggered" into TP/SL data
   const limitMarketData =
     ordersData?.filter((order) => {
-      return !order.take_profit && !order.stop_loss;
+      return !(order.status === 'untriggered' && !!order.take_profit);
     }) || [];
 
   const tpslData =
     ordersData?.filter((order) => {
-      return !!order.take_profit || !!order.stop_loss;
+      // Filter orders with status "Untriggered" for TP/SL tab
+      return order.status === 'untriggered' && !!order.take_profit;
     }) || [];
 
   const FilterTabs = [
@@ -98,15 +99,15 @@ export function OpenOrdersTab({
   };
 
   return (
-    <div className="">
-      <div className="py-[10px] px-6 flex items-center select-none">
+    <div className="h-full flex flex-col">
+      <div className="py-[10px] px-6 flex items-center select-none flex-shrink-0">
         <OrderFilter
           options={FilterTabs}
           activeTab={activeFilterStatus}
           setActiveTab={setActiveFilterStatus}
         />
       </div>
-      <div className="w-full h-full overflow-auto">
+      <div className="flex-1 overflow-auto">
         {activeFilterStatus === 'tp-sl' ? (
           <TPSLOrdersTable
             data={currentData}
