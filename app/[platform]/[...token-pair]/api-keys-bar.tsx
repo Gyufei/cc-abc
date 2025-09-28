@@ -1,14 +1,18 @@
 'use client';
 
 import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 
 import { useApiKeys } from '@/lib/api/use-api-keys';
 import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
 export function ApiKeysBar() {
+  const router = useRouter();
   const { data: apiKeys } = useApiKeys();
   const { currentApiKeyId, setCurrentApiKeyId } = useAppStore();
+  const params = useParams();
+  const tokenPair = params['token-pair'] as string[];
 
   function handleClick(apiKeyId: string) {
     if (apiKeyId === currentApiKeyId) {
@@ -16,6 +20,10 @@ export function ApiKeysBar() {
     }
 
     setCurrentApiKeyId(apiKeyId);
+    const apiKey = apiKeys?.find((key) => key.id === apiKeyId);
+    if (apiKey) {
+      router.push(`/${apiKey.platform}/${tokenPair[0]}/${tokenPair[1]}`);
+    }
   }
 
   return (
