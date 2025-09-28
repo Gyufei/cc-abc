@@ -46,8 +46,6 @@ export function TradeHistoryTab({
   const [dateRange, setDateRange] = useState<number[] | null>(null);
   const { data: tokenPairs } = useTokenPairs();
 
-  console.log('tokenPairs', showAllMarkets, baseCoin, quoteCoin);
-
   // Fetch trade execution data
   const {
     data: tradeExecutionResponse,
