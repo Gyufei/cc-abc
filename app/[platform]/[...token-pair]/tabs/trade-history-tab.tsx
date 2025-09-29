@@ -62,14 +62,17 @@ export function TradeHistoryTab({
   );
 
   function getTradingFees(orderItem: TradeExecutionItem) {
-    // fees fixed at 8 bits
+    const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === orderItem.symbol);
+    const bCoin = tokenPair?.base_asset;
+    const qCoin = tokenPair?.quote_asset;
+
     const fee = fixedNumber(orderItem.exec_fee, 8);
 
     console.log(isBigGet);
     if (orderItem.side === 'buy') {
-      return `${fee} ${baseCoin}`;
+      return `${fee} ${bCoin}`;
     } else {
-      return `${fee} ${quoteCoin}`;
+      return `${fee} ${qCoin}`;
     }
   }
 

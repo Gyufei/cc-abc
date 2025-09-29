@@ -79,7 +79,7 @@ export function OrderHistoryTab({
 
   function getFilledQuantityDisplay(orderItem: OrderHistoryItem) {
     const tokenPair = getTokenPair(orderItem.symbol);
-    const baseCoin = tokenPair?.base_asset;
+    const bCoin = tokenPair?.base_asset;
 
     const isMarketOrder = orderItem.order_type === 'market';
     const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
@@ -87,22 +87,22 @@ export function OrderHistoryTab({
     const orderQuantity = fixedNumber(orderItem.quantity, minimumFractionDigitsForToken);
 
     if (!isMarketOrder) {
-      return `${filledQuantity}/${orderQuantity} ${baseCoin}`;
+      return `${filledQuantity}/${orderQuantity} ${bCoin}`;
     }
 
     const calcByBaseCoin = add(String(orderItem.cum_exec_qty), String(orderItem.leaves_qty));
     const isBaseCoin = Number(orderItem.quantity) === Number(calcByBaseCoin);
 
     if (isBaseCoin) {
-      return `${filledQuantity}/${orderQuantity} ${baseCoin}`;
+      return `${filledQuantity}/${orderQuantity} ${bCoin}`;
     } else {
-      return `${filledQuantity}/-- ${baseCoin}`;
+      return `${filledQuantity}/-- ${bCoin}`;
     }
   }
 
   function getFilledValueDisplay(orderItem: OrderHistoryItem) {
     const tokenPair = getTokenPair(orderItem.symbol);
-    const quoteCoin = tokenPair?.quote_asset;
+    const qCoin = tokenPair?.quote_asset;
 
     const isMarketOrder = orderItem.order_type === 'market';
 
@@ -117,28 +117,31 @@ export function OrderHistoryTab({
     const quantity = fixedNumber(orderItem.quantity, minimumFractionDigitsForToken);
 
     if (!isMarketOrder) {
-      return `${filledValue}/${orderValue} ${quoteCoin}`;
+      return `${filledValue}/${orderValue} ${qCoin}`;
     }
 
     const calcByQuoteCoin = add(String(orderItem.cum_exec_value), String(orderItem.leaves_value));
     const isQuoteCoin = Number(orderItem.quantity) === Number(calcByQuoteCoin);
 
     if (isQuoteCoin) {
-      return `${filledValue}/${quantity} ${quoteCoin}`;
+      return `${filledValue}/${quantity} ${qCoin}`;
     } else {
-      return `${filledValue}/-- ${quoteCoin}`;
+      return `${filledValue}/-- ${qCoin}`;
     }
   }
 
   function getTradingFees(orderItem: OrderHistoryItem) {
     // fees fixed at 8 bits
+    const tokenPair = getTokenPair(orderItem.symbol);
+    const bCoin = tokenPair?.base_asset;
+    const qCoin = tokenPair?.quote_asset;
     const fee = fixedNumber(orderItem.cum_exec_fee, 8);
 
     console.log(isBigGet);
     if (orderItem.side === 'buy') {
-      return `${fee} ${baseCoin}`;
+      return `${fee} ${bCoin}`;
     } else {
-      return `${fee} ${quoteCoin}`;
+      return `${fee} ${qCoin}`;
     }
   }
 
