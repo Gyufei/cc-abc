@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
+// import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { fixedNumber } from '@/lib/utils/number';
 
 import { TimeRangeSelect } from './time-range-select';
@@ -41,8 +42,10 @@ export function OrderHistoryTab({
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
+  // const { data: currentApiKyeObj } = useCurrentApiKey();
   const [days, setDays] = useState<string | null>('7');
   const [dateRange, setDateRange] = useState<number[] | null>(null);
+  // const isBigGet = currentApiKyeObj?.platform === 'bigget';
 
   const {
     data: orderHistoryResponse,
@@ -101,7 +104,7 @@ export function OrderHistoryTab({
     const tokenPair = getTokenPair(orderItem.symbol);
     const quoteCoin = tokenPair?.quote_asset;
 
-    const isMarketOrder = orderItem.order_type === 'Market';
+    const isMarketOrder = orderItem.order_type === 'market';
 
     const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
 
@@ -231,9 +234,13 @@ export function OrderHistoryTab({
                     {item.market}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap pl-3">{item.instrument}</Table.Cell>
-                  <Table.Cell className="whitespace-nowrap pl-3 capitalize">{item.orderType}</Table.Cell>
+                  <Table.Cell className="whitespace-nowrap pl-3 capitalize">
+                    {item.orderType}
+                  </Table.Cell>
                   <Table.Cell className="whitespace-nowrap pl-3">
-                    <span className={`capitalize ${item.direction === 'buy' ? 'text-green-600' : 'text-red-600'}`}>
+                    <span
+                      className={`capitalize ${item.direction === 'buy' ? 'text-green-600' : 'text-red-600'}`}
+                    >
                       {item.direction}
                     </span>
                   </Table.Cell>
