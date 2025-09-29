@@ -32,8 +32,14 @@ function NumberInput({ onChange, decimalPlaces = 18, bare = false, ...props }: N
   };
 
   if (bare) {
-    const { disabled, className, ...rest } = props as any;
-    const disabledClasses = disabled ? ' text-ui-fg-muted placeholder:text-ui-fg-muted cursor-not-allowed' : '';
+    const { disabled, className, ...rest } = props as unknown as {
+      disabled: boolean;
+      className: string;
+      [key: string]: unknown;
+    };
+    const disabledClasses = disabled
+      ? ' text-ui-fg-muted placeholder:text-ui-fg-muted cursor-not-allowed'
+      : '';
     const mergedClassName = (className || '') + disabledClasses;
     return (
       <input
@@ -48,7 +54,9 @@ function NumberInput({ onChange, decimalPlaces = 18, bare = false, ...props }: N
     );
   }
 
-  return <Input type="text" inputMode="decimal" pattern="[0-9\.]*" onChange={handleChange} {...props} />;
+  return (
+    <Input type="text" inputMode="decimal" pattern="[0-9\.]*" onChange={handleChange} {...props} />
+  );
 }
 
 export { NumberInput };
