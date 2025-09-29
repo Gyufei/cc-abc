@@ -19,6 +19,7 @@ import { AvailableBalance } from './available-balance';
 import { CanAmountDisplay } from './can-amount-display';
 import { OrderByTokenSelect } from './order-by-token-select';
 import { SlippageTolerance } from './slippage-tolerance';
+import { WarnSlippageTolerance } from './warn-slippage-tolerance';
 
 function calcProgress(value: string, balance: string) {
   if (Number(value) === 0 || Number(balance) === 0) {
@@ -48,6 +49,13 @@ export function MarketTrade({
   const [progress, setProgress] = useState(0);
   const [slippageToleranceChecked, setSlippageToleranceChecked] = useState(false);
   const [selectedSlippage, setSelectedSlippage] = useState('0.1');
+
+  const [slippageData, setSlippageData] = useState({
+    truncateSlippageChecked: false,
+    warnSlippageChecked: false,
+    truncateSlippage: 5,
+    warnSlippage: 1,
+  });
 
   const isBuy = side === 'buy';
 
@@ -129,6 +137,12 @@ export function MarketTrade({
     setProgress(0);
     setSlippageToleranceChecked(false);
     setSelectedSlippage('0.1');
+    setSlippageData({
+      truncateSlippageChecked: false,
+      warnSlippageChecked: false,
+      truncateSlippage: 5,
+      warnSlippage: 1,
+    });
   };
 
   const handleProgressChange = (value: number) => {
@@ -289,8 +303,8 @@ export function MarketTrade({
           quoteDigit={minimumFractionDigitsForQuote}
         />
       </div>
-      {!isBigGet && (
-        <div className="mt-4 flex flex-col gap-y-2">
+      <div className="mt-4 flex flex-col gap-y-2">
+        {!isBigGet ? (
           <SlippageTolerance
             value={slippageToleranceChecked}
             onChange={setSlippageToleranceChecked}
@@ -298,8 +312,13 @@ export function MarketTrade({
             setSelectedSlippage={setSelectedSlippage}
             token={quoteCoin || ''}
           />
-        </div>
-      )}
+        ) : (
+          <WarnSlippageTolerance
+            slippageData={slippageData}
+            onSlippageDataChange={setSlippageData}
+          />
+        )}
+      </div>
 
       <div className="mt-6">
         <Button
