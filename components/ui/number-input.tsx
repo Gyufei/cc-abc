@@ -5,9 +5,10 @@ import * as React from 'react';
 interface NumberInputProps extends Omit<React.ComponentProps<typeof Input>, 'type' | 'onChange'> {
   onChange?: (value: string) => void;
   decimalPlaces?: number;
+  bare?: boolean;
 }
 
-function NumberInput({ onChange, decimalPlaces = 18, ...props }: NumberInputProps) {
+function NumberInput({ onChange, decimalPlaces = 18, bare = false, ...props }: NumberInputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
@@ -30,9 +31,24 @@ function NumberInput({ onChange, decimalPlaces = 18, ...props }: NumberInputProp
     }
   };
 
-  return (
-    <Input type="text" inputMode="decimal" pattern="[0-9\.]*" onChange={handleChange} {...props} />
-  );
+  if (bare) {
+    const { disabled, className, ...rest } = props as any;
+    const disabledClasses = disabled ? ' text-ui-fg-muted placeholder:text-ui-fg-muted cursor-not-allowed' : '';
+    const mergedClassName = (className || '') + disabledClasses;
+    return (
+      <input
+        type="text"
+        inputMode="decimal"
+        pattern="[0-9\.]*"
+        onChange={handleChange}
+        disabled={disabled}
+        className={mergedClassName}
+        {...rest}
+      />
+    );
+  }
+
+  return <Input type="text" inputMode="decimal" pattern="[0-9\.]*" onChange={handleChange} {...props} />;
 }
 
 export { NumberInput };

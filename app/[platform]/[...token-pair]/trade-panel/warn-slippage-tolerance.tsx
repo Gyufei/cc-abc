@@ -48,9 +48,9 @@ export function WarnSlippageTolerance({
 
   return (
     <>
-      <div onClick={handleOpenModal} className="flex items-center gap-x-2 text-sm cursor-pointer">
+      <div onClick={handleOpenModal} className="flex w-fit items-center gap-x-2 text-xs cursor-pointer">
         <span className="text-ui-fg-disabled">Slippage tolerance</span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-[2px] text-sm">
           {!currentSlippageData.truncateSlippageChecked &&
             !currentSlippageData.warnSlippageChecked && (
               <span className="text-ui-fg-base">Not Open</span>
@@ -58,6 +58,8 @@ export function WarnSlippageTolerance({
           {currentSlippageData.truncateSlippageChecked && (
             <span className="text-ui-fg-base">{currentSlippageData.truncateSlippage}%</span>
           )}
+          {currentSlippageData.truncateSlippageChecked &&
+            currentSlippageData.warnSlippageChecked && <span className="text-ui-fg-base">/</span>}
           {currentSlippageData.warnSlippageChecked && (
             <span className="text-ui-fg-base">{currentSlippageData.warnSlippage}%</span>
           )}

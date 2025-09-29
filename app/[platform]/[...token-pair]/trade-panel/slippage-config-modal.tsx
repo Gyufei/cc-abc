@@ -4,7 +4,7 @@ import { Button, Checkbox, FocusModal, Label } from '@medusajs/ui';
 
 import { useCallback, useState } from 'react';
 
-import { SliderBar } from '@/components/ui/slider-bar';
+import { NumberInput } from '@/components/ui/number-input';
 
 interface SlippageConfigModalProps {
   isOpen: boolean;
@@ -29,7 +29,14 @@ export function SlippageConfigModal({
   onConfirm,
   initialSlippageData,
 }: SlippageConfigModalProps) {
+  const formatTruncateInput = (value: number) => {
+    return Number.isInteger(value) ? String(value) : value.toFixed(1);
+  };
   const [slippageData, setSlippageData] = useState(initialSlippageData);
+  const [truncateInput, setTruncateInput] = useState(
+    formatTruncateInput(initialSlippageData.truncateSlippage)
+  );
+  const [warnInput, setWarnInput] = useState(String(Math.floor(initialSlippageData.warnSlippage)));
 
   const updateSlippageData = useCallback((updates: Partial<typeof slippageData>) => {
     setSlippageData((prev) => ({ ...prev, ...updates }));
@@ -49,19 +56,45 @@ export function SlippageConfigModal({
     onClose();
   }, [onClose, onConfirm, slippageData]);
 
-  const handleTruncateSliderChange = useCallback(
-    (value: number) => {
-      updateSlippageData({ truncateSlippage: value });
+  const handleTruncateChange = useCallback(
+    (value: string) => {
+      setTruncateInput(value);
+      const num = Number(value);
+      if (!Number.isNaN(num)) {
+        updateSlippageData({ truncateSlippage: num });
+      }
     },
     [updateSlippageData]
   );
 
-  const handleWarnSliderChange = useCallback(
-    (value: number) => {
-      updateSlippageData({ warnSlippage: value });
+  const handleTruncateBlur = useCallback(() => {
+    const num = Number(truncateInput);
+    const clamped = Math.min(Math.max(isNaN(num) ? 0.1 : num, 0.1), 5);
+    const fixed = Number(clamped.toFixed(1));
+    const newVal = Number.isInteger(fixed) ? String(fixed) : fixed.toFixed(1);
+    setTruncateInput(newVal);
+    updateSlippageData({ truncateSlippage: fixed });
+  }, [truncateInput, updateSlippageData]);
+
+  const handleWarnChange = useCallback(
+    (value: string) => {
+      setWarnInput(value);
+      const num = Number(value);
+      if (!Number.isNaN(num)) {
+        updateSlippageData({ warnSlippage: num });
+      }
     },
     [updateSlippageData]
   );
+
+  const handleWarnBlur = useCallback(() => {
+    const num = Number(warnInput);
+    const base = isNaN(num) ? 1 : Math.floor(num);
+    const clamped = Math.min(Math.max(base, 1), 5);
+    const newVal = String(clamped);
+    setWarnInput(newVal);
+    updateSlippageData({ warnSlippage: clamped });
+  }, [warnInput, updateSlippageData]);
 
   return (
     <FocusModal
@@ -96,19 +129,32 @@ export function SlippageConfigModal({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between w-full h-[32px] px-3 text-[14px] text-ui-fg-base bg-ui-bg-field border border-ui-border-base rounded-full">
-              <span>{slippageData.truncateSlippage.toFixed(1)}</span>
-              <span>%</span>
-            </div>
-            <div className="px-2 mt-2">
-              <SliderBar
-                value={Math.floor(slippageData.truncateSlippage)}
-                max={5}
-                steps={5}
-                onValueChange={handleTruncateSliderChange}
-                showLabels={false}
-                disabled={!slippageData.truncateSlippageChecked}
-              />
+            <div>
+              <div
+                className={`flex items-center justify-between w-full h-[32px] px-3 text-[14px] border rounded-full ${'border-ui-border-base'} ${!slippageData.truncateSlippageChecked ? 'bg-ui-bg-disabled' : 'bg-ui-bg-field'}`}
+              >
+                <NumberInput
+                  value={truncateInput}
+                  onChange={handleTruncateChange}
+                  onBlur={handleTruncateBlur}
+                  decimalPlaces={1}
+                  disabled={!slippageData.truncateSlippageChecked}
+                  bare
+                  className={`bg-transparent w-full flex-1 outline-none focus:shadow-none focus:ring-0 px-0 ${
+                    !slippageData.truncateSlippageChecked
+                      ? 'text-ui-fg-muted placeholder:text-ui-fg-muted'
+                      : 'text-ui-fg-base'
+                  }`}
+                  placeholder="0.1 - 5"
+                />
+                <span
+                  className={
+                    !slippageData.truncateSlippageChecked ? 'text-ui-fg-muted' : 'text-ui-fg-base'
+                  }
+                >
+                  %
+                </span>
+              </div>
             </div>
           </div>
 
@@ -127,29 +173,46 @@ export function SlippageConfigModal({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between w-full h-[32px] px-3 text-[14px] text-ui-fg-base bg-ui-bg-field border border-ui-border-base rounded-full">
-              <span>{Math.floor(slippageData.warnSlippage)}</span>
-              <span>%</span>
-            </div>
-            <div className="px-2">
-              <SliderBar
-                value={Math.floor(slippageData.warnSlippage)}
-                max={5}
-                steps={5}
-                onValueChange={handleWarnSliderChange}
-                showLabels={false}
-                disabled={!slippageData.warnSlippageChecked}
-              />
+            <div>
+              <div
+                className={`flex items-center justify-between w-full h-[32px] px-3 text-[14px] border rounded-full ${'border-ui-border-base'} ${!slippageData.warnSlippageChecked ? 'bg-ui-bg-disabled' : 'bg-ui-bg-field'}`}
+              >
+                <NumberInput
+                  value={warnInput}
+                  onChange={handleWarnChange}
+                  onBlur={handleWarnBlur}
+                  decimalPlaces={0}
+                  disabled={!slippageData.warnSlippageChecked}
+                  bare
+                  className={`bg-transparent w-full flex-1 outline-none focus:shadow-none focus:ring-0 px-0 ${
+                    !slippageData.warnSlippageChecked
+                      ? 'text-ui-fg-muted placeholder:text-ui-fg-muted'
+                      : 'text-ui-fg-base'
+                  }`}
+                  placeholder="1 - 5"
+                />
+                <span
+                  className={
+                    !slippageData.warnSlippageChecked ? 'text-ui-fg-muted' : 'text-ui-fg-base'
+                  }
+                >
+                  %
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="text-warning text-[14px] pt-4 mt-2 border-t border-ui-border-base">
+          {/* <div className="text-warning text-[14px] pt-4 mt-2 border-t border-ui-border-base">
             When enabled, each market order follows the slippage setting. It does not affect copy
             trading, bot orders, or chart orders.
-          </div>
+          </div> */}
         </FocusModal.Body>
         <FocusModal.Footer>
-          <Button variant="secondary" className="w-full" onClick={handleConfirm}>
+          <Button
+            variant="secondary"
+            className="w-full bg-ui-green hover:bg-ui-green-hover active:bg-ui-green-active text-ui-bg-base shadow-none"
+            onClick={handleConfirm}
+          >
             OK
           </Button>
           <Button variant="secondary" className="w-full" onClick={onClose}>

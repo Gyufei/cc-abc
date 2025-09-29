@@ -53,8 +53,8 @@ export function MarketTrade({
   const [slippageData, setSlippageData] = useState({
     truncateSlippageChecked: false,
     warnSlippageChecked: false,
-    truncateSlippage: 5,
-    warnSlippage: 1,
+    truncateSlippage: 1,
+    warnSlippage: 2,
   });
 
   const isBuy = side === 'buy';
