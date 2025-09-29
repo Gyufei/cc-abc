@@ -66,7 +66,7 @@ export function TradeHistoryTab({
     const bCoin = tokenPair?.base_asset;
     const qCoin = tokenPair?.quote_asset;
 
-    const fee = fixedNumber(orderItem.exec_fee, 8);
+    const fee = fixedNumber(Math.abs(orderItem.exec_fee), 8);
 
     console.log(isBigGet);
     if (orderItem.side === 'buy') {
