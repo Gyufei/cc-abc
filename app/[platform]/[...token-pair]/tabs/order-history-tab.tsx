@@ -177,7 +177,10 @@ export function OrderHistoryTab({
   };
 
   // Process data for table
-  const tableData = orderHistoryResponse?.map(transformOrderData) || [];
+  const tableData =
+    orderHistoryResponse
+      ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      ?.map(transformOrderData) || [];
 
   return (
     <>
