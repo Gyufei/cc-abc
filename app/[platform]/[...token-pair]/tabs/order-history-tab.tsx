@@ -68,7 +68,7 @@ export function OrderHistoryTab({
 
     const minimumFractionDigitsPrice = Math.abs(Math.log10(Number(priceFilterTickSize)));
 
-    const isMarketOrder = orderItem.order_type === 'Market';
+    const isMarketOrder = orderItem.order_type === 'market';
     const orderPrice = isMarketOrder
       ? 'Market'
       : fixedNumber(orderItem.price || 0, minimumFractionDigitsPrice);
@@ -81,7 +81,7 @@ export function OrderHistoryTab({
     const tokenPair = getTokenPair(orderItem.symbol);
     const baseCoin = tokenPair?.base_asset;
 
-    const isMarketOrder = orderItem.order_type === 'Market';
+    const isMarketOrder = orderItem.order_type === 'market';
     const minimumFractionDigitsForToken = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
     const filledQuantity = fixedNumber(orderItem.filled_quantity, minimumFractionDigitsForToken);
     const orderQuantity = fixedNumber(orderItem.quantity, minimumFractionDigitsForToken);
