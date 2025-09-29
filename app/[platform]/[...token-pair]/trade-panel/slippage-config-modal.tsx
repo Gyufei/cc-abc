@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Checkbox, FocusModal, Label } from '@medusajs/ui';
+import { Button, FocusModal, Label, Switch } from '@medusajs/ui';
 
 import { useCallback, useState } from 'react';
 
@@ -119,8 +119,8 @@ export function SlippageConfigModal({
               <Label htmlFor="truncate-slippage-switch" className="smm-text text-ui-fg-base">
                 Truncate slippage
               </Label>
-              <div className="h-5 w-5 flex items-center justify-center">
-                <Checkbox
+              <div className="h-fit w-fit flex items-center justify-center">
+                <Switch
                   checked={slippageData.truncateSlippageChecked}
                   onCheckedChange={(checked) =>
                     updateSlippageData({ truncateSlippageChecked: !!checked })
@@ -131,7 +131,7 @@ export function SlippageConfigModal({
             </div>
             <div>
               <div
-                className={`flex items-center justify-between w-full h-[32px] px-3 text-[14px] border rounded-full ${'border-ui-border-base'} ${!slippageData.truncateSlippageChecked ? 'bg-ui-bg-disabled' : 'bg-ui-bg-field'}`}
+                className={`flex items-center justify-between w-full h-[32px] px-3 text-[14px] border rounded-md ${'border-ui-border-base'} ${!slippageData.truncateSlippageChecked ? 'bg-ui-bg-disabled' : 'bg-ui-bg-field'}`}
               >
                 <NumberInput
                   value={truncateInput}
@@ -163,8 +163,8 @@ export function SlippageConfigModal({
               <Label htmlFor="warn-slippage-switch" className="smm-text text-ui-fg-base">
                 Warn slippage
               </Label>
-              <div className="h-5 w-5 flex items-center justify-center">
-                <Checkbox
+              <div className="h-5 w-fit flex items-center justify-center">
+                <Switch
                   checked={slippageData.warnSlippageChecked}
                   onCheckedChange={(checked) =>
                     updateSlippageData({ warnSlippageChecked: !!checked })
@@ -175,7 +175,7 @@ export function SlippageConfigModal({
             </div>
             <div>
               <div
-                className={`flex items-center justify-between w-full h-[32px] px-3 text-[14px] border rounded-full ${'border-ui-border-base'} ${!slippageData.warnSlippageChecked ? 'bg-ui-bg-disabled' : 'bg-ui-bg-field'}`}
+                className={`flex items-center justify-between w-full h-[32px] px-3 text-[14px] border ${'border-ui-border-base'} ${!slippageData.warnSlippageChecked ? 'bg-ui-bg-disabled' : 'bg-ui-bg-field'}`}
               >
                 <NumberInput
                   value={warnInput}
@@ -184,7 +184,7 @@ export function SlippageConfigModal({
                   decimalPlaces={0}
                   disabled={!slippageData.warnSlippageChecked}
                   bare
-                  className={`bg-transparent w-full flex-1 outline-none focus:shadow-none focus:ring-0 px-0 ${
+                  className={`bg-transparent w-full flex-1 outline-none focus:shadow-none rounded-md focus:ring-0 px-0 ${
                     !slippageData.warnSlippageChecked
                       ? 'text-ui-fg-muted placeholder:text-ui-fg-muted'
                       : 'text-ui-fg-base'

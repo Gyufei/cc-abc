@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradeExecutionItem, useTradeExecutions } from '@/lib/api/use-trade-executions';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { fixedNumber } from '@/lib/utils/number';
 
 import { TimeRangeSelect } from './time-range-select';
@@ -42,6 +43,9 @@ export function TradeHistoryTab({
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
+  const { data: currentApiKyeObj } = useCurrentApiKey();
+  const isBigGet = currentApiKyeObj?.platform === 'bitget';
+
   const [days, setDays] = useState<string | null>('7');
   const [dateRange, setDateRange] = useState<number[] | null>(null);
   const { data: tokenPairs } = useTokenPairs();
@@ -56,6 +60,22 @@ export function TradeHistoryTab({
     days,
     dateRange
   );
+
+  function getTradingFees(orderItem: TradeExecutionItem) {
+    // fees fixed at 8 bits
+    const fee = fixedNumber(orderItem.exec_fee, 8);
+
+    if (isBigGet) {
+      console.log(orderItem.side);
+      if (orderItem.side === 'buy') {
+        return `${fee} ${baseCoin}`;
+      } else {
+        return `${fee} ${quoteCoin}`;
+      }
+    }
+
+    return `${fee} ${quoteCoin}`;
+  }
 
   /**
    * Transform API data to table format
@@ -79,7 +99,7 @@ export function TradeHistoryTab({
     const filledPrice = `${fixedNumber(tradeItem.exec_price, minimumFractionDigitsForPrice)}`;
     const filledQty = `${fixedNumber(tradeItem.exec_qty, minimumFractionDigitsForBase)} ${bCoin}`;
     const filledType = 'Trade'; // Default value for filled type
-    const tradingFees = `${fixedNumber(tradeItem.exec_fee || 0, 8)} ${qCoin}`;
+    const tradingFees = getTradingFees(tradeItem);
     const indexPrice = tradeItem.index_price ? `${tradeItem.index_price}` : '--';
     const transactionTime = new Date(tradeItem.exec_time)
       .toLocaleString('sv-SE', {
@@ -114,7 +134,10 @@ export function TradeHistoryTab({
   };
 
   // Process data for table
-  const tableData = tradeExecutionResponse?.map(transformTradeData) || [];
+  const tableData =
+    tradeExecutionResponse
+      ?.sort((a, b) => new Date(b.exec_time).getTime() - new Date(a.exec_time).getTime())
+      ?.map(transformTradeData) || [];
 
   return (
     <>

@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 import { OrderHistoryItem, useOrderHistory } from '@/lib/api/use-order-history';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
-// import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
+import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { fixedNumber } from '@/lib/utils/number';
 
 import { TimeRangeSelect } from './time-range-select';
@@ -42,10 +42,10 @@ export function OrderHistoryTab({
   baseCoin: string | null;
   quoteCoin: string | null;
 }) {
-  // const { data: currentApiKyeObj } = useCurrentApiKey();
+  const { data: currentApiKyeObj } = useCurrentApiKey();
   const [days, setDays] = useState<string | null>('7');
   const [dateRange, setDateRange] = useState<number[] | null>(null);
-  // const isBigGet = currentApiKyeObj?.platform === 'bigget';
+  const isBigGet = currentApiKyeObj?.platform === 'bitget';
 
   const {
     data: orderHistoryResponse,
@@ -133,6 +133,15 @@ export function OrderHistoryTab({
   function getTradingFees(orderItem: OrderHistoryItem) {
     // fees fixed at 8 bits
     const fee = fixedNumber(orderItem.cum_exec_fee, 8);
+    
+    if (isBigGet) {
+      console.log(orderItem.side)
+      if (orderItem.side === 'buy') {
+        return `${fee} ${baseCoin}`;
+      } else {
+        return `${fee} ${quoteCoin}`;
+      }
+    }
 
     return `${fee} ${quoteCoin}`;
   }

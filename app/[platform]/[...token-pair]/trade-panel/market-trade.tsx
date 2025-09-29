@@ -51,8 +51,8 @@ export function MarketTrade({
   const [selectedSlippage, setSelectedSlippage] = useState('0.1');
 
   const [slippageData, setSlippageData] = useState({
-    truncateSlippageChecked: false,
-    warnSlippageChecked: false,
+    truncateSlippageChecked: true,
+    warnSlippageChecked: true,
     truncateSlippage: 1,
     warnSlippage: 2,
   });
