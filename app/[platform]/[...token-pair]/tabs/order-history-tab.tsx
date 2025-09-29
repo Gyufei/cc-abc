@@ -133,17 +133,13 @@ export function OrderHistoryTab({
   function getTradingFees(orderItem: OrderHistoryItem) {
     // fees fixed at 8 bits
     const fee = fixedNumber(orderItem.cum_exec_fee, 8);
-    
-    if (isBigGet) {
-      console.log(orderItem.side)
-      if (orderItem.side === 'buy') {
-        return `${fee} ${baseCoin}`;
-      } else {
-        return `${fee} ${quoteCoin}`;
-      }
-    }
 
-    return `${fee} ${quoteCoin}`;
+    console.log(isBigGet);
+    if (orderItem.side === 'buy') {
+      return `${fee} ${baseCoin}`;
+    } else {
+      return `${fee} ${quoteCoin}`;
+    }
   }
 
   /**
