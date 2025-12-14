@@ -1,25 +1,38 @@
 import { Button, toast } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
-import { useEffect, useState } from 'react';
+
+
+import { useCallback, useEffect, useState } from 'react';
+
+
 
 import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
+
+
 
 import { useMarketInfo } from '@/lib/api/use-market-info';
 import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
+import { TokenPair } from '@/lib/types/asset';
 import { SIDE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 import { fixedNumber, mantissaNum, truncateNumber } from '@/lib/utils/number';
+
+
 
 import { AvailableBalance } from './available-balance';
 import { CanAmountDisplay } from './can-amount-display';
 import { OrderByTokenSelect } from './order-by-token-select';
 import { SlippageTolerance } from './slippage-tolerance';
 import { WarnSlippageTolerance } from './warn-slippage-tolerance';
+
+
+
+
 
 function calcProgress(value: string, balance: string) {
   if (Number(value) === 0 || Number(balance) === 0) {
@@ -70,7 +83,9 @@ export function MarketTrade({
   const { data: marketInfo } = useMarketInfo(baseCoin || '', quoteCoin || '');
 
   const { data: tokenPairs } = useTokenPairs();
-  const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === `${baseCoin}${quoteCoin}`);
+  const tokenPair = ((tokenPairs || []) as TokenPair[]).find(
+    (pair) => pair.symbol === `${baseCoin}${quoteCoin}`
+  );
   const minimumFractionDigitsForBase = Math.abs(Math.log10(Number(tokenPair?.base_asset_step)));
 
   const minimumFractionDigitsForQuote = Math.abs(Math.log10(Number(tokenPair?.quote_asset_step)));
@@ -80,6 +95,28 @@ export function MarketTrade({
     isPending: isCreatingOrder,
     isSuccess: isOrderCreated,
   } = useCreateOrders();
+
+  /**
+   * 处理重置交易面板的逻辑
+   *
+   * 说明：
+   * - 将所有输入与滑点设置恢复到初始状态；
+   * - 使用 useCallback 保证函数引用稳定，避免在 useEffect 中出现闭包引用早于声明的情况；
+   * - 该函数仅依赖各个 setState 的稳定引用（React 保证 setState 引用稳定），因此依赖数组可为空。
+   */
+  const handleReset = useCallback(() => {
+    setBuyValue('');
+    setQuantity('');
+    setProgress(0);
+    setSlippageToleranceChecked(false);
+    setSelectedSlippage('0.1');
+    setSlippageData({
+      truncateSlippageChecked: false,
+      warnSlippageChecked: false,
+      truncateSlippage: 5,
+      warnSlippage: 1,
+    });
+  }, []);
 
   useEffect(() => {
     if (isBuy) {
@@ -123,27 +160,13 @@ export function MarketTrade({
 
   useEffect(() => {
     handleReset();
-  }, [side]);
+  }, [side, handleReset]);
 
   useEffect(() => {
     if (isOrderCreated) {
       handleReset();
     }
-  }, [isOrderCreated]);
-
-  const handleReset = () => {
-    setBuyValue('');
-    setQuantity('');
-    setProgress(0);
-    setSlippageToleranceChecked(false);
-    setSelectedSlippage('0.1');
-    setSlippageData({
-      truncateSlippageChecked: false,
-      warnSlippageChecked: false,
-      truncateSlippage: 5,
-      warnSlippage: 1,
-    });
-  };
+  }, [isOrderCreated, handleReset]);
 
   const handleProgressChange = (value: number) => {
     setProgress(value);

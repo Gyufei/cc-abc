@@ -1,7 +1,7 @@
 import { Badge, Button, toast } from '@medusajs/ui';
 import { divide, multiply } from 'safebase';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { NumberInput } from '@/components/ui/number-input';
 import { SliderBar } from '@/components/ui/slider-bar';
@@ -10,6 +10,7 @@ import { useTokenPairs } from '@/lib/api/use-token-pairs';
 import { TradingOrderRequest, useCreateOrders } from '@/lib/api/use-trading-orders';
 import { useCurrentApiKey } from '@/lib/hooks/use-current-api-key';
 import { useTokenBalance } from '@/lib/hooks/use-token-balance';
+import { TokenPair } from '@/lib/types/asset';
 import { SIDE, TIME_IN_FORCE_TYPE } from '@/lib/types/trade';
 import { cn } from '@/lib/utils';
 import { fixedNumber, mantissaNum } from '@/lib/utils/number';
@@ -46,7 +47,9 @@ export function LimitTrade({
   const tokenBalance = isBuy ? quoteBalance : baseBalance;
 
   const { data: tokenPairs } = useTokenPairs();
-  const tokenPair = (tokenPairs || []).find((pair) => pair.symbol === `${baseCoin}${quoteCoin}`);
+  const tokenPair = ((tokenPairs || []) as TokenPair[]).find(
+    (pair) => pair.symbol === `${baseCoin}${quoteCoin}`
+  );
   const minimumFractionDigitsForBase = tokenPair
     ? Math.abs(Math.log10(Number(tokenPair?.base_asset_step)))
     : 0;
@@ -64,6 +67,27 @@ export function LimitTrade({
     isPending: isCreatingOrder,
     isSuccess: isOrderCreated,
   } = useCreateOrders();
+
+  /**
+   * 重置限价交易表单状态
+   *
+   * 该函数在以下场景被调用：
+   * - 交易方向 `side` 变化时重置（通过 `useEffect` 监听）
+   * - 订单创建成功后重置（通过 `useEffect` 监听 `isOrderCreated`）
+   *
+   * 为避免闭包导致的旧值引用与钩子规则报错，此函数使用 `useCallback` 包装，
+   * 并在相关 `useEffect` 的依赖中显式包含该函数引用。
+   */
+  const handleReset = useCallback(() => {
+    setPrice('');
+    setQuantity('');
+    setAmount('');
+    setProgress(0);
+    setTpSl(false);
+    setTakeProfit('');
+    setStopLoss('');
+    setTimeInForce('GTC');
+  }, []);
 
   useEffect(() => {
     if (!isBuy) {
@@ -99,24 +123,14 @@ export function LimitTrade({
 
   useEffect(() => {
     handleReset();
-  }, [side]);
+  }, [side, handleReset]);
 
   useEffect(() => {
     if (isOrderCreated) {
       handleReset();
     }
-  }, [isOrderCreated]);
+  }, [isOrderCreated, handleReset]);
 
-  const handleReset = () => {
-    setPrice('');
-    setQuantity('');
-    setAmount('');
-    setProgress(0);
-    setTpSl(false);
-    setTakeProfit('');
-    setStopLoss('');
-    setTimeInForce('GTC');
-  };
 
   const handleProgressChange = (value: number) => {
     setProgress(value);
